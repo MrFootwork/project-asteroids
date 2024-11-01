@@ -51,6 +51,27 @@ function onToHome() {
 /***********************************
  *  Game Engine
  ***********************************/
+// create spaceship element
+const spaceshipElement = createSpaceship();
 
-const game = new Game({});
-game.test(onStart);
+// instantiate game
+const game = new Game({ gameScreen, spaceshipElement });
+
+// game relevant event listeners
+document.addEventListener('keydown', game.onKeyDown);
+
+// start game
+onStart();
+game.start();
+
+// functions
+function createSpaceship() {
+	const spaceshipElement = document.createElement('div');
+	spaceshipElement.id = 'spaceship';
+	const spaceshipImageElement = document.createElement('img');
+	spaceshipImageElement.src = '../assets/images/spaceship.png';
+	spaceshipElement.appendChild(spaceshipImageElement);
+	gameScreen.appendChild(spaceshipElement);
+
+	return spaceshipElement;
+}
