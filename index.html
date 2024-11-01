@@ -4,10 +4,30 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Asteroids Game</title>
+		<link rel="stylesheet" href="./assets/css/reset.css" />
 		<link rel="stylesheet" href="./assets/css/style.css" />
 	</head>
+
 	<body>
-		<canvas id="gameCanvas"></canvas>
+		<!-- Home Screen -->
+		<div id="homeScreen">
+			<header>
+				<h1>HOME</h1>
+			</header>
+			<button id="startButton">Start Game</button>
+		</div>
+
+		<!-- Game Screen -->
+		<div id="gameScreen">
+			<button id="gameOverButton">Game Over</button>
+		</div>
+
+		<!-- Result Screen -->
+		<div id="resultScreen">
+			<button id="toHomeButton">Back to Home</button>
+		</div>
+
+		<!-- Game Engine -->
 		<script src="./src/index.js" type="module"></script>
 	</body>
 </html>

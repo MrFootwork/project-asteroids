@@ -1,11 +1,27 @@
 body {
 	margin: 0;
 	overflow: hidden;
-	background-color: black;
+	/* background-color: black; */
 }
 
-#gameCanvas {
+#homeScreen {
 	display: block;
 	margin: auto;
+	background-color: darksalmon;
+	height: 100dvh;
+}
+
+#gameScreen {
+	display: none;
+	margin: auto;
 	background-color: black;
+	color: white;
+	height: 100dvh;
+}
+
+#resultScreen {
+	display: none;
+	margin: auto;
+	background-color: lightblue;
+	height: 100dvh;
 }

@@ -1,23 +1,56 @@
 import Game from './Game.js';
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+/***********************************
+ *  HTML Elements
+ ***********************************/
+// Home Screen
+const homeScreen = document.querySelector('#homeScreen');
+const startButton = document.querySelector('#startButton');
 
-canvas.width = window.innerWidth;
-console.log('🚀 ~ canvas.width:', canvas.width);
-canvas.height = window.innerHeight;
+// Game Screen
+const gameScreen = document.querySelector('#gameScreen');
+const gameOverButton = document.querySelector('#gameOverButton');
 
-// Spaceship properties
-const game = new Game({ canvasElement: canvas, ctx: ctx });
+// Result Screen
+const resultScreen = document.querySelector('#resultScreen');
+const toHomeButton = document.querySelector('#toHomeButton');
 
-// Start the game loop
-function gameLoop() {
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+/***********************************
+ *  Event Listeners
+ ***********************************/
+// Home Screen
+startButton.addEventListener('click', onStart);
 
-	game.spaceship.draw();
-	game.spaceship.update();
+// Game Screen
+gameOverButton.addEventListener('click', onGameOver);
 
-	requestAnimationFrame(gameLoop);
+// Result Screen
+toHomeButton.addEventListener('click', onToHome);
+
+/***********************************
+ *  Event Handlers
+ ***********************************/
+// Home Screen
+function onStart() {
+	homeScreen.style.display = 'none';
+	gameScreen.style.display = 'block';
 }
 
-gameLoop();
+// Game Screen
+function onGameOver() {
+	gameScreen.style.display = 'none';
+	resultScreen.style.display = 'block';
+}
+
+// Result Screen
+function onToHome() {
+	resultScreen.style.display = 'none';
+	homeScreen.style.display = 'block';
+}
+
+/***********************************
+ *  Game Engine
+ ***********************************/
+
+const game = new Game({});
+game.test(onStart);
