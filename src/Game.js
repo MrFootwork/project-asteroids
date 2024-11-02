@@ -6,11 +6,14 @@ class Game {
 	constructor({ gameScreen, spaceshipElement }) {
 		// global states
 		this.keys = {
-			ArrowUp: { pressed: false },
-			ArrowLeft: { pressed: false },
-			ArrowRight: { pressed: false },
+			arrowUp: { pressed: false },
+			arrowDown: { pressed: false },
+			arrowLeft: { pressed: false },
+			arrowRight: { pressed: false },
 		};
 		this.gameScreen = gameScreen;
+
+		// game objects
 		this.spaceship = new Spaceship({
 			spaceshipElement,
 			gameScreen,
@@ -41,15 +44,19 @@ class Game {
 		switch (event.code) {
 			case 'ArrowUp':
 			case 'KeyW':
-				this.keys.ArrowUp.pressed = true;
+				this.keys.arrowUp.pressed = true;
+				break;
+			case 'ArrowDown':
+			case 'KeyS':
+				this.keys.arrowDown.pressed = true;
 				break;
 			case 'ArrowLeft':
 			case 'KeyA':
-				this.keys.ArrowLeft.pressed = true;
+				this.keys.arrowLeft.pressed = true;
 				break;
 			case 'ArrowRight':
 			case 'KeyD':
-				this.keys.ArrowRight.pressed = true;
+				this.keys.arrowRight.pressed = true;
 				break;
 
 			default:
@@ -61,15 +68,19 @@ class Game {
 		switch (event.code) {
 			case 'ArrowUp':
 			case 'KeyW':
-				this.keys.ArrowUp.pressed = false;
+				this.keys.arrowUp.pressed = false;
+				break;
+			case 'ArrowDown':
+			case 'KeyS':
+				this.keys.arrowDown.pressed = false;
 				break;
 			case 'ArrowLeft':
 			case 'KeyA':
-				this.keys.ArrowLeft.pressed = false;
+				this.keys.arrowLeft.pressed = false;
 				break;
 			case 'ArrowRight':
 			case 'KeyD':
-				this.keys.ArrowRight.pressed = false;
+				this.keys.arrowRight.pressed = false;
 				break;
 
 			default:

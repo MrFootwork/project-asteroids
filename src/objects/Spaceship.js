@@ -19,7 +19,7 @@ class Spaceship {
 	}
 
 	update() {
-		this.isAccellerating = this.keys.ArrowUp.pressed;
+		this.isAccellerating = this.keys.arrowUp.pressed;
 
 		this.#rotate();
 		this.#updateVelocity();
@@ -37,8 +37,8 @@ class Spaceship {
 
 	#rotate() {
 		let direction = 0;
-		if (this.keys.ArrowLeft.pressed) direction = -1;
-		if (this.keys.ArrowRight.pressed) direction = 1;
+		if (this.keys.arrowLeft.pressed) direction = -1;
+		if (this.keys.arrowRight.pressed) direction = 1;
 
 		this.orientation += direction * this.ROTATIONAL_SPEED;
 	}
@@ -47,12 +47,20 @@ class Spaceship {
 		const initialVelocity = this.isAccellerating ? 1 : 0;
 		const isSlow = this.velocity.x < 0.5 && this.velocity.y < 0.5;
 		const accelerationFactor = this.isAccellerating ? 1.1 : 0.98;
+		const decelerationFactor = 0.9;
 		const reachedMaxSpeed = this.velocity.x >= this.SPEED;
 
 		// start fast and stop calculation when too slow
 		if (isSlow) {
 			this.velocity.x = initialVelocity;
 			this.velocity.y = initialVelocity;
+			return;
+		}
+
+		// decelerate
+		if (this.keys.arrowDown.pressed) {
+			this.velocity.x *= decelerationFactor;
+			this.velocity.y *= decelerationFactor;
 			return;
 		}
 
