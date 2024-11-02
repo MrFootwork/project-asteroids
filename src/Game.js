@@ -42,7 +42,12 @@ class Game {
 	gameLoop() {
 		this.spaceship.update();
 		this.#createProjectile();
-		this.projectiles.forEach(projectile => projectile.update());
+
+		// update and garbage collect projectiles
+		for (let i = this.projectiles.length - 1; i >= 0; i--) {
+			this.projectiles[i].update();
+			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
+		}
 	}
 
 	// key press handling

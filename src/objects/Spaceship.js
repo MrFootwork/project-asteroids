@@ -28,6 +28,8 @@ class Spaceship {
 		this.#render();
 	}
 
+	// FIXME keep spaceship in bound
+
 	getCurrentVelocity() {
 		return {
 			x: Math.cos(this.orientation - this.ANGEL_OFFSET),
@@ -54,7 +56,7 @@ class Spaceship {
 		const initialVelocity = this.isAccellerating ? 1 : 0;
 		const isSlow = this.velocity.x < 0.5 && this.velocity.y < 0.5;
 		const accelerationFactor = this.isAccellerating ? 1.1 : 0.98;
-		const decelerationFactor = 0.9;
+		const decelerationFactor = 0.94;
 		const reachedMaxSpeed = this.velocity.x >= this.SPEED;
 
 		// start fast and stop calculation when too slow

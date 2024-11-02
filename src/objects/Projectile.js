@@ -14,12 +14,16 @@ class Projectile {
 		this.velocity = velocity;
 		this.orientation = orientation;
 		this.hasEnteredScreen = false;
+		this.isOutside = false;
 	}
 
 	update() {
 		this.#render();
 		this.#updatePosition();
-		if (this.#isOutOfScreen()) this.element.remove();
+		if (this.#isOutOfScreen()) {
+			this.element.remove();
+			this.isOutside = true;
+		}
 	}
 
 	#render() {
