@@ -4,8 +4,20 @@ const FRAME_DURATION = Math.round(1000 / 60);
 
 class Game {
 	constructor({ gameScreen, spaceshipElement }) {
+		// global states
+		this.keys = {
+			ArrowUp: { pressed: false },
+			ArrowLeft: { pressed: false },
+			ArrowRight: { pressed: false },
+		};
 		this.gameScreen = gameScreen;
-		this.spaceship = new Spaceship({ spaceshipElement, gameScreen });
+		this.spaceship = new Spaceship({
+			spaceshipElement,
+			gameScreen,
+			keys: this.keys,
+		});
+
+		// internal states
 		this.intervalID = '';
 		this.currentFrame = 0;
 		this.screenSize = {
@@ -22,21 +34,42 @@ class Game {
 	}
 
 	gameLoop() {
-		this.spaceship.render();
+		this.spaceship.update();
 	}
 
 	onKeyDown(event) {
-		switch (event.key) {
+		switch (event.code) {
 			case 'ArrowUp':
-				// TODO toggle isThrusting instead
-				// console.log(this.spaceship);
-				this.spaceship.thrust();
+			case 'KeyW':
+				this.keys.ArrowUp.pressed = true;
 				break;
 			case 'ArrowLeft':
-				this.spaceship.rotate();
+			case 'KeyA':
+				this.keys.ArrowLeft.pressed = true;
 				break;
 			case 'ArrowRight':
-				this.spaceship.rotate();
+			case 'KeyD':
+				this.keys.ArrowRight.pressed = true;
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	onKeyUp(event) {
+		switch (event.code) {
+			case 'ArrowUp':
+			case 'KeyW':
+				this.keys.ArrowUp.pressed = false;
+				break;
+			case 'ArrowLeft':
+			case 'KeyA':
+				this.keys.ArrowLeft.pressed = false;
+				break;
+			case 'ArrowRight':
+			case 'KeyD':
+				this.keys.ArrowRight.pressed = false;
 				break;
 
 			default:

@@ -1,22 +1,77 @@
 class Spaceship {
-	constructor({ spaceshipElement, gameScreen }) {
+	constructor({ spaceshipElement, gameScreen, keys }) {
+		// global states
 		this.gameScreen = gameScreen;
 		this.element = spaceshipElement;
+		this.keys = keys;
+		this.isAccellerating = false;
+
+		// ship characteristics
+		this.ANGEL_OFFSET = (45 * Math.PI) / 2;
+		this.SPEED = 6;
+		this.ROTATIONAL_SPEED = 0.13;
+
+		// internal states
 		this.position = { x: 200, y: 400 };
-		this.orientation = 0;
+		this.velocity = { x: 0, y: 0 };
+		this.orientation = 0; // Orientation in radians
+		this.thrustOrientation = 0;
 	}
 
-	render() {
+	update() {
+		this.isAccellerating = this.keys.ArrowUp.pressed;
+
+		this.#rotate();
+		this.#updateVelocity();
+		this.#updatePosition();
+
+		this.#render();
+	}
+
+	#render() {
 		this.element.style.left = `${this.position.x}px`;
-		this.element.style.bottom = `${this.position.y}px`;
+		this.element.style.top = `${this.position.y}px`;
+
+		this.element.style.transform = `rotate(${this.orientation}rad)`;
 	}
 
-	thrust() {
-		console.log('thrust');
+	#rotate() {
+		let direction = 0;
+		if (this.keys.ArrowLeft.pressed) direction = -1;
+		if (this.keys.ArrowRight.pressed) direction = 1;
+
+		this.orientation += direction * this.ROTATIONAL_SPEED;
 	}
 
-	rotate() {
-		console.log('rotating');
+	#updateVelocity() {
+		const initialVelocity = this.isAccellerating ? 1 : 0;
+		const isSlow = this.velocity.x < 0.5 && this.velocity.y < 0.5;
+		const accelerationFactor = this.isAccellerating ? 1.1 : 0.98;
+		const reachedMaxSpeed = this.velocity.x >= this.SPEED;
+
+		// start fast and stop calculation when too slow
+		if (isSlow) {
+			this.velocity.x = initialVelocity;
+			this.velocity.y = initialVelocity;
+			return;
+		}
+
+		if (this.isAccellerating) this.thrustOrientation = this.orientation;
+
+		// accelerate until max speed or slow down
+		if ((this.isAccellerating && !reachedMaxSpeed) || !this.isAccellerating) {
+			this.velocity.x *= accelerationFactor;
+			this.velocity.y *= accelerationFactor;
+		}
+	}
+
+	#updatePosition() {
+		const orientation = this.isAccellerating
+			? this.orientation - this.ANGEL_OFFSET
+			: this.thrustOrientation - this.ANGEL_OFFSET;
+
+		this.position.x += this.velocity.x * Math.cos(orientation);
+		this.position.y += this.velocity.y * Math.sin(orientation);
 	}
 }
 
