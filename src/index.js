@@ -36,10 +36,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	 ***********************************/
 	// Home Screen
 	function onStart() {
+		startGame();
+		refreshGameEventListeners();
+
 		homeScreen.style.display = 'none';
 		gameScreen.style.display = 'block';
-
-		startGame();
 	}
 
 	// Game Screen
@@ -66,36 +67,39 @@ document.addEventListener('DOMContentLoaded', () => {
 		const spaceshipElement = createSpaceship();
 		game = new Game({ gameScreen, spaceshipElement });
 		game.start();
-
-		// game relevant event listeners
-		document.addEventListener('keydown', e => game.onKeyDown(e));
-		document.addEventListener('keyup', e => game.onKeyUp(e));
-		window.addEventListener('resize', game.resizeScreen);
 	}
 
 	// for testing
 	onStart();
 
 	// functions
+	function resetGameScreen() {
+		gameOverButton.removeEventListener('click', onGameOver);
+		gameScreen.innerHTML = /*html*/ `<button id="gameOverButton">Game Over</button>`;
+		gameOverButton = document.querySelector('#gameOverButton');
+		gameOverButton.addEventListener('click', onGameOver);
+	}
+
+	function refreshGameEventListeners() {
+		document.removeEventListener('keydown', e => game.onKeyDown(e));
+		document.removeEventListener('keyup', e => game.onKeyUp(e));
+		window.removeEventListener('resize', game.resizeScreen);
+
+		document.addEventListener('keydown', e => game.onKeyDown(e));
+		document.addEventListener('keyup', e => game.onKeyUp(e));
+		window.addEventListener('resize', game.resizeScreen);
+	}
+
 	function createSpaceship() {
 		const spaceshipElement = document.createElement('div');
 		spaceshipElement.id = 'spaceship';
+
 		const spaceshipImageElement = document.createElement('img');
 		spaceshipImageElement.src = `${basePath}assets/images/spaceship.png`;
+
 		spaceshipElement.appendChild(spaceshipImageElement);
 		gameScreen.appendChild(spaceshipElement);
 
 		return spaceshipElement;
-	}
-
-	function resetGameScreen() {
-		gameOverButton.removeEventListener('click', onGameOver);
-
-		gameScreen.innerHTML = /*html*/ `
-			<button id="gameOverButton">Game Over</button>
-		`;
-
-		gameOverButton = document.querySelector('#gameOverButton');
-		gameOverButton.addEventListener('click', onGameOver);
 	}
 });
