@@ -1,4 +1,5 @@
 import Spaceship from './objects/Spaceship.js';
+import Projectile from './objects/Projectile.js';
 
 const FRAME_DURATION = Math.round(1000 / 60);
 
@@ -10,6 +11,7 @@ class Game {
 			arrowDown: { pressed: false },
 			arrowLeft: { pressed: false },
 			arrowRight: { pressed: false },
+			space: { pressed: false },
 		};
 		this.gameScreen = gameScreen;
 
@@ -19,6 +21,7 @@ class Game {
 			gameScreen,
 			keys: this.keys,
 		});
+		this.projectiles = [];
 
 		// internal states
 		this.intervalID = '';
@@ -38,8 +41,11 @@ class Game {
 
 	gameLoop() {
 		this.spaceship.update();
+		this.#createProjectile();
+		this.projectiles.forEach(projectile => projectile.update());
 	}
 
+	// key press handling
 	onKeyDown(event) {
 		switch (event.code) {
 			case 'ArrowUp':
@@ -57,6 +63,9 @@ class Game {
 			case 'ArrowRight':
 			case 'KeyD':
 				this.keys.arrowRight.pressed = true;
+				break;
+			case 'Space':
+				this.keys.space.pressed = true;
 				break;
 
 			default:
@@ -82,9 +91,38 @@ class Game {
 			case 'KeyD':
 				this.keys.arrowRight.pressed = false;
 				break;
+			case 'Space':
+				this.keys.space.pressed = false;
+				break;
 
 			default:
 				break;
+		}
+	}
+
+	#createProjectile() {
+		// FIXME implement fire rate
+		if (this.keys.space.pressed) {
+			const projectileElement = document.createElement('div');
+			projectileElement.id = 'projectile';
+			this.gameScreen.appendChild(projectileElement);
+
+			this.projectiles.push(
+				new Projectile({
+					gameScreen: this.gameScreen,
+					position: {
+						x: this.spaceship.position.x,
+						y: this.spaceship.position.y,
+					},
+					velocity: {
+						x: 8 * this.spaceship.getCurrentVelocity().x,
+						y: 8 * this.spaceship.getCurrentVelocity().y,
+					},
+					projectileElement,
+					orientation: this.spaceship.orientation,
+					spaceshipElement: this.spaceship.element,
+				})
+			);
 		}
 	}
 

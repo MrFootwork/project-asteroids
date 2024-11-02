@@ -30,3 +30,11 @@ body {
 	position: absolute;
 	width: 10vw;
 }
+
+#projectile {
+	position: absolute;
+	width: 0.4rem;
+	border-radius: 15px;
+	aspect-ratio: 1;
+	background-color: white;
+}

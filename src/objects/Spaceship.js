@@ -28,6 +28,13 @@ class Spaceship {
 		this.#render();
 	}
 
+	getCurrentVelocity() {
+		return {
+			x: Math.cos(this.orientation - this.ANGEL_OFFSET),
+			y: Math.sin(this.orientation - this.ANGEL_OFFSET),
+		};
+	}
+
 	#render() {
 		this.element.style.left = `${this.position.x}px`;
 		this.element.style.top = `${this.position.y}px`;
