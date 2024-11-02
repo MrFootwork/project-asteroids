@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const startButton = document.querySelector('#startButton');
 
 	// Game Screen
-	const gameScreen = document.querySelector('#gameScreen');
-	const gameOverButton = document.querySelector('#gameOverButton');
+	let gameScreen = document.querySelector('#gameScreen');
+	let gameOverButton = document.querySelector('#gameOverButton');
 
 	// Result Screen
 	const resultScreen = document.querySelector('#resultScreen');
@@ -38,12 +38,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	function onStart() {
 		homeScreen.style.display = 'none';
 		gameScreen.style.display = 'block';
+
+		startGame();
 	}
 
 	// Game Screen
 	function onGameOver() {
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'block';
+
+		resetGameScreen();
 	}
 
 	// Result Screen
@@ -55,23 +59,24 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Game Engine
 	 ***********************************/
-	// create spaceship element
-	const spaceshipElement = createSpaceship();
+	let game;
 
-	// instantiate game
-	const game = new Game({ gameScreen, spaceshipElement });
+	function startGame() {
+		// instantiate game
+		const spaceshipElement = createSpaceship();
+		game = new Game({ gameScreen, spaceshipElement });
+		game.start();
 
-	// game relevant event listeners
-	document.addEventListener('keydown', e => game.onKeyDown(e));
-	document.addEventListener('keyup', e => game.onKeyUp(e));
-	window.addEventListener('resize', game.resizeScreen);
+		// game relevant event listeners
+		document.addEventListener('keydown', e => game.onKeyDown(e));
+		document.addEventListener('keyup', e => game.onKeyUp(e));
+		window.addEventListener('resize', game.resizeScreen);
+	}
 
-	// start game
+	// for testing
 	onStart();
-	game.start();
 
 	// functions
-
 	function createSpaceship() {
 		const spaceshipElement = document.createElement('div');
 		spaceshipElement.id = 'spaceship';
@@ -81,5 +86,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		gameScreen.appendChild(spaceshipElement);
 
 		return spaceshipElement;
+	}
+
+	function resetGameScreen() {
+		gameOverButton.removeEventListener('click', onGameOver);
+
+		gameScreen.innerHTML = /*html*/ `
+			<button id="gameOverButton">Game Over</button>
+		`;
+
+		gameOverButton = document.querySelector('#gameOverButton');
+		gameOverButton.addEventListener('click', onGameOver);
 	}
 });
