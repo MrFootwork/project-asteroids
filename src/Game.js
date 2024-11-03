@@ -80,6 +80,17 @@ class Game {
 		// update and garbage collect projectiles
 		for (let i = this.projectiles.length - 1; i >= 0; i--) {
 			this.projectiles[i].update();
+			for (let j = this.asteroids.length - 1; j >= 0; j--) {
+				if (
+					isColliding(
+						this.projectiles[i].getCollisionShape(),
+						this.asteroids[j].getCollisionShape()
+					)
+				) {
+					this.projectiles[i].hasHit = true;
+					console.log('this.projectiles[i]: ', this.projectiles[i]);
+				}
+			}
 			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
 		}
 
@@ -92,7 +103,6 @@ class Game {
 
 	#startLevel(levelIndex) {
 		this.currentLevel = levels[levelIndex];
-		console.log(this.currentLevel);
 		this.#spawnInitialAsteroids(this.currentLevel.initialAsteroids);
 	}
 
@@ -181,19 +191,18 @@ class Game {
 			this.resume();
 		}
 	}
-	// game logic
 
+	// game logic
 	#spawnAsteroid() {
 		let position = { x: null, y: null };
 
 		const width = 50 + Math.floor(Math.random() * 150);
 
-		// const randomSide = 'right';
 		const randomSide = ['top', 'right', 'bottom', 'left'][
 			Math.floor(Math.random() * 3)
 		];
 
-		// randomize orientation
+		// randomize flight direction (orientation for velocity)
 		let orientation = null;
 		const baseSpread = 0.3;
 		const angledSpread = baseSpread * Math.random() - baseSpread / 2;
@@ -250,7 +259,7 @@ class Game {
 
 		// build asteroid in DOM
 		const asteroidElement = document.createElement('div');
-		asteroidElement.id = 'asteroid';
+		asteroidElement.className = 'asteroid';
 
 		const asteroidImage = document.createElement('img');
 		asteroidImage.src = `${basePath}assets/images/asteroid.png`;
@@ -282,7 +291,7 @@ class Game {
 			this.lastFired = now;
 
 			const projectileElement = document.createElement('div');
-			projectileElement.id = 'projectile';
+			projectileElement.className = 'projectile';
 			this.gameScreen.appendChild(projectileElement);
 
 			const projectile = new Projectile({
@@ -316,6 +325,14 @@ class Game {
 
 		return spaceshipElement;
 	}
+}
+
+function isColliding(circle1, circle2) {
+	const dx = circle2.x - circle1.x;
+	const dy = circle2.y - circle1.y;
+	const distance = Math.sqrt(dx * dx + dy * dy);
+
+	return distance <= circle1.radius + circle2.radius;
 }
 
 export default Game;

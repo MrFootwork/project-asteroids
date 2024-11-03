@@ -26,6 +26,14 @@ class Asteroid {
 		}
 	}
 
+	getCollisionShape() {
+		return {
+			x: this.position.x + this.width / 2 - 20,
+			y: this.position.y + this.width / 2 - 20,
+			radius: this.width / 2 + 10,
+		};
+	}
+
 	#render() {
 		this.element.style.left = `${this.position.x}px`;
 		this.element.style.top = `${this.position.y}px`;

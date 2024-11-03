@@ -18,6 +18,7 @@ class Projectile {
 		this.orientation = orientation;
 		this.hasBeenRenderedOnce = false;
 		this.isOutside = false;
+		this.hasHit = false;
 		this.width = 20;
 	}
 
@@ -28,6 +29,15 @@ class Projectile {
 			this.element.remove();
 			this.isOutside = true;
 		}
+		if (this.hasHit) this.element.remove();
+	}
+
+	getCollisionShape() {
+		return {
+			x: this.position.x + this.width / 2,
+			y: this.position.y + this.width / 2,
+			radius: this.width / 2,
+		};
 	}
 
 	#render() {
