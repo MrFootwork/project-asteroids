@@ -7,9 +7,12 @@ class Projectile {
 		projectileElement,
 		orientation,
 	}) {
+		// global states
 		this.gameScreen = gameScreen;
 		this.spaceshipElement = spaceshipElement;
 		this.element = projectileElement;
+
+		// internal states
 		this.position = position;
 		this.velocity = velocity;
 		this.orientation = orientation;
@@ -31,6 +34,7 @@ class Projectile {
 		this.element.style.top = `${this.position.y}px`;
 
 		if (!this.hasBeenRenderedOnce) {
+			this.element.style.width = '20px';
 			this.element.style.transform = `
         translateX(${this.spaceshipElement.clientWidth / 2}px)
         translateY(${this.spaceshipElement.clientHeight / 2}px)

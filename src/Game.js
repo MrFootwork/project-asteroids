@@ -5,6 +5,7 @@ import levels from '../data/levels.js';
 
 const FRAME_DURATION = Math.round(1000 / 60);
 
+// TODO test, if still needed after using vite bundling
 const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
 const basePath = isGitHubPages ? '/project-asteroids/' : '';
 
