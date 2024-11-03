@@ -15,25 +15,30 @@ class Game {
 		};
 		this.gameScreen = gameScreen;
 
-		// game objects
+		// game states
 		this.spaceship = new Spaceship({
 			spaceshipElement,
 			gameScreen,
 			keys: this.keys,
 		});
 		this.projectiles = [];
+		this.asteroids = [];
+		this.currentLevelIndex = 0;
+		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
+		this.lastFired = 0; // Timestamp of the last shot
 
 		// internal states
-		this.intervalID = '';
+		this.gameloopIntervalID = null;
 		this.currentFrame = 0;
 		this.screenSize = {
 			width: this.gameScreen.clientWidth,
 			height: this.gameScreen.clientHeight,
 		};
+		this.spawnIntervalID = null;
 	}
 
 	start() {
-		this.intervalID = setInterval(() => {
+		this.gameloopIntervalID = setInterval(() => {
 			this.gameLoop();
 			this.currentFrame++;
 		}, FRAME_DURATION);
@@ -106,8 +111,13 @@ class Game {
 	}
 
 	#createProjectile() {
-		// FIXME implement fire rate
-		if (this.keys.space.pressed) {
+		// Check if enough time has passed since the last shot
+		const now = Date.now();
+
+		if (this.keys.space.pressed && now - this.lastFired >= this.fireRate) {
+			// Update the last fired timestamp
+			this.lastFired = now;
+
 			const projectileElement = document.createElement('div');
 			projectileElement.id = 'projectile';
 			this.gameScreen.appendChild(projectileElement);
@@ -136,7 +146,6 @@ class Game {
 			width: this.gameScreen.clientWidth,
 			height: this.gameScreen.clientHeight,
 		};
-		// console.log('🚀 ~ Game ~ resizeScreen ~ this.screenSize:', this.screenSize);
 	}
 }
 
