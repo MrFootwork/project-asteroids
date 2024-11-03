@@ -47,7 +47,7 @@ class Game {
 				height: this.gameScreen.clientHeight,
 			};
 
-			this.#startLevel(0);
+			this.#startLevel(this.currentLevelIndex);
 			this.#createUI();
 
 			this.gameloopIntervalID = setInterval(() => {
@@ -55,6 +55,13 @@ class Game {
 				this.currentFrame++;
 			}, FRAME_DURATION);
 		});
+	}
+
+	resume() {
+		this.gameloopIntervalID = setInterval(() => {
+			this.#gameLoop();
+			this.currentFrame++;
+		}, FRAME_DURATION);
 	}
 
 	resizeScreen() {
@@ -67,6 +74,7 @@ class Game {
 	#gameLoop() {
 		this.spaceship.update();
 		this.#createProjectile();
+		this.#spawnLaterAsteroids();
 
 		// update and garbage collect projectiles
 		for (let i = this.projectiles.length - 1; i >= 0; i--) {
@@ -152,13 +160,28 @@ class Game {
 			case 'Space':
 				this.keys.space.pressed = false;
 				break;
+			case 'KeyP':
+				this.onPause();
+				break;
 
 			default:
 				break;
 		}
 	}
 
+	onPause() {
+		if (this.gameloopIntervalID) {
+			clearInterval(this.gameloopIntervalID);
+			this.gameloopIntervalID = null;
+			return;
+		}
+
+		if (!this.gameloopIntervalID) {
+			this.resume();
+		}
+	}
 	// game logic
+
 	#spawnAsteroid() {
 		let position = { x: null, y: null };
 
@@ -246,6 +269,8 @@ class Game {
 		// push Asteroid to array
 		this.asteroids.push(asteroid);
 	}
+
+	#spawnLaterAsteroids() {}
 
 	#createProjectile() {
 		// Check if enough time has passed since the last shot

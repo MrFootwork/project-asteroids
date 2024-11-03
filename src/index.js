@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Game Screen
 	let gameScreen = document.querySelector('#gameScreen');
 	let gameOverButton = document.querySelector('#gameOverButton');
+	let pauseButton = document.querySelector('#pauseButton');
 
 	// Result Screen
 	const resultScreen = document.querySelector('#resultScreen');
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Game Screen
 	gameOverButton.addEventListener('click', onGameOver);
+	pauseButton.addEventListener('click', e => game.onPause(e));
 
 	// Result Screen
 	toHomeButton.addEventListener('click', onToHome);
@@ -74,6 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		gameScreen.innerHTML = /*html*/ `<button id="gameOverButton">Game Over</button>`;
 		gameOverButton = document.querySelector('#gameOverButton');
 		gameOverButton.addEventListener('click', onGameOver);
+		// pause
+		pauseButton.removeEventListener('click', onPause);
+		const pauseButton = document.createElement('button');
+		pauseButton.id = 'pauseButton';
+		pauseButton.textContent = 'Pause / Play';
+		gameScreen.appendChild(pauseButton);
+		pauseButton = document.querySelector('#pauseButton');
+		pauseButton.addEventListener('click', onPause);
 	}
 
 	function refreshGameEventListeners() {
