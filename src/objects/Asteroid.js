@@ -7,6 +7,7 @@ class Asteroid {
 		this.orientation = 0;
 		this.ROTATIONAL_SPEED = -0.04 + Math.random() * 0.08;
 		this.isOutside = false;
+		this.isCollided = false;
 		this.hasEnteredScreen = false;
 		this.hasBeenRenderedOnce = false;
 		this.gameScreen = gameScreen;
@@ -24,13 +25,14 @@ class Asteroid {
 			this.element.remove();
 			this.isOutside = true;
 		}
+		if (this.isCollided) this.element.remove();
 	}
 
 	getCollisionShape() {
 		return {
-			x: this.position.x + this.width / 2 - 20,
-			y: this.position.y + this.width / 2 - 20,
-			radius: this.width / 2 + 10,
+			x: this.position.x + this.width / 2,
+			y: this.position.y + this.width / 2,
+			radius: this.width / 2 - 10,
 		};
 	}
 

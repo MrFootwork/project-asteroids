@@ -36,6 +36,14 @@ class Spaceship {
 		};
 	}
 
+	getCollisionShape() {
+		return {
+			x: this.position.x + this.element.clientWidth / 2,
+			y: this.position.y + this.element.clientHeight / 2,
+			radius: this.element.clientWidth / 2,
+		};
+	}
+
 	#render() {
 		this.element.style.left = `${this.position.x}px`;
 		this.element.style.top = `${this.position.y}px`;

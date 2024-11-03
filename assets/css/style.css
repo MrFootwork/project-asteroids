@@ -29,6 +29,8 @@ body {
 #spaceship {
 	position: absolute;
 	width: 4rem;
+	/* border-radius: 100%; */
+	/* outline: 1px solid white; */
 }
 
 .projectile {
@@ -43,4 +45,22 @@ body {
 	aspect-ratio: 1;
 	/* border-radius: 100%; */
 	/* outline: 1px solid white; */
+}
+
+/* prettier-ignore */
+@keyframes shake {
+	0% { transform: translateX(0); }
+	12.5% { transform: translateX(-10px); }
+	25% { transform: translateX(10px); }
+	37.5% { transform: translateX(-10px); }
+	50% { transform: translateX(10px); }
+	62.5% { transform: translateX(-10px); }
+	75% { transform: translateX(10px); }
+	87.5% { transform: translateX(-10px); }
+	100% { transform: translateX(0); }
+}
+
+.shake {
+	animation: shake 0.5s linear; /* 0.5s duration and ease timing */
+	animation-iteration-count: 1; /* Can be adjusted for more shakes */
 }

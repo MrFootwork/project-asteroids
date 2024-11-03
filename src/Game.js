@@ -77,9 +77,11 @@ class Game {
 		this.#createProjectile();
 		this.#spawnLaterAsteroids();
 
+		// Handle Collision Detection and Garbage Collection
 		// update and garbage collect projectiles
 		for (let i = this.projectiles.length - 1; i >= 0; i--) {
 			this.projectiles[i].update();
+
 			for (let j = this.asteroids.length - 1; j >= 0; j--) {
 				if (
 					isColliding(
@@ -87,8 +89,14 @@ class Game {
 						this.asteroids[j].getCollisionShape()
 					)
 				) {
-					this.projectiles[i].hasHit = true;
-					console.log('this.projectiles[i]: ', this.projectiles[i]);
+					// handle projectile
+					this.projectiles[i].isCollided = true;
+					this.projectiles[i].update();
+					this.projectiles.splice(i, 1);
+					// handle asteroid
+					this.asteroids[j].isCollided = true;
+					this.asteroids[j].update();
+					this.asteroids.splice(j, 1);
 				}
 			}
 			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
@@ -96,6 +104,18 @@ class Game {
 
 		// update and garbage collect asteroids
 		for (let i = this.asteroids.length - 1; i >= 0; i--) {
+			if (
+				isColliding(
+					this.spaceship.getCollisionShape(),
+					this.asteroids[i].getCollisionShape()
+				)
+			) {
+				// handle collision
+				clearInterval(this.gameloopIntervalID);
+				this.gameScreen.parentElement.style.backgroundColor = 'black';
+				this.gameScreen.classList.add('shake');
+			}
+
 			this.asteroids[i].update();
 			if (this.asteroids[i].isOutside) this.asteroids.splice(i, 1);
 		}
@@ -330,9 +350,9 @@ class Game {
 function isColliding(circle1, circle2) {
 	const dx = circle2.x - circle1.x;
 	const dy = circle2.y - circle1.y;
-	const distance = Math.sqrt(dx * dx + dy * dy);
+	const distance = Math.sqrt(dx ** 2 + dy ** 2);
 
-	return distance <= circle1.radius + circle2.radius;
+	return distance < circle1.radius + circle2.radius;
 }
 
 export default Game;

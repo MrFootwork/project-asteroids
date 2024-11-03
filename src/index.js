@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		pauseButton = document.querySelector('#pauseButton');
 		pauseButton.addEventListener('click', onPause);
 	}
-
 	function refreshGameEventListeners() {
 		document.removeEventListener('keydown', e => game.onKeyDown(e));
 		document.removeEventListener('keyup', e => game.onKeyUp(e));

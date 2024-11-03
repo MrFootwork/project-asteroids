@@ -18,7 +18,7 @@ class Projectile {
 		this.orientation = orientation;
 		this.hasBeenRenderedOnce = false;
 		this.isOutside = false;
-		this.hasHit = false;
+		this.isCollided = false;
 		this.width = 20;
 	}
 
@@ -29,13 +29,13 @@ class Projectile {
 			this.element.remove();
 			this.isOutside = true;
 		}
-		if (this.hasHit) this.element.remove();
+		if (this.isCollided) this.element.remove();
 	}
 
 	getCollisionShape() {
 		return {
-			x: this.position.x + this.width / 2,
-			y: this.position.y + this.width / 2,
+			x: this.position.x + this.width / 2 + 20,
+			y: this.position.y + this.width / 2 + 20,
 			radius: this.width / 2,
 		};
 	}
@@ -50,7 +50,9 @@ class Projectile {
         translateX(${(this.spaceshipElement.clientWidth - this.width) / 2}px)
         translateY(${(this.spaceshipElement.clientHeight - this.width) / 2}px)
         rotate(${this.orientation}rad)
-        translateY(-${(this.spaceshipElement.clientHeight - this.width) / 2}px)
+        translateY(-${
+					(this.spaceshipElement.clientHeight - this.width + 30) / 2
+				}px)
       `;
 			this.hasBeenRenderedOnce = true;
 		}
