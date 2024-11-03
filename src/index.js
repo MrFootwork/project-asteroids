@@ -72,13 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// functions
 	function resetGameScreen() {
+		// game over
 		gameOverButton.removeEventListener('click', onGameOver);
 		gameScreen.innerHTML = /*html*/ `<button id="gameOverButton">Game Over</button>`;
 		gameOverButton = document.querySelector('#gameOverButton');
 		gameOverButton.addEventListener('click', onGameOver);
 		// pause
 		pauseButton.removeEventListener('click', onPause);
-		const pauseButton = document.createElement('button');
+		pauseButton = document.createElement('button');
 		pauseButton.id = 'pauseButton';
 		pauseButton.textContent = 'Pause / Play';
 		gameScreen.appendChild(pauseButton);
