@@ -1,10 +1,15 @@
 import Spaceship from './objects/Spaceship.js';
 import Projectile from './objects/Projectile.js';
+import Asteroid from './objects/Asteroid.js';
+import levels from '../data/levels.js';
 
 const FRAME_DURATION = Math.round(1000 / 60);
 
+const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
+const basePath = isGitHubPages ? '/project-asteroids/' : '';
+
 class Game {
-	constructor({ gameScreen, spaceshipElement }) {
+	constructor({ gameScreen }) {
 		// global states
 		this.keys = {
 			arrowUp: { pressed: false },
@@ -17,7 +22,7 @@ class Game {
 
 		// game states
 		this.spaceship = new Spaceship({
-			spaceshipElement,
+			spaceshipElement: this.#createSpaceshipElement(),
 			gameScreen,
 			keys: this.keys,
 		});
@@ -26,14 +31,11 @@ class Game {
 		this.currentLevelIndex = 0;
 		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
 		this.lastFired = 0; // Timestamp of the last shot
+		this.baseAsteroidSpeed = 1.5;
 
 		// internal states
-		this.gameloopIntervalID = null;
 		this.currentFrame = 0;
-		this.screenSize = {
-			width: this.gameScreen.clientWidth,
-			height: this.gameScreen.clientHeight,
-		};
+		this.gameloopIntervalID = null;
 		this.spawnIntervalID = null;
 	}
 
@@ -47,10 +49,10 @@ class Game {
 
 			this.startLevel(1);
 
-		this.gameloopIntervalID = setInterval(() => {
-			this.gameLoop();
-			this.currentFrame++;
-		}, FRAME_DURATION);
+			this.gameloopIntervalID = setInterval(() => {
+				this.gameLoop();
+				this.currentFrame++;
+			}, FRAME_DURATION);
 		});
 	}
 
@@ -62,6 +64,23 @@ class Game {
 		for (let i = this.projectiles.length - 1; i >= 0; i--) {
 			this.projectiles[i].update();
 			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
+		}
+
+		// update and garbage collect asteroids
+		for (let i = this.asteroids.length - 1; i >= 0; i--) {
+			this.asteroids[i].update();
+			if (this.asteroids[i].isOutside) this.asteroids.splice(i, 1);
+		}
+	}
+
+	startLevel(levelIndex) {
+		this.currentLevel = levels[levelIndex];
+		this.spawnInitialAsteroids(this.currentLevel.initialAsteroids);
+	}
+
+	spawnInitialAsteroids(count) {
+		for (let i = 0; i < count; i++) {
+			this.#spawnAsteroid();
 		}
 	}
 
@@ -120,6 +139,76 @@ class Game {
 		}
 	}
 
+	#spawnAsteroid() {
+		let position = { x: null, y: null };
+		let orientation;
+
+		const width = 50 + Math.floor(Math.random() * 150);
+
+		const randomSide = ['top', 'right', 'bottom', 'left'][
+			Math.floor(Math.random() * 3)
+		];
+
+		switch (randomSide) {
+			case 'top':
+				position.x = Math.floor(Math.random() * this.screenSize.height);
+				position.y = 0 - width;
+				orientation = 0.5 * Math.PI;
+				break;
+			case 'right':
+				position.x = this.screenSize.width;
+				position.y = Math.floor(Math.random() * this.screenSize.width);
+				orientation = Math.PI;
+				break;
+			case 'bottom':
+				position.x = Math.floor(Math.random() * this.screenSize.height);
+				position.y = this.screenSize.height;
+				orientation = 1.5 * Math.PI;
+				break;
+			case 'left':
+				position.x = 0 - width;
+				position.y = Math.floor(Math.random() * this.screenSize.width);
+				orientation = 2 * Math.PI;
+				break;
+
+			default:
+				break;
+		}
+
+		const asteroidSpeed =
+			0.2 +
+			Math.random() *
+				this.baseAsteroidSpeed *
+				this.currentLevel.speedMultiplier;
+
+		const velocity = {
+			x: asteroidSpeed * Math.cos(orientation),
+			y: asteroidSpeed * Math.sin(orientation),
+		};
+
+		// build asteroid in DOM
+		const asteroidElement = document.createElement('div');
+		asteroidElement.id = 'asteroid';
+
+		const asteroidImage = document.createElement('img');
+		asteroidImage.src = `${basePath}assets/images/asteroid.png`;
+
+		asteroidElement.appendChild(asteroidImage);
+		this.gameScreen.appendChild(asteroidElement);
+
+		// create Asteroid
+		const asteroid = new Asteroid({
+			position,
+			velocity,
+			width,
+			element: asteroidElement,
+			gameScreen: this.gameScreen,
+		});
+
+		// push Asteroid to array
+		this.asteroids.push(asteroid);
+	}
+
 	#createProjectile() {
 		// Check if enough time has passed since the last shot
 		const now = Date.now();
@@ -132,22 +221,22 @@ class Game {
 			projectileElement.id = 'projectile';
 			this.gameScreen.appendChild(projectileElement);
 
-			this.projectiles.push(
-				new Projectile({
-					gameScreen: this.gameScreen,
-					position: {
-						x: this.spaceship.position.x,
-						y: this.spaceship.position.y,
-					},
-					velocity: {
-						x: 8 * this.spaceship.getCurrentVelocity().x,
-						y: 8 * this.spaceship.getCurrentVelocity().y,
-					},
-					projectileElement,
-					orientation: this.spaceship.orientation,
-					spaceshipElement: this.spaceship.element,
-				})
-			);
+			const projectile = new Projectile({
+				gameScreen: this.gameScreen,
+				position: {
+					x: this.spaceship.position.x,
+					y: this.spaceship.position.y,
+				},
+				velocity: {
+					x: 8 * this.spaceship.getCurrentVelocity().x,
+					y: 8 * this.spaceship.getCurrentVelocity().y,
+				},
+				projectileElement,
+				orientation: this.spaceship.orientation,
+				spaceshipElement: this.spaceship.element,
+			});
+
+			this.projectiles.push(projectile);
 		}
 	}
 
@@ -156,6 +245,19 @@ class Game {
 			width: this.gameScreen.clientWidth,
 			height: this.gameScreen.clientHeight,
 		};
+	}
+
+	#createSpaceshipElement() {
+		const spaceshipElement = document.createElement('div');
+		spaceshipElement.id = 'spaceship';
+
+		const spaceshipImageElement = document.createElement('img');
+		spaceshipImageElement.src = `${basePath}assets/images/spaceship.png`;
+
+		spaceshipElement.appendChild(spaceshipImageElement);
+		this.gameScreen.appendChild(spaceshipElement);
+
+		return spaceshipElement;
 	}
 }
 

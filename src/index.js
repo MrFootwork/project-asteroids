@@ -1,8 +1,5 @@
 import Game from './Game.js';
 
-const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
-const basePath = isGitHubPages ? '/project-asteroids/' : '';
-
 document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  HTML Elements
@@ -64,8 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function startGame() {
 		// instantiate game
-		const spaceshipElement = createSpaceship();
-		game = new Game({ gameScreen, spaceshipElement });
+		game = new Game({ gameScreen });
 		game.start();
 	}
 
@@ -88,18 +84,5 @@ document.addEventListener('DOMContentLoaded', () => {
 		document.addEventListener('keydown', e => game.onKeyDown(e));
 		document.addEventListener('keyup', e => game.onKeyUp(e));
 		window.addEventListener('resize', game.resizeScreen);
-	}
-
-	function createSpaceship() {
-		const spaceshipElement = document.createElement('div');
-		spaceshipElement.id = 'spaceship';
-
-		const spaceshipImageElement = document.createElement('img');
-		spaceshipImageElement.src = `${basePath}assets/images/spaceship.png`;
-
-		spaceshipElement.appendChild(spaceshipImageElement);
-		gameScreen.appendChild(spaceshipElement);
-
-		return spaceshipElement;
 	}
 });

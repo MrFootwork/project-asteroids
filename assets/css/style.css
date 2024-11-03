@@ -38,3 +38,10 @@ body {
 	aspect-ratio: 1;
 	background-color: white;
 }
+
+#asteroid {
+	position: absolute;
+	aspect-ratio: 1;
+	border-radius: 100%;
+	border: 1px solid white;
+}

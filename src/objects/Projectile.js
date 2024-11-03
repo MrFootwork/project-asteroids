@@ -13,7 +13,7 @@ class Projectile {
 		this.position = position;
 		this.velocity = velocity;
 		this.orientation = orientation;
-		this.hasEnteredScreen = false;
+		this.hasBeenRenderedOnce = false;
 		this.isOutside = false;
 	}
 
@@ -30,14 +30,14 @@ class Projectile {
 		this.element.style.left = `${this.position.x}px`;
 		this.element.style.top = `${this.position.y}px`;
 
-		if (!this.hasEnteredScreen) {
+		if (!this.hasBeenRenderedOnce) {
 			this.element.style.transform = `
         translateX(${this.spaceshipElement.clientWidth / 2}px)
         translateY(${this.spaceshipElement.clientHeight / 2}px)
         rotate(${this.orientation}rad)
         translateY(-${this.spaceshipElement.clientHeight / 2}px)
       `;
-			this.hasEnteredScreen = true;
+			this.hasBeenRenderedOnce = true;
 		}
 	}
 

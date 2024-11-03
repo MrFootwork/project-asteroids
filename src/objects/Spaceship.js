@@ -7,7 +7,7 @@ class Spaceship {
 		this.isAccellerating = false;
 
 		// ship characteristics
-		this.ANGEL_OFFSET = (45 * Math.PI) / 2;
+		this.ANGLE_OFFSET = Math.PI / 2;
 		this.SPEED = 6;
 		this.ROTATIONAL_SPEED = 0.13;
 
@@ -32,8 +32,8 @@ class Spaceship {
 
 	getCurrentVelocity() {
 		return {
-			x: Math.cos(this.orientation - this.ANGEL_OFFSET),
-			y: Math.sin(this.orientation - this.ANGEL_OFFSET),
+			x: Math.cos(this.orientation - this.ANGLE_OFFSET),
+			y: Math.sin(this.orientation - this.ANGLE_OFFSET),
 		};
 	}
 
@@ -84,8 +84,8 @@ class Spaceship {
 
 	#updatePosition() {
 		const orientation = this.isAccellerating
-			? this.orientation - this.ANGEL_OFFSET
-			: this.thrustOrientation - this.ANGEL_OFFSET;
+			? this.orientation - this.ANGLE_OFFSET
+			: this.thrustOrientation - this.ANGLE_OFFSET;
 
 		this.position.x += this.velocity.x * Math.cos(orientation);
 		this.position.y += this.velocity.y * Math.sin(orientation);
