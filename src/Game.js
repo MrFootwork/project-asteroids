@@ -47,7 +47,7 @@ class Game {
 				height: this.gameScreen.clientHeight,
 			};
 
-			this.#startLevel(1);
+			this.#startLevel(0);
 			this.#createUI();
 
 			this.gameloopIntervalID = setInterval(() => {
@@ -55,6 +55,13 @@ class Game {
 				this.currentFrame++;
 			}, FRAME_DURATION);
 		});
+	}
+
+	resizeScreen() {
+		this.screenSize = {
+			width: this.gameScreen.clientWidth,
+			height: this.gameScreen.clientHeight,
+		};
 	}
 
 	#gameLoop() {
@@ -76,6 +83,7 @@ class Game {
 
 	#startLevel(levelIndex) {
 		this.currentLevel = levels[levelIndex];
+		console.log(this.currentLevel);
 		this.#spawnInitialAsteroids(this.currentLevel.initialAsteroids);
 	}
 
@@ -150,36 +158,55 @@ class Game {
 		}
 	}
 
+	// game logic
 	#spawnAsteroid() {
 		let position = { x: null, y: null };
-		let orientation = null;
 
 		const width = 50 + Math.floor(Math.random() * 150);
 
+		// const randomSide = 'right';
 		const randomSide = ['top', 'right', 'bottom', 'left'][
 			Math.floor(Math.random() * 3)
 		];
 
+		// randomize orientation
+		let orientation = null;
+		const baseSpread = 0.3;
+		const angledSpread = baseSpread * Math.random() - baseSpread / 2;
+		let correction = null;
+		const correctionFraction = 1 / 1.1;
+
 		switch (randomSide) {
 			case 'top':
-				position.x = Math.floor(Math.random() * this.screenSize.height);
+				position.x = Math.floor(Math.random() * this.screenSize.width);
 				position.y = 0 - width;
-				orientation = 0.5 * Math.PI;
+				correction =
+					(position.x / this.screenSize.width - 0.5) * correctionFraction;
+				orientation = (0.5 + angledSpread + correction) * Math.PI;
 				break;
+
 			case 'right':
-				position.x = this.screenSize.width;
-				position.y = Math.floor(Math.random() * this.screenSize.width);
-				orientation = Math.PI;
+				position.x = this.screenSize.width - 100;
+				position.y = Math.floor(Math.random() * this.screenSize.height);
+				correction =
+					(position.y / this.screenSize.height - 0.5) * correctionFraction;
+				orientation = (1 + angledSpread + correction) * Math.PI;
 				break;
+
 			case 'bottom':
-				position.x = Math.floor(Math.random() * this.screenSize.height);
+				position.x = Math.floor(Math.random() * this.screenSize.width);
 				position.y = this.screenSize.height;
-				orientation = 1.5 * Math.PI;
+				correction =
+					(position.x / this.screenSize.width - 0.5) * correctionFraction;
+				orientation = (1.5 + angledSpread - correction) * Math.PI;
 				break;
+
 			case 'left':
 				position.x = 0 - width;
-				position.y = Math.floor(Math.random() * this.screenSize.width);
-				orientation = 2 * Math.PI;
+				position.y = Math.floor(Math.random() * this.screenSize.height);
+				correction =
+					(position.y / this.screenSize.height - 0.5) * correctionFraction;
+				orientation = (2 + angledSpread - correction) * Math.PI;
 				break;
 
 			default:
@@ -249,13 +276,6 @@ class Game {
 
 			this.projectiles.push(projectile);
 		}
-	}
-
-	resizeScreen() {
-		this.screenSize = {
-			width: this.gameScreen.clientWidth,
-			height: this.gameScreen.clientHeight,
-		};
 	}
 
 	#createSpaceshipElement() {
