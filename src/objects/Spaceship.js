@@ -55,12 +55,10 @@ class Spaceship {
 
 		// Accelerate rotational velocity gradually
 		const acceleration = 0.03; // Lower this for finer control on initial tap
-		if (-0.1 < this.rotaionalVelocity || this.rotaionalVelocity < 0.1)
-			this.rotaionalVelocity += direction * acceleration;
-		else this.rotaionalVelocity *= direction + acceleration;
+		this.rotaionalVelocity += direction * acceleration;
 
 		// Apply drag to smooth out the movement
-		const drag = 0.9;
+		const drag = 0.8;
 		this.rotaionalVelocity *= drag;
 
 		// Cap the rotational speed
