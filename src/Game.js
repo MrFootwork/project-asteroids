@@ -47,16 +47,17 @@ class Game {
 				height: this.gameScreen.clientHeight,
 			};
 
-			this.startLevel(1);
+			this.#startLevel(1);
+			this.#createUI();
 
 			this.gameloopIntervalID = setInterval(() => {
-				this.gameLoop();
+				this.#gameLoop();
 				this.currentFrame++;
 			}, FRAME_DURATION);
 		});
 	}
 
-	gameLoop() {
+	#gameLoop() {
 		this.spaceship.update();
 		this.#createProjectile();
 
@@ -73,15 +74,25 @@ class Game {
 		}
 	}
 
-	startLevel(levelIndex) {
+	#startLevel(levelIndex) {
 		this.currentLevel = levels[levelIndex];
-		this.spawnInitialAsteroids(this.currentLevel.initialAsteroids);
+		this.#spawnInitialAsteroids(this.currentLevel.initialAsteroids);
 	}
 
-	spawnInitialAsteroids(count) {
+	#spawnInitialAsteroids(count) {
 		for (let i = 0; i < count; i++) {
 			this.#spawnAsteroid();
 		}
+	}
+
+	#createUI() {
+		const scoreBoardElement = document.createElement('div');
+		const scoreBoard = /*html*/ `
+			<p>Score <span>0</span></p>
+			<p>Lives <span>3</span></p>
+		`;
+		scoreBoardElement.innerHTML = scoreBoard;
+		this.gameScreen.appendChild(scoreBoardElement);
 	}
 
 	// key press handling
@@ -141,7 +152,7 @@ class Game {
 
 	#spawnAsteroid() {
 		let position = { x: null, y: null };
-		let orientation;
+		let orientation = null;
 
 		const width = 50 + Math.floor(Math.random() * 150);
 
