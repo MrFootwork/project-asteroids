@@ -38,10 +38,20 @@ class Game {
 	}
 
 	start() {
+		// Access dimensions after start is called, ensuring the DOM is ready
+		requestAnimationFrame(() => {
+			this.screenSize = {
+				width: this.gameScreen.clientWidth,
+				height: this.gameScreen.clientHeight,
+			};
+
+			this.startLevel(1);
+
 		this.gameloopIntervalID = setInterval(() => {
 			this.gameLoop();
 			this.currentFrame++;
 		}, FRAME_DURATION);
+		});
 	}
 
 	gameLoop() {
