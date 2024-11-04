@@ -3,8 +3,9 @@ import Projectile from './objects/Projectile.js';
 import Asteroid from './objects/Asteroid.js';
 import levels from '../data/levels.js';
 
-const FRAME_DURATION = Math.round(1000 / 60);
-const TIME_TO_SURVIVE = 2 * 1000 * 60; // 2 minutes
+const FRAMES_PER_SECOND = 60;
+const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
+const TIME_TO_SURVIVE = 120; // 2 minutes
 
 // TODO test, if still needed after using vite bundling
 const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
@@ -41,6 +42,11 @@ class Game {
 		this.spawnIntervalID = null;
 	}
 
+	/*******************************
+	 *	Public Methods
+	 *******************************/
+
+	/** Starts the game engine. */
 	start() {
 		// Access dimensions after start is called, ensuring the DOM is ready
 		this.screenSize = {
@@ -53,15 +59,9 @@ class Game {
 		this.#startLoopInterval();
 	}
 
+	/** Starts a new interval. */
 	resume() {
 		this.#startLoopInterval();
-	}
-
-	#startLoopInterval() {
-		this.gameloopIntervalID = setInterval(() => {
-			this.#gameLoop();
-			this.currentFrame++;
-		}, FRAME_DURATION);
 	}
 
 	resizeScreen() {
@@ -71,13 +71,33 @@ class Game {
 		};
 	}
 
+	/**
+	 * Returns a formatted string for the remaining game time
+	 *
+	 * @returns {string} `"1:35"` for `this.remainingTime = 95`
+	 */
+	getFormattedRemainingTime() {
+		return `${Math.floor(this.remainingTime / 60)}:${this.remainingTime % 60}`;
+	}
+
+	/*******************************
+	 *	Game Loop
+	 *******************************/
+	#startLoopInterval() {
+		this.gameloopIntervalID = setInterval(() => {
+			this.currentFrame++;
+			this.#updateTime();
+			this.#gameLoop();
+		}, FRAME_DURATION);
+	}
+
 	#gameLoop() {
 		this.spaceship.update();
 		this.#createProjectile();
 		this.#spawnLaterAsteroids();
 
 		// Handle Collision Detection and Garbage Collection
-		// update and garbage collect projectiles
+		// update and garbage-collect projectiles
 		for (let i = this.projectiles.length - 1; i >= 0; i--) {
 			this.projectiles[i].update();
 
@@ -101,7 +121,7 @@ class Game {
 			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
 		}
 
-		// update and garbage collect asteroids
+		// update and garbage-collect asteroids
 		for (let i = this.asteroids.length - 1; i >= 0; i--) {
 			if (
 				isColliding(
@@ -120,17 +140,9 @@ class Game {
 		}
 	}
 
-	#loadLevelData(levelIndex) {
-		this.currentLevel = levels[levelIndex];
-	}
-
-	#spawnInitialAsteroids(count) {
-		for (let i = 0; i < count; i++) {
-			this.#spawnAsteroid();
-		}
-	}
-
-	// key press handling
+	/*******************************
+	 *	Handle Events
+	 *******************************/
 	onKeyDown(event) {
 		switch (event.code) {
 			case 'ArrowUp':
@@ -200,7 +212,19 @@ class Game {
 		}
 	}
 
-	// game logic
+	/*******************************
+	 *	Private Methods
+	 *******************************/
+	#loadLevelData(levelIndex) {
+		this.currentLevel = levels[levelIndex];
+	}
+
+	#spawnInitialAsteroids(count) {
+		for (let i = 0; i < count; i++) {
+			this.#spawnAsteroid();
+		}
+	}
+
 	#spawnAsteroid() {
 		let position = { x: null, y: null };
 
@@ -291,7 +315,8 @@ class Game {
 	#spawnLaterAsteroids() {
 		// TODO randomize, so asteroids don't spawn too statically
 		if (
-			(this.currentFrame * 60) % levels[this.currentLevelIndex].spawnRate ===
+			(this.currentFrame * FRAMES_PER_SECOND) %
+				levels[this.currentLevelIndex].spawnRate ===
 			0
 		) {
 			this.#spawnAsteroid();
@@ -343,6 +368,9 @@ class Game {
 	}
 }
 
+/*******************************
+ *	Helper Functions
+ *******************************/
 function isColliding(circle1, circle2) {
 	const dx = circle2.x - circle1.x;
 	const dy = circle2.y - circle1.y;
