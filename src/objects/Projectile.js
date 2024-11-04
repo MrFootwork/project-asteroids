@@ -22,17 +22,14 @@ class Projectile {
 		this.orientation = orientation;
 		this.hasBeenRenderedOnce = false;
 		this.isOutside = false;
-		this.hasCollided = false;
+		this.hasHitTarget = false;
 	}
 
 	update() {
-		this.#render();
 		this.#updatePosition();
-		if (this.#isOutOfScreen()) {
-			this.element.remove();
-			this.isOutside = true;
-		}
-		if (this.hasCollided) this.element.remove();
+		this.#handleScreenLeave();
+
+		this.#render();
 	}
 
 	getCollisionShape() {
@@ -66,7 +63,7 @@ class Projectile {
 		this.position.y += this.velocity.y;
 	}
 
-	#isOutOfScreen() {
+	#handleScreenLeave() {
 		const gameScreenRect = this.gameScreen.getBoundingClientRect();
 		const projectileRect = this.element.getBoundingClientRect();
 
@@ -76,7 +73,7 @@ class Projectile {
 			projectileRect.bottom < gameScreenRect.top || // Above screen
 			projectileRect.top > gameScreenRect.bottom; // Below screen
 
-		return isOutside;
+		this.isOutside = isOutside;
 	}
 }
 

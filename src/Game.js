@@ -119,34 +119,59 @@ class Game {
 		this.#createProjectile();
 		this.#spawnLaterAsteroids();
 
-		// Handle Collision Detection and Garbage Collection
-		// update and garbage-collect projectiles
-		for (let i = this.projectiles.length - 1; i >= 0; i--) {
-			this.projectiles[i].update();
+		/***************************************************
+		 * 	Projectile Updates
+		 * -------------------------------------------------
+		 * 	Loops through projectiles, checks for collisions
+		 * 	with asteroids or out of bound events and removes
+		 * 	both from DOM and game.
+		 ***************************************************/
+		projectileLoop: for (let i = this.projectiles.length - 1; i >= 0; i--) {
+			const projectile = this.projectiles[i];
 
-			for (let j = this.asteroids.length - 1; j >= 0; j--) {
-				if (
-					isColliding(
-						this.projectiles[i].getCollisionShape(),
-						this.asteroids[j].getCollisionShape()
-					)
-				) {
-					// handle projectile
-					this.projectiles[i].hasCollided = true;
-					this.projectiles[i].update();
-					this.projectiles.splice(i, 1);
-					// handle asteroid
+			asteroidLoop: for (let j = this.asteroids.length - 1; j >= 0; j--) {
+				const asteroid = this.asteroids[j];
+
+				const projectileHitsAsteroid = isColliding(
+					projectile.getCollisionShape(),
+					asteroid.getCollisionShape()
+				);
+
+				if (projectileHitsAsteroid) {
+					// handle score
 					this.playerScore++;
-					this.asteroids[j].isShot = true;
-					this.asteroids[j].update();
+
+					// handle projectile
+					projectile.hasHitTarget = true;
+
+					// handle asteroid
+					asteroid.isShot = true;
+					asteroid.element.remove();
 					this.asteroids.splice(j, 1);
+
+					break asteroidLoop;
 				}
 			}
 
-			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
+			// Remove projectile
+			if (projectile.isOutside || projectile.hasHitTarget) {
+				projectile.element.remove();
+				this.projectiles.splice(i, 1);
+
+				continue projectileLoop;
+			}
+
+			// Update projectile
+			projectile.update();
 		}
 
-		// update and garbage-collect asteroids
+		/***************************************************
+		 * 	Asteroid Updates
+		 * -------------------------------------------------
+		 * 	Loops through asteroids, checks for collisions
+		 * 	with player or out of bound events and removes
+		 * 	asteroids from DOM and game.
+		 ***************************************************/
 		for (let i = this.asteroids.length - 1; i >= 0; i--) {
 			const asteroid = this.asteroids[i];
 
@@ -157,19 +182,31 @@ class Game {
 
 			if (asteroidHitsPlayer) {
 				// handle collision
-				this.playerLives--;
 				asteroid.hasCollided = true;
+				this.playerLives--;
 				this.#updatePlayerLives();
 			}
 
-			// Asteroid should update to be removed from DOM
 			// If collision kills player, asteroid should stay visible
-			if (!this.playerLives) break;
+			if (asteroidHitsPlayer && !this.playerLives) break;
 
-			// update asteroid's DOM
+			// Remove asteroid
+			const leavesAfterEntry = asteroid.hasEnteredScreen && asteroid.isOutside;
+
+			if (
+				leavesAfterEntry ||
+				asteroid.hasCollided ||
+				asteroid.isShot ||
+				asteroidHitsPlayer
+			) {
+				asteroid.element.remove();
+				this.asteroids.splice(i, 1);
+
+				continue;
+			}
+
+			// Update asteroid
 			asteroid.update();
-			// remove asteroid object from game
-			if (asteroid.isOutside || asteroidHitsPlayer) this.asteroids.splice(i, 1);
 		}
 	}
 
@@ -276,7 +313,7 @@ class Game {
 		const width = 50 + Math.floor(Math.random() * 150);
 
 		const randomSide = ['top', 'right', 'bottom', 'left'][
-			Math.floor(Math.random() * 3)
+			Math.floor(Math.random() * 4)
 		];
 
 		// randomize flight direction (orientation for velocity)
@@ -296,7 +333,7 @@ class Game {
 				break;
 
 			case 'right':
-				position.x = this.screenSize.width - 100;
+				position.x = this.screenSize.width + 100;
 				position.y = Math.floor(Math.random() * this.screenSize.height);
 				correction =
 					(position.y / this.screenSize.height - 0.5) * correctionFraction;

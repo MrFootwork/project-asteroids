@@ -20,28 +20,21 @@ class Asteroid {
 	}
 
 	update() {
-		const leavesAfterEntry = this.hasEnteredScreen && this.isOutside;
-
-		// BUG doesn't remove reliably after screen leave
-		if (this.hasCollided || this.isShot || leavesAfterEntry) {
-			this.element.remove();
-			return;
-		}
-
 		this.#rotate();
 		this.#updatePosition();
-		this.#render();
 
 		// Handle screen entry and leave
 		if (!this.hasEnteredScreen) this.#handleScreenEntry();
 		if (this.hasEnteredScreen) this.#handleScreenLeave();
+
+		this.#render();
 	}
 
 	getCollisionShape() {
 		return {
 			x: this.position.x + this.width / 2,
 			y: this.position.y + this.width / 2,
-			radius: this.width / 2 - 10,
+			radius: this.width / 2,
 		};
 	}
 
@@ -67,27 +60,21 @@ class Asteroid {
 	}
 
 	#handleScreenEntry() {
-		const gameScreenRect = this.gameScreen.getBoundingClientRect();
-		const asteroidRect = this.element.getBoundingClientRect();
-
 		const isInside =
-			asteroidRect.right >= gameScreenRect.left && // enters from left
-			asteroidRect.left <= gameScreenRect.right && // enters from right
-			asteroidRect.bottom >= gameScreenRect.top && // enters from top
-			asteroidRect.top <= gameScreenRect.bottom; // enters from bottom
+			this.position.x + this.width >= 0 + 20 && // enters from left
+			this.position.x <= this.gameScreen.clientWidth - 20 && // enters from right
+			this.position.y + this.width >= 0 + 20 && // enters from top
+			this.position.y <= this.gameScreen.clientHeight - 20; // enters from bottom
 
 		this.hasEnteredScreen = isInside;
 	}
 
 	#handleScreenLeave() {
-		const gameScreenRect = this.gameScreen.getBoundingClientRect();
-		const asteroidRect = this.element.getBoundingClientRect();
-
 		const isOutside =
-			asteroidRect.right < gameScreenRect.left || // Left of screen
-			asteroidRect.left > gameScreenRect.right || // Right of screen
-			asteroidRect.bottom < gameScreenRect.top || // Above screen
-			asteroidRect.top > gameScreenRect.bottom; // Below screen
+			this.position.x + this.width < 0 + 20 || // Left of screen
+			this.position.x > this.gameScreen.clientWidth - 20 || // Right of screen
+			this.position.y + this.width < 0 + 20 || // Above screen
+			this.position.y > this.gameScreen.clientHeight - 20; // Below screen
 
 		this.isOutside = isOutside;
 	}
