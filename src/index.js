@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// TEST pause
 			setTimeout(() => {
 				game.pauseOrResumeGame();
+				console.warn('Pausing for testing at frame 60.');
 			}, 60);
 		});
 	}

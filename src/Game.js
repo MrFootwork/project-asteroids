@@ -13,7 +13,9 @@ const basePath = isGitHubPages ? '/project-asteroids/' : '';
 
 class Game {
 	constructor({ gameScreen }) {
-		// global states
+		/*******************************
+		 *	External State
+		 *******************************/
 		this.keys = {
 			arrowUp: { pressed: false },
 			arrowDown: { pressed: false },
@@ -23,23 +25,36 @@ class Game {
 		};
 		this.gameScreen = gameScreen;
 
-		// game states
+		/*******************************
+		 *	Internal State
+		 *******************************/
+		this.currentFrame = 0;
+		this.gameloopIntervalID = null;
+
+		/*******************************
+		 *	Game State
+		 *******************************/
+		// Level
+		this.currentLevelIndex = 0;
+		this.remainingTime = TIME_TO_SURVIVE;
+
+		// Player
 		this.spaceship = new Spaceship({
 			spaceshipElement: this.#createSpaceshipElement(),
 			gameScreen,
 			keys: this.keys,
 		});
+		this.playerLives = 3;
+		this.playerScore = 0;
+
+		// Projectiles
 		this.projectiles = [];
-		this.asteroids = [];
-		this.currentLevelIndex = 0;
 		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
 		this.lastFired = 0; // Timestamp of the last shot
-		this.baseAsteroidSpeed = 1.5;
 
-		// internal states
-		this.currentFrame = 0;
-		this.gameloopIntervalID = null;
-		this.spawnIntervalID = null;
+		// Asteroids
+		this.asteroids = [];
+		this.baseAsteroidSpeed = 1.5;
 	}
 
 	/*******************************
@@ -82,6 +97,12 @@ class Game {
 		this.gameloopIntervalID = setInterval(() => {
 			this.currentFrame++;
 			this.#updateTime();
+
+			if (this.#playerWinsOrLooses()) {
+				this.#stopLoopInterval();
+				return;
+			}
+
 			this.#gameLoop();
 		}, FRAME_DURATION);
 	}
@@ -197,19 +218,29 @@ class Game {
 
 	pauseOrResumeGame() {
 		if (this.gameloopIntervalID) {
-			clearInterval(this.gameloopIntervalID);
-			this.gameloopIntervalID = null;
+			this.#stopLoopInterval();
 			return;
 		}
 
 		if (!this.gameloopIntervalID) {
 			this.#startLoopInterval();
+			return;
 		}
 	}
 
 	/*******************************
 	 *	Private Methods
 	 *******************************/
+	#playerWinsOrLooses() {
+		const timeIsUp = this.remainingTime === 0;
+		return timeIsUp;
+	}
+
+	#stopLoopInterval() {
+		clearInterval(this.gameloopIntervalID);
+		this.gameloopIntervalID = null;
+	}
+
 	#loadLevelData(levelIndex) {
 		this.currentLevel = levels[levelIndex];
 	}
@@ -346,6 +377,13 @@ class Game {
 			});
 
 			this.projectiles.push(projectile);
+		}
+	}
+
+	#updateTime() {
+		if (this.currentFrame % FRAMES_PER_SECOND === 0) {
+			this.remainingTime--;
+			timeDisplay.textContent = this.getFormattedRemainingTime();
 		}
 	}
 
