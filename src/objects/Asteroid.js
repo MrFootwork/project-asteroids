@@ -11,6 +11,11 @@ class Asteroid {
 		this.hasEnteredScreen = false;
 		this.hasBeenRenderedOnce = false;
 		this.gameScreen = gameScreen;
+		// console.log(
+		// 	'🚀 ~ Asteroid ~ constructor ~ this.hasEnteredScreen, this.isOutside:',
+		// 	this.hasEnteredScreen,
+		// 	this.isOutside
+		// );
 	}
 
 	update() {
@@ -18,14 +23,35 @@ class Asteroid {
 		this.#updatePosition();
 		this.#render();
 
-		if (!this.hasEnteredScreen) this.#gotInside();
+		const justGotInside = !this.hasEnteredScreen && this.#gotInside();
+
+		// console.log(
+		// 	'🚀 ~ Asteroid ~ update ~ !this.hasEnteredScreen, this.isOutside:',
+		// 	!this.hasEnteredScreen,
+		// 	this.#gotInside(),
+		// 	justGotInside
+		// );
+
 		if (this.hasEnteredScreen) this.#isOutOfScreen();
+
+		if (justGotInside) {
+			console.log('Wlecome Asteroid!');
+			this.hasEnteredScreen = true;
+			this.element.style.display = 'block';
+		}
 
 		if (this.hasEnteredScreen && this.isOutside) {
 			this.element.remove();
 			this.isOutside = true;
 		}
+
 		if (this.isCollided) this.element.remove();
+
+		// console.log(
+		// 	'🚀 ~ Asteroid ~ update ~ this.hasEnteredScreen, this.isOutside:',
+		// 	this.hasEnteredScreen,
+		// 	this.isOutside
+		// );
 	}
 
 	getCollisionShape() {
@@ -58,27 +84,37 @@ class Asteroid {
 	}
 
 	#gotInside() {
-		const gameScreenRect = this.gameScreen.getBoundingClientRect();
-		const asteroidRect = this.element.getBoundingClientRect();
-
 		const isInside =
-			asteroidRect.right >= gameScreenRect.left && // enters from left
-			asteroidRect.left <= gameScreenRect.right && // enters from right
-			asteroidRect.bottom >= gameScreenRect.top && // enters from top
-			asteroidRect.top <= gameScreenRect.bottom; // enters from bottom
+			this.position.x + this.width >= 0 + 20 && // enters from left
+			this.position.x <= this.gameScreen.clientWidth - 20 && // enters from right
+			this.position.y + this.width >= 0 + 20 && // enters from top
+			this.position.y <= this.gameScreen.clientHeight - 20; // enters from bottom
 
 		this.hasEnteredScreen = isInside;
+
+		// console.warn(
+		// 	this.position,
+		// 	this.width,
+		// 	this.gameScreen.clientWidth,
+		// 	this.gameScreen.clientHeight,
+		// 	isInside
+		// );
+
+		return isInside;
 	}
 
 	#isOutOfScreen() {
-		const gameScreenRect = this.gameScreen.getBoundingClientRect();
-		const asteroidRect = this.element.getBoundingClientRect();
+		// console.error(
+		// 	this.position,
+		// 	this.gameScreen.clientWidth,
+		// 	this.gameScreen.clientHeight
+		// );
 
 		const isOutside =
-			asteroidRect.right < gameScreenRect.left || // Left of screen
-			asteroidRect.left > gameScreenRect.right || // Right of screen
-			asteroidRect.bottom < gameScreenRect.top || // Above screen
-			asteroidRect.top > gameScreenRect.bottom; // Below screen
+			this.position.x + this.width < 0 + 20 || // Left of screen
+			this.position.x > this.gameScreen.clientWidth - 20 || // Right of screen
+			this.position.y + this.width < 0 + 20 || // Above screen
+			this.position.y > this.gameScreen.clientHeight - 20; // Below screen
 
 		this.isOutside = isOutside;
 	}

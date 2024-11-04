@@ -21,6 +21,7 @@ class Game {
 			space: { pressed: false },
 		};
 		this.gameScreen = gameScreen;
+		this.hiddenContainer = document.querySelector('#hiddenContainer');
 
 		// game states
 		this.spaceship = new Spaceship({
@@ -91,32 +92,40 @@ class Game {
 					// handle projectile
 					this.projectiles[i].isCollided = true;
 					this.projectiles[i].update();
-					this.projectiles.splice(i, 1);
+					// this.projectiles.splice(i, 1);
 					// handle asteroid
 					this.asteroids[j].isCollided = true;
 					this.asteroids[j].update();
 					this.asteroids.splice(j, 1);
 				}
 			}
-			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
+			if (this.projectiles[i].isOutside || this.projectiles[i].isCollided)
+				this.projectiles.splice(i, 1);
 		}
 
 		// update and garbage collect asteroids
 		for (let i = this.asteroids.length - 1; i >= 0; i--) {
+			this.asteroids[i].update();
+
 			if (
 				isColliding(
 					this.spaceship.getCollisionShape(),
 					this.asteroids[i].getCollisionShape()
 				)
 			) {
-				// handle collision
+				// handle ship collisions
 				clearInterval(this.gameloopIntervalID);
 				this.gameScreen.parentElement.style.backgroundColor = 'black';
 				this.gameScreen.classList.add('shake');
 			}
 
-			this.asteroids[i].update();
-			if (this.asteroids[i].isOutside) this.asteroids.splice(i, 1);
+			if (
+				(this.asteroids[i].isOutside && this.asteroids[i].hasEnteredScreen) ||
+				this.asteroids[i].isCollided
+			) {
+				// this.asteroids[i].update();
+				this.asteroids.splice(i, 1);
+			}
 		}
 	}
 
@@ -125,7 +134,7 @@ class Game {
 	}
 
 	#spawnInitialAsteroids(count) {
-		for (let i = 0; i < count; i++) {
+		for (let i = 1; i < count; i++) {
 			this.#spawnAsteroid();
 		}
 	}
@@ -204,11 +213,13 @@ class Game {
 	#spawnAsteroid() {
 		let position = { x: null, y: null };
 
+		// const width = 200;
 		const width = 50 + Math.floor(Math.random() * 150);
 
-		const randomSide = ['top', 'right', 'bottom', 'left'][
-			Math.floor(Math.random() * 3)
-		];
+		// const randomSide = ['top', 'right', 'bottom', 'left'][
+		// 	Math.floor(Math.random() * 4)
+		// ];
+		const randomSide = 'right';
 
 		// randomize flight direction (orientation for velocity)
 		let orientation = null;
@@ -227,7 +238,7 @@ class Game {
 				break;
 
 			case 'right':
-				position.x = this.screenSize.width - 100;
+				position.x = this.screenSize.width + 100;
 				position.y = Math.floor(Math.random() * this.screenSize.height);
 				correction =
 					(position.y / this.screenSize.height - 0.5) * correctionFraction;
@@ -267,15 +278,33 @@ class Game {
 
 		// build asteroid in DOM
 		const asteroidElement = document.createElement('div');
-		asteroidElement.className = 'asteroid';
-
 		const asteroidImage = document.createElement('img');
+
+		// this.hiddenContainer.appendChild(asteroidElement);
+		asteroidElement.appendChild(asteroidImage);
+		asteroidElement.style.display = 'none';
+		asteroidElement.className = 'asteroid';
 		asteroidImage.src = `${basePath}assets/images/asteroid.png`;
 
-		asteroidElement.appendChild(asteroidImage);
-		this.gameScreen.appendChild(asteroidElement);
+		// this.gameScreen.appendChild(asteroidElement);
+
+		if ('requestIdleCallback' in window) {
+			requestIdleCallback(() => {
+				console.log('☄ asteroid created');
+				this.gameScreen.appendChild(asteroidElement);
+			});
+		} else {
+			// this.gameScreen.appendChild(asteroidElement);
+		}
 
 		// create Asteroid
+		// const asteroid = new Asteroid({
+		// 	position: { x: 300, y: 400 },
+		// 	velocity: { x: 1, y: 1 },
+		// 	width,
+		// 	element: asteroidElement,
+		// 	gameScreen: this.gameScreen,
+		// });
 		const asteroid = new Asteroid({
 			position,
 			velocity,
@@ -286,6 +315,7 @@ class Game {
 
 		// push Asteroid to array
 		this.asteroids.push(asteroid);
+		// console.log('asteroid: ', this.currentFrame, asteroid);
 	}
 
 	#spawnLaterAsteroids() {
