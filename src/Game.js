@@ -4,6 +4,7 @@ import Asteroid from './objects/Asteroid.js';
 import levels from '../data/levels.js';
 
 const FRAME_DURATION = Math.round(1000 / 60);
+const TIME_TO_SURVIVE = 2 * 1000 * 60; // 2 minutes
 
 // TODO test, if still needed after using vite bundling
 const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
@@ -42,23 +43,21 @@ class Game {
 
 	start() {
 		// Access dimensions after start is called, ensuring the DOM is ready
-		requestAnimationFrame(() => {
-			this.screenSize = {
-				width: this.gameScreen.clientWidth,
-				height: this.gameScreen.clientHeight,
-			};
+		this.screenSize = {
+			width: this.gameScreen.clientWidth,
+			height: this.gameScreen.clientHeight,
+		};
 
-			this.#startLevel(this.currentLevelIndex);
-			this.#createUI();
-
-			this.gameloopIntervalID = setInterval(() => {
-				this.#gameLoop();
-				this.currentFrame++;
-			}, FRAME_DURATION);
-		});
+		this.#loadLevelData(this.currentLevelIndex);
+		this.#spawnInitialAsteroids(this.currentLevel.initialAsteroids);
+		this.#startLoopInterval();
 	}
 
 	resume() {
+		this.#startLoopInterval();
+	}
+
+	#startLoopInterval() {
 		this.gameloopIntervalID = setInterval(() => {
 			this.#gameLoop();
 			this.currentFrame++;
@@ -121,25 +120,14 @@ class Game {
 		}
 	}
 
-	#startLevel(levelIndex) {
+	#loadLevelData(levelIndex) {
 		this.currentLevel = levels[levelIndex];
-		this.#spawnInitialAsteroids(this.currentLevel.initialAsteroids);
 	}
 
 	#spawnInitialAsteroids(count) {
 		for (let i = 0; i < count; i++) {
 			this.#spawnAsteroid();
 		}
-	}
-
-	#createUI() {
-		const scoreBoardElement = document.createElement('div');
-		const scoreBoard = /*html*/ `
-			<p>Score <span>0</span></p>
-			<p>Lives <span>3</span></p>
-		`;
-		scoreBoardElement.innerHTML = scoreBoard;
-		this.gameScreen.appendChild(scoreBoardElement);
 	}
 
 	// key press handling
@@ -300,7 +288,15 @@ class Game {
 		this.asteroids.push(asteroid);
 	}
 
-	#spawnLaterAsteroids() {}
+	#spawnLaterAsteroids() {
+		// TODO randomize, so asteroids don't spawn too statically
+		if (
+			(this.currentFrame * 60) % levels[this.currentLevelIndex].spawnRate ===
+			0
+		) {
+			this.#spawnAsteroid();
+		}
+	}
 
 	#createProjectile() {
 		// Check if enough time has passed since the last shot

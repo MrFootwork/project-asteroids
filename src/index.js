@@ -1,98 +1,148 @@
 import Game from './Game.js';
 
+let game;
+
 document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  HTML Elements
 	 ***********************************/
-	// Home Screen
+	// Home View
 	const homeScreen = document.querySelector('#homeScreen');
 	const startButton = document.querySelector('#startButton');
 
-	// Game Screen
-	let gameScreen = document.querySelector('#gameScreen');
-	let gameOverButton = document.querySelector('#gameOverButton');
-	let pauseButton = document.querySelector('#pauseButton');
+	// Game View
+	const gameScreen = document.querySelector('#gameScreen');
+	let gameOverButton;
+	let pauseButton;
+	let timeDisplay;
+	let scoreDisplay;
+	let livesDisplay;
+	querySelectUIElements();
 
-	// Result Screen
+	// Result View
 	const resultScreen = document.querySelector('#resultScreen');
 	const toHomeButton = document.querySelector('#toHomeButton');
+	const restartButton = document.querySelector('#restartButton');
 
 	/***********************************
 	 *  Event Listeners
 	 ***********************************/
-	// Home Screen
-	startButton.addEventListener('click', onStart);
+	// Home View
+	startButton.addEventListener('click', changeViewToGame);
 
-	// Game Screen
-	gameOverButton.addEventListener('click', onGameOver);
-	pauseButton.addEventListener('click', e => game.onPause(e));
-
-	// Result Screen
-	toHomeButton.addEventListener('click', onToHome);
+	// Result View
+	toHomeButton.addEventListener('click', changeViewToHome);
+	// FIXME Test this button
+	restartButton.addEventListener('click', changeViewToGame);
 
 	/***********************************
 	 *  Event Handlers
 	 ***********************************/
-	// Home Screen
-	function onStart() {
+	// Home View
+	/** Switching to Game View. Does everything to start a game */
+	function changeViewToGame() {
+		// Spin up a game
+		// FIXME clear/reset game method instead
+		// This way existing HTML could be reused for a new game
+		createGameUI();
+		querySelectUIElements();
 		startGame();
-		refreshGameEventListeners();
 
+		// Event listeners use game methods as callbacks
+		removeGameEventListeners();
+		addGameEventListeners();
+
+		// Change view
 		homeScreen.style.display = 'none';
 		gameScreen.style.display = 'block';
+		resultScreen.style.display = 'none';
 	}
 
-	// Game Screen
-	function onGameOver() {
+	// Game View
+	/** Switching to Result View. */
+	function changeViewToResult() {
+		homeScreen.style.display = 'none';
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'block';
-
-		resetGameScreen();
 	}
 
-	// Result Screen
-	function onToHome() {
-		resultScreen.style.display = 'none';
+	// Result View
+	/** Switching to Home View. */
+	function changeViewToHome() {
 		homeScreen.style.display = 'block';
+		gameScreen.style.display = 'none';
+		resultScreen.style.display = 'none';
 	}
 
 	/***********************************
 	 *  Game Engine
 	 ***********************************/
-	let game;
-
+	/** Starts the game engine. */
 	function startGame() {
-		// instantiate game
 		game = new Game({ gameScreen });
-		game.start();
+		requestAnimationFrame(() => {
+			game.start();
+
+			// TEST pause
+			setTimeout(() => {
+				game.onPause();
+			}, 60);
+		});
 	}
 
-	// for testing
-	onStart();
+	// Test start
+	changeViewToGame();
 
-	// functions
-	function resetGameScreen() {
-		// game over
-		gameOverButton.removeEventListener('click', onGameOver);
-		gameScreen.innerHTML = /*html*/ `<button id="gameOverButton">Game Over</button>`;
+	/***********************************
+	 *  Grouping Functions
+	 ***********************************/
+	/** Adds all in game UI elements like timeDisplay or pauseButton.
+	 *  Needs to be called before game start to replace all existing game elements.
+	 */
+	function createGameUI() {
+		const gameUIWrapper = document.createElement('div');
+		const userInterfaceHTML = /*html*/ `
+			<div>
+				<button id="gameOverButton">Game Over</button>
+				<button id="pauseButton">Pause / Play</button>
+			</div>
+			<div>
+				<p>Time to survive: <span id="timeDisplay">2:00</span></p>
+			</div>
+			<div>
+				<p>☄ Score <span id	="scoreDisplay">0</span></p>
+				<p>❤ Lives <span id	="livesDisplay">3</span></p>
+			</div>
+		`;
+		gameUIWrapper.innerHTML = userInterfaceHTML;
+		gameScreen.replaceChildren(gameUIWrapper);
+	}
+
+	function querySelectUIElements() {
 		gameOverButton = document.querySelector('#gameOverButton');
-		gameOverButton.addEventListener('click', onGameOver);
-		// pause
-		pauseButton.removeEventListener('click', onPause);
-		pauseButton = document.createElement('button');
-		pauseButton.id = 'pauseButton';
-		pauseButton.textContent = 'Pause / Play';
-		gameScreen.appendChild(pauseButton);
 		pauseButton = document.querySelector('#pauseButton');
-		pauseButton.addEventListener('click', onPause);
+		timeDisplay = document.querySelector('#timeDisplay');
+		scoreDisplay = document.querySelector('#scoreDisplay');
+		livesDisplay = document.querySelector('#livesDisplay');
 	}
-	function refreshGameEventListeners() {
+
+	function removeGameEventListeners() {
+		window.removeEventListener('resize', game.resizeScreen);
+
+		gameOverButton.removeEventListener('click', changeViewToResult);
+		pauseButton.removeEventListener('click', e => game.onPause(e));
+
 		document.removeEventListener('keydown', e => game.onKeyDown(e));
 		document.removeEventListener('keyup', e => game.onKeyUp(e));
-		window.removeEventListener('resize', game.resizeScreen);
+	}
+
+	function addGameEventListeners() {
+		window.addEventListener('resize', game.resizeScreen);
+
+		gameOverButton.addEventListener('click', changeViewToResult);
+		pauseButton.addEventListener('click', e => game.onPause(e));
 
 		document.addEventListener('keydown', e => game.onKeyDown(e));
 		document.addEventListener('keyup', e => game.onKeyUp(e));
-		window.addEventListener('resize', game.resizeScreen);
 	}
 });
