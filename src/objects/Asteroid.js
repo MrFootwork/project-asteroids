@@ -1,38 +1,40 @@
 class Asteroid {
 	constructor({ position, velocity, width, element, gameScreen }) {
+		// External State
+		this.gameScreen = gameScreen;
 		this.element = element;
 		this.position = position;
 		this.velocity = velocity;
 		this.width = width;
-		this.orientation = 0;
+
+		// Asteroid Characteristics
 		this.ROTATIONAL_SPEED = -0.04 + Math.random() * 0.08;
+
+		// Internal State
+		this.orientation = 0;
 		this.isOutside = false;
-		this.isCollided = false;
+		this.hasCollided = false;
+		this.isShot = false;
 		this.hasEnteredScreen = false;
 		this.hasBeenRenderedOnce = false;
-		this.gameScreen = gameScreen;
 	}
 
 	update() {
 		this.#rotate();
 		this.#updatePosition();
+
+		// Handle screen entry and leave
+		if (!this.hasEnteredScreen) this.#handleScreenEntry();
+		if (this.hasEnteredScreen) this.#handleScreenLeave();
+
 		this.#render();
-
-		if (!this.hasEnteredScreen) this.#gotInside();
-		if (this.hasEnteredScreen) this.#isOutOfScreen();
-
-		if (this.hasEnteredScreen && this.isOutside) {
-			this.element.remove();
-			this.isOutside = true;
-		}
-		if (this.isCollided) this.element.remove();
 	}
 
 	getCollisionShape() {
 		return {
 			x: this.position.x + this.width / 2,
 			y: this.position.y + this.width / 2,
-			radius: this.width / 2 - 10,
+			radius: this.width / 2,
 		};
 	}
 
@@ -57,28 +59,22 @@ class Asteroid {
 		this.position.y += this.velocity.y;
 	}
 
-	#gotInside() {
-		const gameScreenRect = this.gameScreen.getBoundingClientRect();
-		const asteroidRect = this.element.getBoundingClientRect();
-
+	#handleScreenEntry() {
 		const isInside =
-			asteroidRect.right >= gameScreenRect.left && // enters from left
-			asteroidRect.left <= gameScreenRect.right && // enters from right
-			asteroidRect.bottom >= gameScreenRect.top && // enters from top
-			asteroidRect.top <= gameScreenRect.bottom; // enters from bottom
+			this.position.x + this.width >= 0 + 20 && // enters from left
+			this.position.x <= this.gameScreen.clientWidth - 20 && // enters from right
+			this.position.y + this.width >= 0 + 20 && // enters from top
+			this.position.y <= this.gameScreen.clientHeight - 20; // enters from bottom
 
 		this.hasEnteredScreen = isInside;
 	}
 
-	#isOutOfScreen() {
-		const gameScreenRect = this.gameScreen.getBoundingClientRect();
-		const asteroidRect = this.element.getBoundingClientRect();
-
+	#handleScreenLeave() {
 		const isOutside =
-			asteroidRect.right < gameScreenRect.left || // Left of screen
-			asteroidRect.left > gameScreenRect.right || // Right of screen
-			asteroidRect.bottom < gameScreenRect.top || // Above screen
-			asteroidRect.top > gameScreenRect.bottom; // Below screen
+			this.position.x + this.width < 0 + 20 || // Left of screen
+			this.position.x > this.gameScreen.clientWidth - 20 || // Right of screen
+			this.position.y + this.width < 0 + 20 || // Above screen
+			this.position.y > this.gameScreen.clientHeight - 20; // Below screen
 
 		this.isOutside = isOutside;
 	}

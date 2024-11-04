@@ -3,8 +3,9 @@ import Projectile from './objects/Projectile.js';
 import Asteroid from './objects/Asteroid.js';
 import levels from '../data/levels.js';
 
-const FRAME_DURATION = Math.round(1000 / 60);
-const TIME_TO_SURVIVE = 2 * 1000 * 60; // 2 minutes
+const FRAMES_PER_SECOND = 60;
+const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
+const TIME_TO_SURVIVE = 120; // 2 minutes
 
 // TODO test, if still needed after using vite bundling
 const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
@@ -12,7 +13,9 @@ const basePath = isGitHubPages ? '/project-asteroids/' : '';
 
 class Game {
 	constructor({ gameScreen }) {
-		// global states
+		/*******************************
+		 *	External State
+		 *******************************/
 		this.keys = {
 			arrowUp: { pressed: false },
 			arrowDown: { pressed: false },
@@ -22,25 +25,43 @@ class Game {
 		};
 		this.gameScreen = gameScreen;
 
-		// game states
+		/*******************************
+		 *	Internal State
+		 *******************************/
+		this.currentFrame = 0;
+		this.gameloopIntervalID = null;
+
+		/*******************************
+		 *	Game State
+		 *******************************/
+		// Level
+		this.currentLevelIndex = 0;
+		this.remainingTime = TIME_TO_SURVIVE;
+
+		// Player
 		this.spaceship = new Spaceship({
 			spaceshipElement: this.#createSpaceshipElement(),
 			gameScreen,
 			keys: this.keys,
 		});
+		this.playerLives = 3;
+		this.playerScore = 0;
+
+		// Projectiles
 		this.projectiles = [];
-		this.asteroids = [];
-		this.currentLevelIndex = 0;
 		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
 		this.lastFired = 0; // Timestamp of the last shot
-		this.baseAsteroidSpeed = 1.5;
 
-		// internal states
-		this.currentFrame = 0;
-		this.gameloopIntervalID = null;
-		this.spawnIntervalID = null;
+		// Asteroids
+		this.asteroids = [];
+		this.baseAsteroidSpeed = 1.5;
 	}
 
+	/*******************************
+	 *	Public Methods
+	 *******************************/
+
+	/** Starts the game engine. */
 	start() {
 		// Access dimensions after start is called, ensuring the DOM is ready
 		this.screenSize = {
@@ -53,17 +74,6 @@ class Game {
 		this.#startLoopInterval();
 	}
 
-	resume() {
-		this.#startLoopInterval();
-	}
-
-	#startLoopInterval() {
-		this.gameloopIntervalID = setInterval(() => {
-			this.#gameLoop();
-			this.currentFrame++;
-		}, FRAME_DURATION);
-	}
-
 	resizeScreen() {
 		this.screenSize = {
 			width: this.gameScreen.clientWidth,
@@ -71,66 +81,138 @@ class Game {
 		};
 	}
 
+	/**
+	 * Returns a formatted string for the remaining game time
+	 *
+	 * @returns {string} `"1:35"` for `this.remainingTime = 95`
+	 */
+	getFormattedRemainingTime() {
+		return `${Math.floor(this.remainingTime / 60)}:${this.remainingTime % 60}`;
+	}
+
+	/*******************************
+	 *	Game Loop
+	 *******************************/
+	#startLoopInterval() {
+		this.gameloopIntervalID = setInterval(() => {
+			this.currentFrame++;
+			this.#updateTime();
+			this.#updateScore();
+
+			if (this.#playerWinsOrLooses()) {
+				this.#stopLoopInterval();
+
+				if (this.playerLives === 0) {
+					this.gameScreen.parentElement.style.backgroundColor = 'black';
+					this.gameScreen.classList.add('shake');
+				}
+
+				return;
+			}
+
+			this.#gameLoop();
+		}, FRAME_DURATION);
+	}
+
 	#gameLoop() {
 		this.spaceship.update();
 		this.#createProjectile();
 		this.#spawnLaterAsteroids();
 
-		// Handle Collision Detection and Garbage Collection
-		// update and garbage collect projectiles
-		for (let i = this.projectiles.length - 1; i >= 0; i--) {
-			this.projectiles[i].update();
+		/***************************************************
+		 * 	Projectile Updates
+		 * -------------------------------------------------
+		 * 	Loops through projectiles, checks for collisions
+		 * 	with asteroids or out of bound events and removes
+		 * 	both from DOM and game.
+		 ***************************************************/
+		projectileLoop: for (let i = this.projectiles.length - 1; i >= 0; i--) {
+			const projectile = this.projectiles[i];
 
-			for (let j = this.asteroids.length - 1; j >= 0; j--) {
-				if (
-					isColliding(
-						this.projectiles[i].getCollisionShape(),
-						this.asteroids[j].getCollisionShape()
-					)
-				) {
+			asteroidLoop: for (let j = this.asteroids.length - 1; j >= 0; j--) {
+				const asteroid = this.asteroids[j];
+
+				const projectileHitsAsteroid = isColliding(
+					projectile.getCollisionShape(),
+					asteroid.getCollisionShape()
+				);
+
+				if (projectileHitsAsteroid) {
+					// handle score
+					this.playerScore++;
+
 					// handle projectile
-					this.projectiles[i].isCollided = true;
-					this.projectiles[i].update();
-					this.projectiles.splice(i, 1);
+					projectile.hasHitTarget = true;
+
 					// handle asteroid
-					this.asteroids[j].isCollided = true;
-					this.asteroids[j].update();
+					asteroid.isShot = true;
+					asteroid.element.remove();
 					this.asteroids.splice(j, 1);
+
+					break asteroidLoop;
 				}
 			}
-			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
-		}
 
-		// update and garbage collect asteroids
-		for (let i = this.asteroids.length - 1; i >= 0; i--) {
-			if (
-				isColliding(
-					this.spaceship.getCollisionShape(),
-					this.asteroids[i].getCollisionShape()
-				)
-			) {
-				// handle collision
-				clearInterval(this.gameloopIntervalID);
-				this.gameScreen.parentElement.style.backgroundColor = 'black';
-				this.gameScreen.classList.add('shake');
+			// Remove projectile
+			if (projectile.isOutside || projectile.hasHitTarget) {
+				projectile.element.remove();
+				this.projectiles.splice(i, 1);
+
+				continue projectileLoop;
 			}
 
-			this.asteroids[i].update();
-			if (this.asteroids[i].isOutside) this.asteroids.splice(i, 1);
+			// Update projectile
+			projectile.update();
+		}
+
+		/***************************************************
+		 * 	Asteroid Updates
+		 * -------------------------------------------------
+		 * 	Loops through asteroids, checks for collisions
+		 * 	with player or out of bound events and removes
+		 * 	asteroids from DOM and game.
+		 ***************************************************/
+		for (let i = this.asteroids.length - 1; i >= 0; i--) {
+			const asteroid = this.asteroids[i];
+
+			const asteroidHitsPlayer = isColliding(
+				this.spaceship.getCollisionShape(),
+				asteroid.getCollisionShape()
+			);
+
+			if (asteroidHitsPlayer) {
+				// handle collision
+				asteroid.hasCollided = true;
+				this.playerLives--;
+				this.#updatePlayerLives();
+			}
+
+			// If collision kills player, asteroid should stay visible
+			if (asteroidHitsPlayer && !this.playerLives) break;
+
+			// Remove asteroid
+			const leavesAfterEntry = asteroid.hasEnteredScreen && asteroid.isOutside;
+
+			if (
+				leavesAfterEntry ||
+				asteroid.hasCollided ||
+				asteroid.isShot ||
+				asteroidHitsPlayer
+			) {
+				asteroid.element.remove();
+				this.asteroids.splice(i, 1);
+
+				continue;
+			}
+
+			// Update asteroid
+			asteroid.update();
 		}
 	}
 
-	#loadLevelData(levelIndex) {
-		this.currentLevel = levels[levelIndex];
-	}
-
-	#spawnInitialAsteroids(count) {
-		for (let i = 0; i < count; i++) {
-			this.#spawnAsteroid();
-		}
-	}
-
-	// key press handling
+	/*******************************
+	 *	Handle Events
+	 *******************************/
 	onKeyDown(event) {
 		switch (event.code) {
 			case 'ArrowUp':
@@ -180,7 +262,7 @@ class Game {
 				this.keys.space.pressed = false;
 				break;
 			case 'KeyP':
-				this.onPause();
+				this.pauseOrResumeGame();
 				break;
 
 			default:
@@ -188,26 +270,50 @@ class Game {
 		}
 	}
 
-	onPause() {
+	pauseOrResumeGame() {
 		if (this.gameloopIntervalID) {
-			clearInterval(this.gameloopIntervalID);
-			this.gameloopIntervalID = null;
+			this.#stopLoopInterval();
 			return;
 		}
 
 		if (!this.gameloopIntervalID) {
-			this.resume();
+			this.#startLoopInterval();
+			return;
 		}
 	}
 
-	// game logic
+	/*******************************
+	 *	Private Methods
+	 *******************************/
+	#playerWinsOrLooses() {
+		const timeIsUp = this.remainingTime === 0;
+		const playerIsDead = this.playerLives === 0;
+
+		return timeIsUp || playerIsDead;
+	}
+
+	#stopLoopInterval() {
+		clearInterval(this.gameloopIntervalID);
+		this.gameloopIntervalID = null;
+	}
+
+	#loadLevelData(levelIndex) {
+		this.currentLevel = levels[levelIndex];
+	}
+
+	#spawnInitialAsteroids(count) {
+		for (let i = 0; i < count; i++) {
+			this.#spawnAsteroid();
+		}
+	}
+
 	#spawnAsteroid() {
 		let position = { x: null, y: null };
 
 		const width = 50 + Math.floor(Math.random() * 150);
 
 		const randomSide = ['top', 'right', 'bottom', 'left'][
-			Math.floor(Math.random() * 3)
+			Math.floor(Math.random() * 4)
 		];
 
 		// randomize flight direction (orientation for velocity)
@@ -227,7 +333,7 @@ class Game {
 				break;
 
 			case 'right':
-				position.x = this.screenSize.width - 100;
+				position.x = this.screenSize.width + 100;
 				position.y = Math.floor(Math.random() * this.screenSize.height);
 				correction =
 					(position.y / this.screenSize.height - 0.5) * correctionFraction;
@@ -291,7 +397,8 @@ class Game {
 	#spawnLaterAsteroids() {
 		// TODO randomize, so asteroids don't spawn too statically
 		if (
-			(this.currentFrame * 60) % levels[this.currentLevelIndex].spawnRate ===
+			(this.currentFrame * FRAMES_PER_SECOND) %
+				levels[this.currentLevelIndex].spawnRate ===
 			0
 		) {
 			this.#spawnAsteroid();
@@ -329,6 +436,21 @@ class Game {
 		}
 	}
 
+	#updateTime() {
+		if (this.currentFrame % FRAMES_PER_SECOND === 0) {
+			this.remainingTime--;
+			timeDisplay.textContent = this.getFormattedRemainingTime();
+		}
+	}
+
+	#updateScore() {
+		scoreDisplay.textContent = this.playerScore;
+	}
+
+	#updatePlayerLives() {
+		livesDisplay.textContent = this.playerLives;
+	}
+
 	#createSpaceshipElement() {
 		const spaceshipElement = document.createElement('div');
 		spaceshipElement.id = 'spaceship';
@@ -343,6 +465,9 @@ class Game {
 	}
 }
 
+/*******************************
+ *	Helper Functions
+ *******************************/
 function isColliding(circle1, circle2) {
 	const dx = circle2.x - circle1.x;
 	const dy = circle2.y - circle1.y;

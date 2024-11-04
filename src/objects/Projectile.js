@@ -7,29 +7,29 @@ class Projectile {
 		projectileElement,
 		orientation,
 	}) {
-		// global states
+		// External State
 		this.gameScreen = gameScreen;
+		// TODO pass only width and height, not the whole element
 		this.spaceshipElement = spaceshipElement;
 		this.element = projectileElement;
 
-		// internal states
+		// Projectile Characteristics
+		this.width = 20;
+
+		// Internal State
 		this.position = position;
 		this.velocity = velocity;
 		this.orientation = orientation;
 		this.hasBeenRenderedOnce = false;
 		this.isOutside = false;
-		this.isCollided = false;
-		this.width = 20;
+		this.hasHitTarget = false;
 	}
 
 	update() {
-		this.#render();
 		this.#updatePosition();
-		if (this.#isOutOfScreen()) {
-			this.element.remove();
-			this.isOutside = true;
-		}
-		if (this.isCollided) this.element.remove();
+		this.#handleScreenLeave();
+
+		this.#render();
 	}
 
 	getCollisionShape() {
@@ -63,7 +63,7 @@ class Projectile {
 		this.position.y += this.velocity.y;
 	}
 
-	#isOutOfScreen() {
+	#handleScreenLeave() {
 		const gameScreenRect = this.gameScreen.getBoundingClientRect();
 		const projectileRect = this.element.getBoundingClientRect();
 
@@ -73,7 +73,7 @@ class Projectile {
 			projectileRect.bottom < gameScreenRect.top || // Above screen
 			projectileRect.top > gameScreenRect.bottom; // Below screen
 
-		return isOutside;
+		this.isOutside = isOutside;
 	}
 }
 

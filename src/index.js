@@ -85,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			// TEST pause
 			setTimeout(() => {
-				game.onPause();
+				game.pauseOrResumeGame();
+				console.warn('Pausing for testing at frame 60.');
 			}, 60);
 		});
 	}
@@ -130,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		window.removeEventListener('resize', game.resizeScreen);
 
 		gameOverButton.removeEventListener('click', changeViewToResult);
-		pauseButton.removeEventListener('click', e => game.onPause(e));
+		pauseButton.removeEventListener('click', e => game.pauseOrResumeGame(e));
 
 		document.removeEventListener('keydown', e => game.onKeyDown(e));
 		document.removeEventListener('keyup', e => game.onKeyUp(e));
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		window.addEventListener('resize', game.resizeScreen);
 
 		gameOverButton.addEventListener('click', changeViewToResult);
-		pauseButton.addEventListener('click', e => game.onPause(e));
+		pauseButton.addEventListener('click', e => game.pauseOrResumeGame(e));
 
 		document.addEventListener('keydown', e => game.onKeyDown(e));
 		document.addEventListener('keyup', e => game.onKeyUp(e));

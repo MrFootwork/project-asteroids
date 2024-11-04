@@ -1,18 +1,18 @@
 class Spaceship {
 	constructor({ spaceshipElement, gameScreen, keys }) {
-		// global states
+		// External State
 		this.gameScreen = gameScreen;
 		this.element = spaceshipElement;
 		this.keys = keys;
 		this.isAccelerating = false;
 		this.isDecelerating = false;
 
-		// ship characteristics
+		// Spaceship Characteristics
 		this.ANGLE_OFFSET = Math.PI / 2;
 		this.SPEED = 8;
 		this.ROTATIONAL_SPEED = 0.2;
 
-		// internal states
+		// Internal State
 		this.position = { x: 200, y: 400 };
 		this.velocity = { x: 0, y: 0 };
 		this.rotaionalVelocity = 0;
