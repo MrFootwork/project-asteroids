@@ -24,8 +24,8 @@ class Asteroid {
 		this.#updatePosition();
 
 		// Handle screen entry and leave
-		if (!this.hasEnteredScreen) this.#handleScreenEntry();
 		if (this.hasEnteredScreen) this.#handleScreenLeave();
+		if (!this.hasEnteredScreen) this.#handleScreenEntry();
 
 		this.#render();
 	}
