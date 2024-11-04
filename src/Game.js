@@ -59,11 +59,6 @@ class Game {
 		this.#startLoopInterval();
 	}
 
-	/** Starts a new interval. */
-	resume() {
-		this.#startLoopInterval();
-	}
-
 	resizeScreen() {
 		this.screenSize = {
 			width: this.gameScreen.clientWidth,
@@ -192,7 +187,7 @@ class Game {
 				this.keys.space.pressed = false;
 				break;
 			case 'KeyP':
-				this.onPause();
+				this.pauseOrResumeGame();
 				break;
 
 			default:
@@ -200,7 +195,7 @@ class Game {
 		}
 	}
 
-	onPause() {
+	pauseOrResumeGame() {
 		if (this.gameloopIntervalID) {
 			clearInterval(this.gameloopIntervalID);
 			this.gameloopIntervalID = null;
@@ -208,7 +203,7 @@ class Game {
 		}
 
 		if (!this.gameloopIntervalID) {
-			this.resume();
+			this.#startLoopInterval();
 		}
 	}
 
