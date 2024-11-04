@@ -7,19 +7,22 @@ class Projectile {
 		projectileElement,
 		orientation,
 	}) {
-		// global states
+		// External State
 		this.gameScreen = gameScreen;
+		// TODO pass only width and height, not the whole element
 		this.spaceshipElement = spaceshipElement;
 		this.element = projectileElement;
 
-		// internal states
+		// Projectile Characteristics
+		this.width = 20;
+
+		// Internal State
 		this.position = position;
 		this.velocity = velocity;
 		this.orientation = orientation;
 		this.hasBeenRenderedOnce = false;
 		this.isOutside = false;
-		this.isCollided = false;
-		this.width = 20;
+		this.hasCollided = false;
 	}
 
 	update() {
@@ -29,7 +32,7 @@ class Projectile {
 			this.element.remove();
 			this.isOutside = true;
 		}
-		if (this.isCollided) this.element.remove();
+		if (this.hasCollided) this.element.remove();
 	}
 
 	getCollisionShape() {

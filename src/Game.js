@@ -97,9 +97,16 @@ class Game {
 		this.gameloopIntervalID = setInterval(() => {
 			this.currentFrame++;
 			this.#updateTime();
+			this.#updateScore();
 
 			if (this.#playerWinsOrLooses()) {
 				this.#stopLoopInterval();
+
+				if (this.playerLives === 0) {
+					this.gameScreen.parentElement.style.backgroundColor = 'black';
+					this.gameScreen.classList.add('shake');
+				}
+
 				return;
 			}
 
@@ -125,34 +132,44 @@ class Game {
 					)
 				) {
 					// handle projectile
-					this.projectiles[i].isCollided = true;
+					this.projectiles[i].hasCollided = true;
 					this.projectiles[i].update();
 					this.projectiles.splice(i, 1);
 					// handle asteroid
-					this.asteroids[j].isCollided = true;
+					this.playerScore++;
+					this.asteroids[j].isShot = true;
 					this.asteroids[j].update();
 					this.asteroids.splice(j, 1);
 				}
 			}
+
 			if (this.projectiles[i].isOutside) this.projectiles.splice(i, 1);
 		}
 
 		// update and garbage-collect asteroids
 		for (let i = this.asteroids.length - 1; i >= 0; i--) {
-			if (
-				isColliding(
-					this.spaceship.getCollisionShape(),
-					this.asteroids[i].getCollisionShape()
-				)
-			) {
+			const asteroid = this.asteroids[i];
+
+			const asteroidHitsPlayer = isColliding(
+				this.spaceship.getCollisionShape(),
+				asteroid.getCollisionShape()
+			);
+
+			if (asteroidHitsPlayer) {
 				// handle collision
-				clearInterval(this.gameloopIntervalID);
-				this.gameScreen.parentElement.style.backgroundColor = 'black';
-				this.gameScreen.classList.add('shake');
+				this.playerLives--;
+				asteroid.hasCollided = true;
+				this.#updatePlayerLives();
 			}
 
-			this.asteroids[i].update();
-			if (this.asteroids[i].isOutside) this.asteroids.splice(i, 1);
+			// Asteroid should update to be removed from DOM
+			// If collision kills player, asteroid should stay visible
+			if (!this.playerLives) break;
+
+			// update asteroid's DOM
+			asteroid.update();
+			// remove asteroid object from game
+			if (asteroid.isOutside || asteroidHitsPlayer) this.asteroids.splice(i, 1);
 		}
 	}
 
@@ -233,7 +250,9 @@ class Game {
 	 *******************************/
 	#playerWinsOrLooses() {
 		const timeIsUp = this.remainingTime === 0;
-		return timeIsUp;
+		const playerIsDead = this.playerLives === 0;
+
+		return timeIsUp || playerIsDead;
 	}
 
 	#stopLoopInterval() {
@@ -385,6 +404,14 @@ class Game {
 			this.remainingTime--;
 			timeDisplay.textContent = this.getFormattedRemainingTime();
 		}
+	}
+
+	#updateScore() {
+		scoreDisplay.textContent = this.playerScore;
+	}
+
+	#updatePlayerLives() {
+		livesDisplay.textContent = this.playerLives;
 	}
 
 	#createSpaceshipElement() {

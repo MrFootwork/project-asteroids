@@ -1,31 +1,40 @@
 class Asteroid {
 	constructor({ position, velocity, width, element, gameScreen }) {
+		// External State
+		this.gameScreen = gameScreen;
 		this.element = element;
 		this.position = position;
 		this.velocity = velocity;
 		this.width = width;
-		this.orientation = 0;
+
+		// Asteroid Characteristics
 		this.ROTATIONAL_SPEED = -0.04 + Math.random() * 0.08;
+
+		// Internal State
+		this.orientation = 0;
 		this.isOutside = false;
-		this.isCollided = false;
+		this.hasCollided = false;
+		this.isShot = false;
 		this.hasEnteredScreen = false;
 		this.hasBeenRenderedOnce = false;
-		this.gameScreen = gameScreen;
 	}
 
 	update() {
+		const leavesAfterEntry = this.hasEnteredScreen && this.isOutside;
+
+		// BUG doesn't remove reliably after screen leave
+		if (this.hasCollided || this.isShot || leavesAfterEntry) {
+			this.element.remove();
+			return;
+		}
+
 		this.#rotate();
 		this.#updatePosition();
 		this.#render();
 
-		if (!this.hasEnteredScreen) this.#gotInside();
-		if (this.hasEnteredScreen) this.#isOutOfScreen();
-
-		if (this.hasEnteredScreen && this.isOutside) {
-			this.element.remove();
-			this.isOutside = true;
-		}
-		if (this.isCollided) this.element.remove();
+		// Handle screen entry and leave
+		if (!this.hasEnteredScreen) this.#handleScreenEntry();
+		if (this.hasEnteredScreen) this.#handleScreenLeave();
 	}
 
 	getCollisionShape() {
@@ -57,7 +66,7 @@ class Asteroid {
 		this.position.y += this.velocity.y;
 	}
 
-	#gotInside() {
+	#handleScreenEntry() {
 		const gameScreenRect = this.gameScreen.getBoundingClientRect();
 		const asteroidRect = this.element.getBoundingClientRect();
 
@@ -70,7 +79,7 @@ class Asteroid {
 		this.hasEnteredScreen = isInside;
 	}
 
-	#isOutOfScreen() {
+	#handleScreenLeave() {
 		const gameScreenRect = this.gameScreen.getBoundingClientRect();
 		const asteroidRect = this.element.getBoundingClientRect();
 
