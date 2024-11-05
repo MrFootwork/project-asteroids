@@ -12,13 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Game View
 	const gameScreen = document.querySelector('#gameScreen');
-	let backgroundImageSolid;
-	let backgroundImageTransparent;
-	let gameOverButton;
-	let pauseButton;
-	let timeDisplay;
-	let scoreDisplay;
-	let livesDisplay;
+	const backgroundImageSolid = document.querySelector('#backgroundImageSolid');
+	const backgroundImageTransparent = document.querySelector(
+		'#backgroundImageTransparent'
+	);
+	const gameOverButton = document.querySelector('#gameOverButton');
+	const pauseButton = document.querySelector('#pauseButton');
+	const timeDisplay = document.querySelector('#timeDisplay');
+	const scoreDisplay = document.querySelector('#scoreDisplay');
+	const livesDisplay = document.querySelector('#livesDisplay');
 
 	// Result View
 	const resultScreen = document.querySelector('#resultScreen');
@@ -26,14 +28,28 @@ document.addEventListener('DOMContentLoaded', () => {
 	const restartButton = document.querySelector('#restartButton');
 
 	/***********************************
+	 *  Game Engine Instance
+	 * ---------------------------------
+	 * After elements are defined,
+	 * create a game instance before
+	 * event listeners are declared.
+	 ***********************************/
+	game = new Game({ gameScreen });
+
+	/***********************************
 	 *  Event Listeners
 	 ***********************************/
+	// add in game event listeners
+	addGameEventListeners();
+
 	// Home View
-	startButton.addEventListener('click', changeViewToGame);
+	startButton.addEventListener('click', () => {
+		game.currentLevelID = 1;
+		changeViewToGame();
+	});
 
 	// Result View
 	toHomeButton.addEventListener('click', changeViewToHome);
-	// FIXME Test this button
 	restartButton.addEventListener('click', changeViewToGame);
 
 	/***********************************
@@ -43,18 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	/** Switching to Game View. Does everything to start a game */
 	function changeViewToGame() {
 		// Spin up a game
-		// FIXME clear/reset game method instead
-		// This way existing HTML could be reused for a new game
-		createGameUI();
-		addBackgroundElements();
-		querySelectElements();
-
-		// After preperation start game
 		startGame();
-
-		// Event listeners use game methods as callbacks
-		removeGameEventListeners();
-		addGameEventListeners();
 
 		// Change view
 		homeScreen.style.display = 'none';
@@ -79,84 +84,35 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	/***********************************
-	 *  Game Engine
+	 *  Game Engine Starter
 	 ***********************************/
 	/** Instantiates and starts a game. */
 	function startGame() {
-		game = new Game({ gameScreen });
+		requestAnimationFrame(() => {
+			if (game) {
+				game.reset();
+			}
+		});
+
 		requestAnimationFrame(() => {
 			game.start();
 
-			// TEST pause
-			const pauseFrameAt = 29;
+			// TESTING pause
+			// const pauseFrameAt = 29;
 
-			setTimeout(() => {
-				game.pauseOrResumeGame();
-				console.warn(`Pausing for testing at frame ${pauseFrameAt}.`);
-			}, pauseFrameAt);
+			// setTimeout(() => {
+			// 	game.pauseOrResumeGame();
+			// 	console.warn(`Pausing for testing at frame ${pauseFrameAt}.`);
+			// }, pauseFrameAt);
 		});
 	}
 
-	// Test start
-	changeViewToGame();
+	// TESTING start
+	// changeViewToGame();
 
 	/***********************************
 	 *  Grouping Functions
 	 ***********************************/
-	/** Adds all in game UI elements like timeDisplay or pauseButton.
-	 *  Needs to be called before game start to replace all existing game elements.
-	 */
-	function createGameUI() {
-		const gameUIWrapper = document.createElement('div');
-		const userInterfaceHTML = /*html*/ `
-			<div>
-				<button id="gameOverButton">Game Over</button>
-				<button id="pauseButton">Pause / Play</button>
-			</div>
-			<div>
-				<p>Time to survive: <span id="timeDisplay">2:00</span></p>
-			</div>
-			<div>
-				<p>☄ Score <span id	="scoreDisplay">0</span></p>
-				<p>❤ Lives <span id	="livesDisplay">3</span></p>
-			</div>
-		`;
-		gameUIWrapper.innerHTML = userInterfaceHTML;
-		gameScreen.replaceChildren(gameUIWrapper);
-	}
-
-	function addBackgroundElements() {
-		backgroundImageSolid = document.createElement('div');
-		backgroundImageTransparent = document.createElement('div');
-
-		backgroundImageSolid.id = 'backgroundImageSolid';
-		backgroundImageTransparent.id = 'backgroundImageTransparent';
-
-		gameScreen.appendChild(backgroundImageSolid);
-		gameScreen.appendChild(backgroundImageTransparent);
-	}
-
-	// prettier-ignore
-	function querySelectElements() {
-		backgroundImageSolid = document.querySelector('#backgroundImageSolid');
-		backgroundImageTransparent = document.querySelector('#backgroundImageTransparent');
-		gameOverButton = document.querySelector('#gameOverButton');
-		pauseButton = document.querySelector('#pauseButton');
-		timeDisplay = document.querySelector('#timeDisplay');
-		scoreDisplay = document.querySelector('#scoreDisplay');
-		livesDisplay = document.querySelector('#livesDisplay');
-	}
-
-	function removeGameEventListeners() {
-		window.removeEventListener('resize', game.resizeScreen);
-
-		gameOverButton.removeEventListener('click', changeViewToResult);
-		pauseButton.removeEventListener('click', e => game.pauseOrResumeGame(e));
-
-		document.removeEventListener('keydown', e => game.onKeyDown(e));
-		document.removeEventListener('keyup', e => game.onKeyUp(e));
-	}
-
 	function addGameEventListeners() {
 		window.addEventListener('resize', game.resizeScreen);
 
