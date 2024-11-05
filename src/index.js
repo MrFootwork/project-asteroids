@@ -12,12 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Game View
 	const gameScreen = document.querySelector('#gameScreen');
+	let backgroundImageSolid;
+	let backgroundImageTransparent;
 	let gameOverButton;
 	let pauseButton;
 	let timeDisplay;
 	let scoreDisplay;
 	let livesDisplay;
-	querySelectUIElements();
 
 	// Result View
 	const resultScreen = document.querySelector('#resultScreen');
@@ -41,11 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Home View
 	/** Switching to Game View. Does everything to start a game */
 	function changeViewToGame() {
+		console.warn('changeViewToGame');
+
 		// Spin up a game
 		// FIXME clear/reset game method instead
 		// This way existing HTML could be reused for a new game
 		createGameUI();
-		querySelectUIElements();
+		addBackgroundElements();
+		querySelectElements();
+
+		// After preperation start game
 		startGame();
 
 		// Event listeners use game methods as callbacks
@@ -119,7 +125,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		gameScreen.replaceChildren(gameUIWrapper);
 	}
 
-	function querySelectUIElements() {
+	function addBackgroundElements() {
+		backgroundImageSolid = document.createElement('div');
+		backgroundImageTransparent = document.createElement('div');
+
+		backgroundImageSolid.id = 'backgroundImageSolid';
+		backgroundImageTransparent.id = 'backgroundImageTransparent';
+
+		gameScreen.appendChild(backgroundImageSolid);
+		gameScreen.appendChild(backgroundImageTransparent);
+	}
+
+	// prettier-ignore
+	function querySelectElements() {
+		backgroundImageSolid = document.querySelector('#backgroundImageSolid');
+		backgroundImageTransparent = document.querySelector('#backgroundImageTransparent');
 		gameOverButton = document.querySelector('#gameOverButton');
 		pauseButton = document.querySelector('#pauseButton');
 		timeDisplay = document.querySelector('#timeDisplay');

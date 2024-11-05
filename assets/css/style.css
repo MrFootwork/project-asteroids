@@ -4,6 +4,9 @@ body {
 	/* background-color: black; */
 }
 
+/*****************************
+*	Home View
+******************************/
 #homeScreen {
 	display: block;
 	margin: auto;
@@ -11,14 +14,9 @@ body {
 	height: 100dvh;
 }
 
-#gameScreen {
-	display: none;
-	margin: auto;
-	background-color: black;
-	color: white;
-	height: 100dvh;
-}
-
+/*****************************
+*	Result View
+******************************/
 #resultScreen {
 	display: none;
 	margin: auto;
@@ -26,11 +24,23 @@ body {
 	height: 100dvh;
 }
 
+/*****************************
+*	Game View
+******************************/
+#gameScreen {
+	display: none;
+	position: relative;
+	margin: auto;
+	background-color: black;
+	color: white;
+	height: 100dvh;
+	z-index: 100;
+}
+
+/* ＧＡＭＥ　ＯＢＪＥＣＴＳ*/
 #spaceship {
 	position: absolute;
 	width: 4rem;
-	/* border-radius: 100%; */
-	/* outline: 1px solid white; */
 }
 
 .projectile {
@@ -43,10 +53,9 @@ body {
 .asteroid {
 	position: absolute;
 	aspect-ratio: 1;
-	/* border-radius: 100%; */
-	/* outline: 1px solid white; */
 }
 
+/* ＥＦＦＥＣＴＳ */
 /* prettier-ignore */
 @keyframes shake {
 	0% { transform: translateX(0); }
@@ -63,4 +72,35 @@ body {
 .shake {
 	animation: shake 0.5s linear; /* 0.5s duration and ease timing */
 	animation-iteration-count: 1; /* Can be adjusted for more shakes */
+}
+
+/* ＢＡＣＫＧＲＯＵＮＤ */
+#backgroundImageSolid {
+	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)),
+		url('../images/game-background-1.jpg');
+	background-size: auto 150%;
+	background-position: center;
+	background-repeat: no-repeat;
+	filter: blur(2px) brightness(170%) contrast(120%) saturate(80%);
+
+	position: absolute;
+	z-index: -1000;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#backgroundImageTransparent {
+	background-image: url('../images/game-background-2.png');
+	background-size: auto 140%;
+	background-position: center;
+	background-repeat: no-repeat;
+
+	position: absolute;
+	z-index: -900;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }

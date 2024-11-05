@@ -114,8 +114,22 @@ class Game {
 		}, FRAME_DURATION);
 	}
 
+	#updateBackground() {
+		setBackgroundPosition({
+			spaceshipVelocity: this.spaceship.velocity,
+			backgroundElement: backgroundImageSolid,
+			decelerationFactor: 0.15,
+		});
+		setBackgroundPosition({
+			spaceshipVelocity: this.spaceship.velocity,
+			backgroundElement: backgroundImageTransparent,
+			decelerationFactor: 0.02,
+		});
+	}
+
 	#gameLoop() {
 		this.spaceship.update();
+		this.#updateBackground();
 		this.#createProjectile();
 		this.#spawnLaterAsteroids();
 
@@ -474,6 +488,48 @@ function isColliding(circle1, circle2) {
 	const distance = Math.sqrt(dx ** 2 + dy ** 2);
 
 	return distance < circle1.radius + circle2.radius;
+}
+
+/**
+ * 	Moves the background image of an Element opposite to the spaceship velocity.
+ * 	`decelerationFactor` should be between `0` and `1`.
+ *	`0`: not moving
+ *	`1`: extremely fast
+ *
+ * @param {{
+ * 	spaceshipVelocity: {x: number, y: number};
+ * 	backgroundElement: Element;
+ * 	decelerationFactor: number;
+ * }} param0
+ *
+ * @param {*} param0.spaceshipPosition
+ * @param {*} param0.backgroundElement
+ * @param {*} param0.decelerationFactor
+ */
+function setBackgroundPosition({
+	spaceshipVelocity,
+	backgroundElement,
+	decelerationFactor,
+}) {
+	const computedStyle = window.getComputedStyle(backgroundElement);
+
+	const hasLinearGradient = computedStyle.backgroundPosition.includes(', ');
+	const backgroundImageIndex = hasLinearGradient ? 1 : 0;
+
+	const [xPosition, yPosition] = hasLinearGradient
+		? computedStyle.backgroundPosition
+				.split(', ')
+				[backgroundImageIndex].split(' ')
+		: computedStyle.backgroundPosition.split(' ');
+
+	const xValue =
+		parseFloat(xPosition) + spaceshipVelocity.x * decelerationFactor;
+	const yValue =
+		parseFloat(yPosition) + spaceshipVelocity.y * decelerationFactor;
+
+	backgroundElement.style.backgroundPosition = `${
+		hasLinearGradient ? '50% 50%, ' : ''
+	}${xValue}% ${yValue}%`;
 }
 
 export default Game;
