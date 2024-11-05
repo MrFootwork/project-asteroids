@@ -1,11 +1,12 @@
 import Spaceship from './objects/Spaceship.js';
 import Projectile from './objects/Projectile.js';
 import Asteroid from './objects/Asteroid.js';
-import levels from '../data/levels.js';
+import levelDictionary from '../data/levels.js';
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
-const TIME_TO_SURVIVE = 120; // 2 minutes
+// TESTING time
+const TIME_TO_SURVIVE = 70; // 2 minutes
 
 // TODO test, if still needed after using vite bundling
 const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
@@ -35,7 +36,8 @@ class Game {
 		 *	Game State
 		 *******************************/
 		// Level
-		this.currentLevelIndex = 0;
+		this.currentLevelID = 1;
+		this.currentLevel = levelDictionary[this.currentLevelID];
 		this.remainingTime = TIME_TO_SURVIVE;
 
 		// Player
@@ -46,11 +48,12 @@ class Game {
 		});
 		this.playerLives = 3;
 		this.playerScore = 0;
+		this.playerWon = false;
 
 		// Projectiles
 		this.projectiles = [];
-		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
-		this.lastFired = 0; // Timestamp of the last shot
+		this.fireRate = FRAMES_PER_SECOND / 2; // Time in frames between shots
+		this.lastFired = null; // Timestamp of the last shot
 
 		// Asteroids
 		this.asteroids = [];
@@ -60,18 +63,75 @@ class Game {
 	/*******************************
 	 *	Public Methods
 	 *******************************/
-
 	/** Starts the game engine. */
 	start() {
+		// Initial Render
+		requestAnimationFrame(() => {
+			timeDisplay.textContent = this.getFormattedRemainingTime();
+			this.#updateScore();
+			this.#updatePlayerLives();
+			this.#updateTime();
+		});
+
 		// Access dimensions after start is called, ensuring the DOM is ready
 		this.screenSize = {
 			width: this.gameScreen.clientWidth,
 			height: this.gameScreen.clientHeight,
 		};
 
-		this.#loadLevelData(this.currentLevelIndex);
+		this.currentLevel = levelDictionary[this.currentLevelID];
 		this.#spawnInitialAsteroids(this.currentLevel.initialAsteroids);
-		this.#startLoopInterval();
+
+		// Finally start the loops
+		requestAnimationFrame(() => this.#startLoopInterval());
+	}
+
+	reset() {
+		clearInterval(this.gameloopIntervalID);
+		this.gameloopIntervalID = null;
+		this.currentFrame = 0;
+		this.remainingTime = TIME_TO_SURVIVE;
+
+		// Determine next leve ID
+		if (!this.playerWon) this.currentLevelID = 1;
+		if (this.playerWon && levelDictionary[this.currentLevelID + 1])
+			++this.currentLevelID;
+
+		// Load data for next level
+		this.currentLevel = levelDictionary[this.currentLevelID];
+
+		// Reset playerWon flag
+		this.playerWon = false;
+
+		// Remove all remaining elements
+		[this.asteroids, this.projectiles].forEach((container, i) => {
+			// HACK list all game objects
+			const selectors = ['.asteroid', '.projectile'];
+
+			// Remove all remaining objects from game
+			for (let i = container.length - 1; i >= 0; i--) {
+				container[i].element.remove();
+				container.splice(i, 1);
+			}
+
+			// Also remove all remaining objects in the DOM, just in case
+			const orphanedObjects = document.querySelectorAll(selectors[i]);
+			for (const object of orphanedObjects) object.remove();
+		});
+
+		// Player
+		this.playerLives = 3;
+		this.playerScore = 0;
+
+		// Spaceship
+		this.spaceship.setPosition(this.currentLevel.startPosition);
+
+		// Projectiles
+		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
+		this.lastFired = null;
+
+		// Asteroids
+		this.baseAsteroidSpeed = this.currentLevel.asteroidSpeed;
 	}
 
 	resizeScreen() {
@@ -87,7 +147,10 @@ class Game {
 	 * @returns {string} `"1:35"` for `this.remainingTime = 95`
 	 */
 	getFormattedRemainingTime() {
-		return `${Math.floor(this.remainingTime / 60)}:${this.remainingTime % 60}`;
+		const minutes = Math.floor(this.remainingTime / 60);
+		const seconds = (this.remainingTime % 60).toString().padStart(2, '0');
+
+		return `${minutes}:${seconds}`;
 	}
 
 	/*******************************
@@ -97,7 +160,6 @@ class Game {
 		this.gameloopIntervalID = setInterval(() => {
 			this.currentFrame++;
 			this.#updateTime();
-			this.#updateScore();
 
 			if (this.#playerWinsOrLooses()) {
 				this.#stopLoopInterval();
@@ -154,6 +216,7 @@ class Game {
 				if (projectileHitsAsteroid) {
 					// handle score
 					this.playerScore++;
+					this.#updateScore();
 
 					// handle projectile
 					projectile.hasHitTarget = true;
@@ -276,6 +339,7 @@ class Game {
 				this.keys.space.pressed = false;
 				break;
 			case 'KeyP':
+			case 'Pause':
 				this.pauseOrResumeGame();
 				break;
 
@@ -303,16 +367,24 @@ class Game {
 		const timeIsUp = this.remainingTime === 0;
 		const playerIsDead = this.playerLives === 0;
 
+		if (timeIsUp && !playerIsDead) {
+			this.playerWon = true;
+		}
+
+		if (timeIsUp || playerIsDead) {
+			console.log(
+				'Game has ended. TimeIsUp, playerIsDead: ',
+				timeIsUp,
+				playerIsDead
+			);
+		}
+
 		return timeIsUp || playerIsDead;
 	}
 
 	#stopLoopInterval() {
 		clearInterval(this.gameloopIntervalID);
 		this.gameloopIntervalID = null;
-	}
-
-	#loadLevelData(levelIndex) {
-		this.currentLevel = levels[levelIndex];
 	}
 
 	#spawnInitialAsteroids(count) {
@@ -411,8 +483,7 @@ class Game {
 	#spawnLaterAsteroids() {
 		// TODO randomize, so asteroids don't spawn too statically
 		if (
-			(this.currentFrame * FRAMES_PER_SECOND) %
-				levels[this.currentLevelIndex].spawnRate ===
+			(this.currentFrame * FRAMES_PER_SECOND) % this.currentLevel.spawnRate ===
 			0
 		) {
 			this.#spawnAsteroid();

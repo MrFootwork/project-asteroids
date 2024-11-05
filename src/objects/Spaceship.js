@@ -13,7 +13,7 @@ class Spaceship {
 		this.ROTATIONAL_SPEED = 0.2;
 
 		// Internal State
-		this.position = { x: 200, y: 400 };
+		this.position = { x: 0, y: 0 };
 		this.velocity = { x: 0, y: 0 };
 		this.rotaionalVelocity = 0;
 		this.orientation = 0; // Orientation in radians
@@ -42,6 +42,23 @@ class Spaceship {
 			y: this.position.y + this.element.clientHeight / 2,
 			radius: this.element.clientWidth / 2,
 		};
+	}
+
+	setPosition(position) {
+		const defaultWidth = 70;
+		const defaultHeight = 70;
+
+		if (!position) {
+			this.position.x =
+				(gameScreen.clientWidth - this.element.clientWidth || defaultWidth) / 2;
+			this.position.y =
+				(gameScreen.clientHeight - this.element.clientHeight || defaultHeight) /
+				2;
+			return;
+		}
+
+		this.position.x = position.x;
+		this.position.y = position.y;
 	}
 
 	#render() {
