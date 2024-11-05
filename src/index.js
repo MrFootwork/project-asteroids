@@ -90,15 +90,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			game.start();
 
 			// TEST pause
-			setTimeout(() => {
-				game.pauseOrResumeGame();
-				console.warn('Pausing for testing at frame 60.');
-			}, 60);
+			// setTimeout(() => {
+			// 	game.pauseOrResumeGame();
+			// 	console.warn('Pausing for testing at frame 60.');
+			// }, 60);
 		});
 	}
 
 	// Test start
-	changeViewToGame();
+	// changeViewToGame();
 
 	/***********************************
 	 *  Grouping Functions

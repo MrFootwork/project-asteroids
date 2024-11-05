@@ -118,7 +118,7 @@ class Game {
 		setBackgroundPosition({
 			spaceshipVelocity: this.spaceship.velocity,
 			backgroundElement: backgroundImageSolid,
-			decelerationFactor: 0.15,
+			decelerationFactor: 0.03,
 		});
 		setBackgroundPosition({
 			spaceshipVelocity: this.spaceship.velocity,

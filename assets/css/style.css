@@ -78,10 +78,10 @@ body {
 #backgroundImageSolid {
 	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)),
 		url('../images/game-background-1.jpg');
-	background-size: auto 150%;
+	background-size: auto 135%;
 	background-position: center;
 	background-repeat: no-repeat;
-	filter: blur(2px) brightness(170%) contrast(120%) saturate(80%);
+	filter: blur(1px) brightness(170%) contrast(120%) saturate(80%);
 
 	position: absolute;
 	z-index: -1000;
@@ -93,9 +93,10 @@ body {
 
 #backgroundImageTransparent {
 	background-image: url('../images/game-background-2.png');
-	background-size: auto 140%;
+	background-size: auto 160%;
 	background-position: center;
-	background-repeat: no-repeat;
+	background-repeat: repeat;
+	filter: blur(0px) brightness(170%) contrast(120%) saturate(80%);
 
 	position: absolute;
 	z-index: -900;
