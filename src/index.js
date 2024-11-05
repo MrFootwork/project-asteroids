@@ -42,8 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Home View
 	/** Switching to Game View. Does everything to start a game */
 	function changeViewToGame() {
-		console.warn('changeViewToGame');
-
 		// Spin up a game
 		// FIXME clear/reset game method instead
 		// This way existing HTML could be reused for a new game
@@ -83,22 +81,24 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Game Engine
 	 ***********************************/
-	/** Starts the game engine. */
+	/** Instantiates and starts a game. */
 	function startGame() {
 		game = new Game({ gameScreen });
 		requestAnimationFrame(() => {
 			game.start();
 
 			// TEST pause
-			// setTimeout(() => {
-			// 	game.pauseOrResumeGame();
-			// 	console.warn('Pausing for testing at frame 60.');
-			// }, 60);
+			const pauseFrameAt = 29;
+
+			setTimeout(() => {
+				game.pauseOrResumeGame();
+				console.warn(`Pausing for testing at frame ${pauseFrameAt}.`);
+			}, pauseFrameAt);
 		});
 	}
 
 	// Test start
-	// changeViewToGame();
+	changeViewToGame();
 
 	/***********************************
 	 *  Grouping Functions

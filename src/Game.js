@@ -5,7 +5,8 @@ import levels from '../data/levels.js';
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
-const TIME_TO_SURVIVE = 120; // 2 minutes
+// TESTING
+const TIME_TO_SURVIVE = 3; // 2 minutes
 
 // TODO test, if still needed after using vite bundling
 const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
@@ -63,6 +64,9 @@ class Game {
 
 	/** Starts the game engine. */
 	start() {
+		// Render time once, before game starts
+		timeDisplay.textContent = this.getFormattedRemainingTime();
+
 		// Access dimensions after start is called, ensuring the DOM is ready
 		this.screenSize = {
 			width: this.gameScreen.clientWidth,
@@ -71,6 +75,7 @@ class Game {
 
 		this.#loadLevelData(this.currentLevelIndex);
 		this.#spawnInitialAsteroids(this.currentLevel.initialAsteroids);
+
 		this.#startLoopInterval();
 	}
 
@@ -87,7 +92,10 @@ class Game {
 	 * @returns {string} `"1:35"` for `this.remainingTime = 95`
 	 */
 	getFormattedRemainingTime() {
-		return `${Math.floor(this.remainingTime / 60)}:${this.remainingTime % 60}`;
+		const minutes = Math.floor(this.remainingTime / 60);
+		const seconds = (this.remainingTime % 60).toString().padStart(2, '0');
+
+		return `${minutes}:${seconds}`;
 	}
 
 	/*******************************
