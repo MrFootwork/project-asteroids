@@ -28,6 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const newGameButton = document.querySelector('#newGameButton');
 	const settingsButton = document.querySelector('#settingsButton');
 	const exitButton = document.querySelector('#exitButton');
+	// Sounds
+	const buttonHoverSoundPlayer = document.querySelector(
+		'#buttonHoverSoundPlayer'
+	);
 
 	// Game View
 	const gameScreen = document.querySelector('#gameScreen');
@@ -70,6 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	newGameButton.addEventListener('click', () => {
 		game.currentLevelID = 1;
 		changeViewToGame();
+	});
+
+	const menuButtons = document.querySelectorAll('button:not(:disabled)');
+	menuButtons.forEach(button => {
+		button.addEventListener('mouseenter', () => {
+			buttonHoverSoundPlayer.currentTime = 0;
+			buttonHoverSoundPlayer.play();
+		});
 	});
 
 	// Result View
