@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	function playIntroVideo() {
+		musicPlayer.volume = 0.6;
 		musicPlayer.play().catch(error => console.error('Playback error:', error));
 
 		videoPlayer.playbackRate = 0.7;
@@ -126,16 +127,22 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Spin up a game
 		startGame();
 
+		// Change Music
+		const isWrongSong =
+			musicPlayerSource.src.split('/').at(-1) !== 'stardust-ambient.mp3';
+
+		if (isWrongSong) {
+			musicPlayerSource.src = 'assets/sounds/stardust-ambient.mp3';
+			musicPlayer.load();
+		}
+
+		musicPlayer.volume = 0.3;
+		musicPlayer.play();
+
 		// Change view
 		homeScreen.style.display = 'none';
 		gameScreen.style.display = 'block';
 		resultScreen.style.display = 'none';
-
-		// Change Music
-		musicPlayer.pause();
-		musicPlayerSource.src = 'assets/sounds/stardust-ambient.mp3';
-		musicPlayer.load();
-		musicPlayer.play();
 	}
 
 	// Game View
@@ -150,7 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	/** Switching to Home View. */
 	function changeViewToHome() {
 		// Change music
-		musicPlayer.pause();
+		musicPlayer.volume = 0.3;
+
 		musicPlayerSource.src = 'assets/sounds/metropolis-of-the-future.mp3';
 		musicPlayer.load();
 		musicPlayer.play();
@@ -196,9 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	function addGameEventListeners() {
 		window.addEventListener('resize', game.resizeScreen);
 
-		// FIXME Test pause button
 		gameOverButton.addEventListener('click', changeViewToResult);
-		pauseButton.addEventListener('click', game.pauseOrResumeGame);
+		pauseButton.addEventListener('click', () => game.pauseOrResumeGame());
 
 		document.addEventListener('keydown', e => game.onKeyDown(e));
 		document.addEventListener('keyup', e => game.onKeyUp(e));
