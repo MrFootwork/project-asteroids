@@ -2,9 +2,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
 
 @font-face {
-	font-family: 'anurati'; /* Custom name for the font */
-	src: url('../fonts/anurati-regular.otf') format('opentype'); /* Specify path and format */
+	font-family: 'anurati';
+	src: url('../fonts/anurati-regular.otf') format('opentype');
 	font-weight: bold;
+}
+
+@font-face {
+	font-family: 'astro';
+	src: url('../fonts/astro.ttf') format('truetype');
+	/* font-weight: normal; */
 }
 
 body {
@@ -17,6 +23,10 @@ body {
 h1 {
 	font-family: 'anurati', 'sans-serif';
 	font-size: 5rem;
+}
+
+button {
+	font-family: 'astro', 'sans-serif';
 }
 
 /*****************************
