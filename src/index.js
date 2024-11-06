@@ -4,6 +4,11 @@ let game;
 
 document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
+	 *  States
+	 ***********************************/
+	const state = { musicOn: true, sfxOn: true };
+
+	/***********************************
 	 *  HTML Elements
 	 ***********************************/
 	// Music Control Panel
@@ -28,10 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const newGameButton = document.querySelector('#newGameButton');
 	const settingsButton = document.querySelector('#settingsButton');
 	const exitButton = document.querySelector('#exitButton');
-	// Sounds
-	const buttonHoverSoundPlayer = document.querySelector(
-		'#buttonHoverSoundPlayer'
-	);
 
 	// Game View
 	const gameScreen = document.querySelector('#gameScreen');
@@ -49,6 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	const resultScreen = document.querySelector('#resultScreen');
 	const toHomeButton = document.querySelector('#toHomeButton');
 	const restartButton = document.querySelector('#restartButton');
+
+	// SFX
+	const buttonHoverSoundPlayer = document.querySelector(
+		'#buttonHoverSoundPlayer'
+	);
+	const allButtons = document.querySelectorAll('button:not(:disabled)');
+	const allSFXPlayers = document.querySelectorAll('audio.sfx');
 
 	/***********************************
 	 *  Game Engine Instance
@@ -76,29 +84,38 @@ document.addEventListener('DOMContentLoaded', () => {
 		changeViewToGame();
 	});
 
-	const menuButtons = document.querySelectorAll('button:not(:disabled)');
-	menuButtons.forEach(button => {
-		button.addEventListener('mouseenter', () => {
-			buttonHoverSoundPlayer.currentTime = 0;
-			buttonHoverSoundPlayer.play();
-		});
-	});
-
 	// Result View
 	toHomeButton.addEventListener('click', changeViewToHome);
 	restartButton.addEventListener('click', changeViewToGame);
+
+	// SFX
+	allButtons.forEach(button => {
+		button.addEventListener('mouseenter', () => {
+			if (state.sfxOn) {
+				buttonHoverSoundPlayer.currentTime = 0;
+				buttonHoverSoundPlayer.play();
+			}
+		});
+	});
 
 	/***********************************
 	 *  Event Handlers
 	 ***********************************/
 	// Music Control
 	musicToggler.addEventListener('click', () => {
+		state.musicOn = !state.musicOn;
+
 		if (musicPlayer.paused) musicPlayer.play();
 		else musicPlayer.pause();
 	});
 
 	sfxToggler.addEventListener('click', () => {
-		console.log('sfx Toggler pressed');
+		state.sfxOn = !state.sfxOn;
+
+		allSFXPlayers.forEach(player => {
+			player.pause();
+			player.currentTime = 0;
+		});
 	});
 
 	// Intro View
@@ -149,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		musicPlayer.volume = 0.3;
-		musicPlayer.play();
+		if (state.musicOn) musicPlayer.play();
 
 		// Change view
 		homeScreen.style.display = 'none';
@@ -173,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		musicPlayerSource.src = 'assets/sounds/metropolis-of-the-future.mp3';
 		musicPlayer.load();
-		musicPlayer.play();
+		if (state.musicOn) musicPlayer.play();
 
 		// Change view
 		homeScreen.style.display = 'flex';

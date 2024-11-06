@@ -141,7 +141,7 @@ h1 {
 			text-transform: uppercase;
 			background-color: hsl(34, 78%, 100%);
 
-			transition: all 0.2s ease-in-out;
+			transition: all 0.05s ease-in-out;
 
 			&:hover:not(:disabled) {
 				background-color: hsl(34, 78%, 100%);
