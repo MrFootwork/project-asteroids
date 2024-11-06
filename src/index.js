@@ -4,11 +4,35 @@ let game;
 
 document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
+	 *  States
+	 ***********************************/
+	const state = { musicOn: true, sfxOn: true };
+
+	/***********************************
 	 *  HTML Elements
 	 ***********************************/
+	// Music Control Panel
+	const musicControlPanel = document.querySelector('#musicControlPanel');
+	const musicToggler = document.querySelector('.icon-button.music');
+	const sfxToggler = document.querySelector('.icon-button.sfx');
+
+	// Intro
+	const introOverlay = document.querySelector('#introOverlay');
+	const introScreen = document.querySelector('#introScreen');
+	const skipIntroInstruction = document.querySelector('#skipIntroInstruction');
+	// Intro Media
+	const videoPlayer = document.querySelector('#videoPlayer');
+	videoPlayer.muted = true;
+
+	const musicPlayer = document.getElementById('musicPlayer');
+	const musicPlayerSource = document.querySelector('#musicPlayer source');
+
 	// Home View
 	const homeScreen = document.querySelector('#homeScreen');
 	const startButton = document.querySelector('#startButton');
+	const newGameButton = document.querySelector('#newGameButton');
+	const settingsButton = document.querySelector('#settingsButton');
+	const exitButton = document.querySelector('#exitButton');
 
 	// Game View
 	const gameScreen = document.querySelector('#gameScreen');
@@ -27,6 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	const toHomeButton = document.querySelector('#toHomeButton');
 	const restartButton = document.querySelector('#restartButton');
 
+	// SFX
+	const buttonHoverSoundPlayer = document.querySelector(
+		'#buttonHoverSoundPlayer'
+	);
+	const allButtons = document.querySelectorAll('button:not(:disabled)');
+	const allSFXPlayers = document.querySelectorAll('audio.sfx');
+
 	/***********************************
 	 *  Game Engine Instance
 	 * ---------------------------------
@@ -39,11 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Event Listeners
 	 ***********************************/
+	// Intro
+	introScreen.addEventListener('click', playIntroVideo);
+	introScreen.addEventListener('keyup', skipIntro);
+
 	// add in game event listeners
 	addGameEventListeners();
 
 	// Home View
-	startButton.addEventListener('click', () => {
+	startButton.addEventListener('click', changeViewToGame); // continue
+	newGameButton.addEventListener('click', () => {
 		game.currentLevelID = 1;
 		changeViewToGame();
 	});
@@ -52,14 +88,85 @@ document.addEventListener('DOMContentLoaded', () => {
 	toHomeButton.addEventListener('click', changeViewToHome);
 	restartButton.addEventListener('click', changeViewToGame);
 
+	// SFX
+	allButtons.forEach(button => {
+		button.addEventListener('mouseenter', () => {
+			if (state.sfxOn) {
+				buttonHoverSoundPlayer.currentTime = 0;
+				buttonHoverSoundPlayer.play();
+			}
+		});
+	});
+
 	/***********************************
 	 *  Event Handlers
 	 ***********************************/
+	// Music Control
+	musicToggler.addEventListener('click', () => {
+		state.musicOn = !state.musicOn;
+
+		if (musicPlayer.paused) musicPlayer.play();
+		else musicPlayer.pause();
+	});
+
+	sfxToggler.addEventListener('click', () => {
+		state.sfxOn = !state.sfxOn;
+
+		allSFXPlayers.forEach(player => {
+			player.pause();
+			player.currentTime = 0;
+		});
+	});
+
+	// Intro View
+	videoPlayer.addEventListener('ended', () => {
+		console.log('The video has finished playing!');
+		changeViewToHome();
+	});
+
+	function playIntroVideo() {
+		musicPlayer.volume = 0.6;
+		musicPlayer.play().catch(error => console.error('Playback error:', error));
+
+		videoPlayer.playbackRate = 0.7;
+		videoPlayer.play();
+
+		introOverlay.classList.add('fade-out-overlay');
+
+		setTimeout(() => {
+			skipIntroInstruction.classList.add('show-skip-intro-instruction');
+		}, 500);
+
+		// Second Video
+		setTimeout(() => {
+			console.log('next Video');
+			videoPlayer.src = '/assets/videos/asteroid-approaching-earth.mp4';
+		}, 8_820);
+	}
+
+	function skipIntro(e) {
+		if (e.code === 'Space') {
+			changeViewToHome();
+		}
+	}
+
 	// Home View
 	/** Switching to Game View. Does everything to start a game */
 	function changeViewToGame() {
 		// Spin up a game
 		startGame();
+
+		// Change Music
+		const isWrongSong =
+			musicPlayerSource.src.split('/').at(-1) !== 'stardust-ambient.mp3';
+
+		if (isWrongSong) {
+			musicPlayerSource.src = 'assets/sounds/stardust-ambient.mp3';
+			musicPlayer.load();
+		}
+
+		musicPlayer.volume = 0.3;
+		if (state.musicOn) musicPlayer.play();
 
 		// Change view
 		homeScreen.style.display = 'none';
@@ -78,9 +185,21 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Result View
 	/** Switching to Home View. */
 	function changeViewToHome() {
-		homeScreen.style.display = 'block';
+		// Change music
+		musicPlayer.volume = 0.3;
+
+		musicPlayerSource.src = 'assets/sounds/metropolis-of-the-future.mp3';
+		musicPlayer.load();
+		if (state.musicOn) musicPlayer.play();
+
+		// Change view
+		homeScreen.style.display = 'flex';
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'none';
+		introScreen.style.display = 'none';
+
+		// Show Music Controls
+		musicControlPanel.classList.add('show');
 	}
 
 	/***********************************
@@ -89,21 +208,19 @@ document.addEventListener('DOMContentLoaded', () => {
 	/** Instantiates and starts a game. */
 	function startGame() {
 		requestAnimationFrame(() => {
-			if (game) {
-				game.reset();
-			}
+			if (game) game.reset();
 		});
 
 		requestAnimationFrame(() => {
 			game.start();
 
 			// TESTING pause
-			// const pauseFrameAt = 29;
+			const pauseFrameAt = 29;
 
-			// setTimeout(() => {
-			// 	game.pauseOrResumeGame();
-			// 	console.warn(`Pausing for testing at frame ${pauseFrameAt}.`);
-			// }, pauseFrameAt);
+			setTimeout(() => {
+				// game.pauseOrResumeGame();
+				console.warn(`Pausing for testing at frame ${pauseFrameAt}.`);
+			}, pauseFrameAt);
 		});
 	}
 
@@ -117,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		window.addEventListener('resize', game.resizeScreen);
 
 		gameOverButton.addEventListener('click', changeViewToResult);
-		pauseButton.addEventListener('click', e => game.pauseOrResumeGame(e));
+		pauseButton.addEventListener('click', () => game.pauseOrResumeGame());
 
 		document.addEventListener('keydown', e => game.onKeyDown(e));
 		document.addEventListener('keyup', e => game.onKeyUp(e));

@@ -4,17 +4,46 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Asteroids Game</title>
-		<link rel="stylesheet" href="./assets/css/reset.css" />
-		<link rel="stylesheet" href="./assets/css/style.css" />
+		<link rel="stylesheet" href="assets/css/reset.css" />
+		<link rel="stylesheet" href="assets/css/style.css" />
 	</head>
 
 	<body>
+		<!-- Music Controls -->
+		<div id="musicControlPanel">
+			<button class="icon-button music">Music</button>
+			<button class="icon-button sfx">SFX</button>
+		</div>
+
+		<!-- Intro -->
+		<div id="introScreen" tabindex="0">
+			<div id="introOverlay">
+				<p>Click to Start</p>
+			</div>
+			<p style="color: black">Placeholder</p>
+			<div id="videoContainer">
+				<video
+					id="videoPlayer"
+					src="/assets/videos/asteroids-migration.mp4"
+					autoplay
+				></video>
+			</div>
+			<p id="skipIntroInstruction">Press space key to skip intro.</p>
+		</div>
+
 		<!-- Home Screen -->
 		<div id="homeScreen">
 			<header>
-				<h1>HOME</h1>
+				<h1>ASTEROI DS</h1>
 			</header>
-			<button id="startButton">Start Game</button>
+			<div id="menuButtonsContainer">
+				<button class="menu-button" id="startButton">Continue</button>
+				<button class="menu-button" id="newGameButton">New Game</button>
+				<button class="menu-button" id="settingsButton" disabled>
+					Settings
+				</button>
+				<button class="menu-button" id="exitButton" disabled>Exit</button>
+			</div>
 		</div>
 
 		<!-- Game Screen -->
@@ -64,6 +93,18 @@
 				></iframe>
 			</div> -->
 		</div>
+
+		<!-- Background Music Player -->
+		<audio id="musicPlayer">
+			<source src="assets/sounds/singularity-cinematic.mp3" type="audio/mpeg" />
+			Your browser does not support the audio element.
+		</audio>
+
+		<!-- Sound Effects -->
+		<audio id="buttonHoverSoundPlayer" class="sfx">
+			<source src="assets/sounds/button-hover.mp3" type="audio/mpeg" />
+			Your browser does not support the audio element.
+		</audio>
 
 		<!-- Game Engine -->
 		<script src="./src/index.js" type="module"></script>

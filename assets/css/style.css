@@ -1,17 +1,158 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=Orbitron:wght@400..900&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
+
+@font-face {
+	font-family: 'anurati'; /* Custom name for the font */
+	src: url('../fonts/anurati-regular.otf') format('opentype'); /* Specify path and format */
+	font-weight: bold;
+}
+
 body {
+	font-family: 'Exo2', 'Roboto', 'sans-serif';
 	margin: 0;
 	overflow: hidden;
-	/* background-color: black; */
+	font-size: 16px;
+}
+
+h1 {
+	font-family: 'anurati', 'sans-serif';
+	font-size: 5rem;
+}
+
+/*****************************
+*	Music Control Panel
+******************************/
+#musicControlPanel {
+	z-index: 1000;
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	display: flex;
+	justify-content: right;
+
+	opacity: 0;
+
+	&.show {
+		opacity: 1;
+	}
+}
+
+/*****************************
+*	Intro View
+******************************/
+#introScreen {
+	display: block;
+	height: 100dvh;
+
+	background-color: black;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+
+	& #videoContainer {
+		max-height: 75%;
+		width: 100%;
+		overflow: hidden;
+
+		& #videoPlayer {
+			object-fit: cover;
+			object-position: center;
+		}
+	}
+
+	& p {
+		color: white;
+		margin-top: 2rem;
+		user-select: none;
+	}
+
+	& p#skipIntroInstruction {
+		opacity: 0;
+		transition: opacity 10s ease-in-out;
+	}
+
+	& p#skipIntroInstruction.show-skip-intro-instruction {
+		opacity: 1;
+	}
+
+	& #introOverlay {
+		position: absolute;
+		background-color: black;
+		height: 100%;
+		width: 100%;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		transition: opacity 2s ease-in-out;
+
+		&.fade-out-overlay {
+			opacity: 0;
+		}
+	}
 }
 
 /*****************************
 *	Home View
 ******************************/
 #homeScreen {
-	display: block;
+	display: none;
 	margin: auto;
 	background-color: darksalmon;
 	height: 100dvh;
+	color: white;
+
+	background-image: url('../images/sci-fi-city.jpg');
+	background-size: cover;
+	background-position: 80% 50%;
+	background-repeat: no-repeat;
+	filter: blur(0.4px) brightness(100%) contrast(100%) saturate(100%);
+
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 5rem;
+
+	& header {
+		margin-top: 5rem;
+	}
+
+	& #menuButtonsContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 3rem;
+
+		width: 50%;
+		max-width: 100rem;
+		padding: 5rem;
+
+		backdrop-filter: blur(20px);
+		box-shadow: -7px 8px 23px 2px rgba(0, 0, 0, 0.44);
+		border-radius: 20px;
+
+		& button {
+			padding: 1rem 0;
+			font-size: 1.5rem;
+			text-transform: uppercase;
+			background-color: hsl(34, 78%, 100%);
+
+			transition: all 0.05s ease-in-out;
+
+			&:hover:not(:disabled) {
+				background-color: hsl(34, 78%, 100%);
+				transform: scale(1.1);
+			}
+
+			&:disabled {
+				background-color: hsl(34, 78%, 90%);
+			}
+		}
+	}
 }
 
 /*****************************
