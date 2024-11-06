@@ -140,7 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Second Video
 		setTimeout(() => {
 			console.log('next Video');
-			videoPlayer.src = 'assets/videos/asteroid-approaching-earth.mp4';
+			videoPlayer.src =
+				'/project-asteroids/assets/videos/asteroid-approaching-earth.mp4';
 		}, 8_820);
 	}
 
