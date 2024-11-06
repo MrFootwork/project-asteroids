@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const skipIntroInstruction = document.querySelector('#skipIntroInstruction');
 	// Intro Media
 	const videoPlayer = document.querySelector('#videoPlayer');
-	const introSound = document.getElementById('soundPlayer');
+	const musicPlayer = document.getElementById('musicPlayer');
+	const musicPlayerSource = document.querySelector('#musicPlayer source');
 
 	// Home View
 	const homeScreen = document.querySelector('#homeScreen');
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	 ***********************************/
 	// Intro View
 	function firstClick() {
-		introSound.play().catch(error => console.error('Playback error:', error));
+		musicPlayer.play().catch(error => console.error('Playback error:', error));
 		introOverlay.classList.add('fade-out-overlay');
 		setTimeout(() => {
 			videoPlayer.play();
@@ -80,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	function skipIntro(e) {
 		if (e.code === 'Space') {
 			changeViewToHome();
-			introSound.pause();
 		}
 	}
 
@@ -94,6 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		homeScreen.style.display = 'none';
 		gameScreen.style.display = 'block';
 		resultScreen.style.display = 'none';
+
+		// Change Music
+		musicPlayer.pause();
+		musicPlayerSource.src = 'assets/sounds/stardust-ambient.mp3';
+		musicPlayer.load();
+		musicPlayer.play();
 	}
 
 	// Game View
@@ -107,6 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Result View
 	/** Switching to Home View. */
 	function changeViewToHome() {
+		// Change music
+		musicPlayer.pause();
+		musicPlayerSource.src = 'assets/sounds/metropolis-of-the-future.mp3';
+		musicPlayer.load();
+		musicPlayer.play();
+
+		// Change view
 		homeScreen.style.display = 'block';
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'none';
@@ -119,9 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	/** Instantiates and starts a game. */
 	function startGame() {
 		requestAnimationFrame(() => {
-			if (game) {
-				game.reset();
-			}
+			if (game) game.reset();
 		});
 
 		requestAnimationFrame(() => {

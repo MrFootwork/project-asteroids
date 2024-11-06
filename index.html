@@ -4,8 +4,8 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Asteroids Game</title>
-		<link rel="stylesheet" href="./assets/css/reset.css" />
-		<link rel="stylesheet" href="./assets/css/style.css" />
+		<link rel="stylesheet" href="assets/css/reset.css" />
+		<link rel="stylesheet" href="assets/css/style.css" />
 	</head>
 
 	<body>
@@ -13,33 +13,28 @@
 		<div id="introScreen" tabindex="0">
 			<div id="introOverlay">
 				<p>Click to Start</p>
-				<audio id="soundPlayer">
-					<source
-						src="./assets/sounds/singularity-cinematic.mp3"
-						type="audio/mpeg"
-					/>
-					Your browser does not support the audio element.
-				</audio>
 			</div>
 			<p style="color: black">Placeholder</p>
-			<video
-				id="videoPlayer"
-				src="./assets/videos/asteroid-approaching-earth.mp4"
-				autoplay
-			></video>
+			<div id="videoContainer">
+				<video
+					id="videoPlayer"
+					src="assets/videos/asteroid-approaching-earth.mp4"
+					autoplay
+				></video>
+			</div>
 			<p id="skipIntroInstruction">Press space key to skip intro.</p>
 		</div>
 
 		<!-- Home Screen -->
 		<div id="homeScreen">
 			<header>
-				<h1>ANDROI DS</h1>
+				<h1>ASTEROI DS</h1>
 			</header>
 			<div>
 				<button id="startButton">Continue</button>
-				<button id="startButton">New Game</button>
-				<button id="startButton">Settings</button>
-				<button id="startButton">Exit</button>
+				<button id="newGameButton">New Game</button>
+				<button id="settingsButton">Settings</button>
+				<button id="exitButton">Exit</button>
 			</div>
 		</div>
 
@@ -90,6 +85,12 @@
 				></iframe>
 			</div> -->
 		</div>
+
+		<!-- Background Music Player -->
+		<audio id="musicPlayer">
+			<source src="assets/sounds/singularity-cinematic.mp3" type="audio/mpeg" />
+			Your browser does not support the audio element.
+		</audio>
 
 		<!-- Game Engine -->
 		<script src="./src/index.js" type="module"></script>

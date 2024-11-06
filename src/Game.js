@@ -6,7 +6,7 @@ import levelDictionary from '../data/levels.js';
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
 // TESTING time
-const TIME_TO_SURVIVE = 5; // 2 minutes
+const TIME_TO_SURVIVE = 15; // 2 minutes
 
 // TODO test, if still needed after using vite bundling
 const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';

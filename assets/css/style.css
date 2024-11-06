@@ -38,10 +38,15 @@ h1 {
 	align-items: center;
 	flex-direction: column;
 
-	& #videoPlayer {
+	& #videoContainer {
 		max-height: 75%;
-		object-fit: cover;
-		object-position: center;
+		width: 100%;
+		overflow: hidden;
+
+		& #videoPlayer {
+			object-fit: cover;
+			object-position: center;
+		}
 	}
 
 	& p {
