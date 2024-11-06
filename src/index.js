@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Home View
 	const homeScreen = document.querySelector('#homeScreen');
 	const startButton = document.querySelector('#startButton');
+	const newGameButton = document.querySelector('#newGameButton');
+	const settingsButton = document.querySelector('#settingsButton');
+	const exitButton = document.querySelector('#exitButton');
 
 	// Game View
 	const gameScreen = document.querySelector('#gameScreen');
@@ -56,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	addGameEventListeners();
 
 	// Home View
-	startButton.addEventListener('click', () => {
+	startButton.addEventListener('click', changeViewToGame); // continue
+	newGameButton.addEventListener('click', () => {
 		game.currentLevelID = 1;
 		changeViewToGame();
 	});
@@ -120,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		musicPlayer.play();
 
 		// Change view
-		homeScreen.style.display = 'block';
+		homeScreen.style.display = 'flex';
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'none';
 		introScreen.style.display = 'none';
