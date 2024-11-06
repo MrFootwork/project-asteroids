@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  HTML Elements
 	 ***********************************/
+	// Music Control Panel
+	const musicControlPanel = document.querySelector('#musicControlPanel');
+	const musicToggler = document.querySelector('.icon-button.music');
+	const sfxToggler = document.querySelector('.icon-button.sfx');
+
 	// Intro
 	const introOverlay = document.querySelector('#introOverlay');
 	const introScreen = document.querySelector('#introScreen');
@@ -74,6 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Event Handlers
 	 ***********************************/
+	// Music Control
+	musicToggler.addEventListener('click', () => {
+		if (musicPlayer.paused) musicPlayer.play();
+		else musicPlayer.pause();
+	});
+
+	sfxToggler.addEventListener('click', () => {
+		console.log('sfx Toggler pressed');
+	});
+
 	// Intro View
 	videoPlayer.addEventListener('ended', () => {
 		console.log('The video has finished playing!');
@@ -82,14 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function playIntroVideo() {
 		musicPlayer.play().catch(error => console.error('Playback error:', error));
+
+		videoPlayer.playbackRate = 0.7;
+		videoPlayer.play();
+
 		introOverlay.classList.add('fade-out-overlay');
 
 		setTimeout(() => {
-			videoPlayer.playbackRate = 0.7;
-			videoPlayer.play();
 			skipIntroInstruction.classList.add('show-skip-intro-instruction');
 		}, 500);
 
+		// Second Video
 		setTimeout(() => {
 			console.log('next Video');
 			videoPlayer.src = '/assets/videos/asteroid-approaching-earth.mp4';
@@ -142,6 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'none';
 		introScreen.style.display = 'none';
+
+		// Show Music Controls
+		musicControlPanel.classList.add('show');
 	}
 
 	/***********************************

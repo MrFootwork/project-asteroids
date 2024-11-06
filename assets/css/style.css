@@ -20,6 +20,25 @@ h1 {
 }
 
 /*****************************
+*	Music Control Panel
+******************************/
+#musicControlPanel {
+	z-index: 1000;
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	display: flex;
+	justify-content: right;
+
+	opacity: 0;
+
+	&.show {
+		opacity: 1;
+	}
+}
+
+/*****************************
 *	Intro View
 ******************************/
 #introScreen {
