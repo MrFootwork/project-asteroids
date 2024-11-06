@@ -1,17 +1,97 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=Orbitron:wght@400..900&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
+
+@font-face {
+	font-family: 'anurati'; /* Custom name for the font */
+	src: url('../fonts/anurati-regular.otf') format('opentype'); /* Specify path and format */
+	font-weight: bold;
+}
+
+html {
+	/* font-family: 'roboto'; */
+}
+
 body {
+	font-family: 'Exo2', 'Roboto', 'sans-serif';
+	/* font-family: 'Orbitron', 'Roboto', 'sans-serif'; */
 	margin: 0;
 	overflow: hidden;
 	/* background-color: black; */
+}
+
+h1 {
+	font-family: 'anurati';
+	/* font-family: 'Anurati, sans-serif'; */
+}
+
+/*****************************
+*	Intro View
+******************************/
+#introScreen {
+	display: block;
+	height: 100dvh;
+
+	background-color: black;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+
+	& #videoPlayer {
+		max-height: 75%;
+		object-fit: cover;
+		object-position: center;
+	}
+
+	& p {
+		color: white;
+		margin-top: 2rem;
+		user-select: none;
+	}
+
+	& p#skipIntroInstruction {
+		opacity: 0;
+		transition: opacity 10s ease-in-out;
+	}
+
+	& p#skipIntroInstruction.show-skip-intro-instruction {
+		opacity: 1;
+	}
+
+	& #introOverlay {
+		position: absolute;
+		background-color: black;
+		height: 100%;
+		width: 100%;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		transition: opacity 1s ease-in-out;
+
+		&.fade-out-overlay {
+			opacity: 0;
+		}
+	}
 }
 
 /*****************************
 *	Home View
 ******************************/
 #homeScreen {
-	display: block;
+	display: none;
 	margin: auto;
 	background-color: darksalmon;
 	height: 100dvh;
+	color: white;
+
+	background-image: url('../images/sci-fi-city.jpg');
+	background-size: cover;
+	background-position: 80% 50%;
+	background-repeat: no-repeat;
+	filter: blur(0.4px) brightness(100%) contrast(100%) saturate(100%);
 }
 
 /*****************************

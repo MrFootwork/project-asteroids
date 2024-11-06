@@ -6,6 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  HTML Elements
 	 ***********************************/
+	// Intro
+	const introOverlay = document.querySelector('#introOverlay');
+	const introScreen = document.querySelector('#introScreen');
+	const skipIntroInstruction = document.querySelector('#skipIntroInstruction');
+	// Intro Media
+	const videoPlayer = document.querySelector('#videoPlayer');
+	const introSound = document.getElementById('soundPlayer');
+
 	// Home View
 	const homeScreen = document.querySelector('#homeScreen');
 	const startButton = document.querySelector('#startButton');
@@ -39,6 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Event Listeners
 	 ***********************************/
+	// Intro
+	introScreen.addEventListener('click', firstClick);
+	introScreen.addEventListener('keyup', skipIntro);
+
 	// add in game event listeners
 	addGameEventListeners();
 
@@ -55,6 +67,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Event Handlers
 	 ***********************************/
+	// Intro View
+	function firstClick() {
+		introSound.play().catch(error => console.error('Playback error:', error));
+		introOverlay.classList.add('fade-out-overlay');
+		setTimeout(() => {
+			videoPlayer.play();
+			skipIntroInstruction.classList.add('show-skip-intro-instruction');
+		}, 500);
+	}
+
+	function skipIntro(e) {
+		if (e.code === 'Space') {
+			changeViewToHome();
+			introSound.pause();
+		}
+	}
+
 	// Home View
 	/** Switching to Game View. Does everything to start a game */
 	function changeViewToGame() {
@@ -81,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		homeScreen.style.display = 'block';
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'none';
+		introScreen.style.display = 'none';
 	}
 
 	/***********************************
@@ -98,12 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			game.start();
 
 			// TESTING pause
-			// const pauseFrameAt = 29;
+			const pauseFrameAt = 29;
 
-			// setTimeout(() => {
-			// 	game.pauseOrResumeGame();
-			// 	console.warn(`Pausing for testing at frame ${pauseFrameAt}.`);
-			// }, pauseFrameAt);
+			setTimeout(() => {
+				// game.pauseOrResumeGame();
+				console.warn(`Pausing for testing at frame ${pauseFrameAt}.`);
+			}, pauseFrameAt);
 		});
 	}
 
@@ -116,8 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	function addGameEventListeners() {
 		window.addEventListener('resize', game.resizeScreen);
 
+		// FIXME Test pause button
 		gameOverButton.addEventListener('click', changeViewToResult);
-		pauseButton.addEventListener('click', e => game.pauseOrResumeGame(e));
+		pauseButton.addEventListener('click', game.pauseOrResumeGame);
 
 		document.addEventListener('keydown', e => game.onKeyDown(e));
 		document.addEventListener('keyup', e => game.onKeyUp(e));
