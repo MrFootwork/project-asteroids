@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const skipIntroInstruction = document.querySelector('#skipIntroInstruction');
 	// Intro Media
 	const videoPlayer = document.querySelector('#videoPlayer');
+	videoPlayer.muted = true;
+
 	const musicPlayer = document.getElementById('musicPlayer');
 	const musicPlayerSource = document.querySelector('#musicPlayer source');
 
@@ -52,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	 *  Event Listeners
 	 ***********************************/
 	// Intro
-	introScreen.addEventListener('click', firstClick);
+	introScreen.addEventListener('click', playIntroVideo);
 	introScreen.addEventListener('keyup', skipIntro);
 
 	// add in game event listeners
@@ -73,13 +75,25 @@ document.addEventListener('DOMContentLoaded', () => {
 	 *  Event Handlers
 	 ***********************************/
 	// Intro View
-	function firstClick() {
+	videoPlayer.addEventListener('ended', () => {
+		console.log('The video has finished playing!');
+		changeViewToHome();
+	});
+
+	function playIntroVideo() {
 		musicPlayer.play().catch(error => console.error('Playback error:', error));
 		introOverlay.classList.add('fade-out-overlay');
+
 		setTimeout(() => {
+			videoPlayer.playbackRate = 0.7;
 			videoPlayer.play();
 			skipIntroInstruction.classList.add('show-skip-intro-instruction');
 		}, 500);
+
+		setTimeout(() => {
+			console.log('next Video');
+			videoPlayer.src = '/assets/videos/asteroid-approaching-earth.mp4';
+		}, 8_820);
 	}
 
 	function skipIntro(e) {
