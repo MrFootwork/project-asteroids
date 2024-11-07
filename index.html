@@ -4,8 +4,8 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Asteroids Game</title>
-		<script type="module" crossorigin src="/project-asteroids/assets/index-DhQbskol.js"></script>
-		<link rel="stylesheet" crossorigin href="/project-asteroids/assets/index-BsmcjnhW.css">
+		<script type="module" crossorigin src="/project-asteroids/assets/index-DKeZ9mAH.js"></script>
+		<link rel="stylesheet" crossorigin href="/project-asteroids/assets/index-BQjs9s39.css">
 	</head>
 
 	<body>
@@ -48,9 +48,18 @@
 
 		<!-- Game Screen -->
 		<div id="gameScreen">
+			<dialog id="gameModal">
+				<p id="modalMessage"></p>
+				<div id="buttonContainer">
+					<button id="positive">Try Again</button>
+					<button id="negative">Leave Game</button>
+				</div>
+			</dialog>
+
 			<div>
 				<button id="gameOverButton">Game Over</button>
 				<button id="pauseButton">Pause / Play</button>
+				<button id="modalButton">Modal</button>
 			</div>
 			<div>
 				<p>Time to survive: <span id="timeDisplay">2:00</span></p>
@@ -59,6 +68,7 @@
 				<p>☄ Score <span id="scoreDisplay">0</span></p>
 				<p>❤ Lives <span id="livesDisplay">3</span></p>
 			</div>
+
 			<div id="backgroundImageSolid"></div>
 			<div id="backgroundImageTransparent"></div>
 		</div>
@@ -110,10 +120,6 @@
 		<!-- Sound Effects -->
 		<audio id="buttonHoverSoundPlayer" class="sfx">
 			<source src="data:audio/mpeg;base64,//uQBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAAIKABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwP////////////////////////////////8AAAA5TEFNRTMuOTlyAaoAAAAAAAAAABSAJAKYRgAAgAAACCjbtm5gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//uQBAABEmNsPughRfJPzYfvBCa+SeG1CyEE18E7NqFYUJr4AAw1sbuAAAH/BwR4/OCS8vN/BN//////gBx/4EQOPeS4AI5jGNfkrxvwc///ko03d3d//TIFKd7IFKcXd3eDJYOBESRIAICxRICwyAxmDQqLCDdgAATkvRvMfq0Y5L/j/Rj///P/8l/MYOb/4EOABjcEGBchjG8gAH8YxwZvjYxj////33u4iIjPevfxsPT/gwECEPEb/BAAIk9joADQtVFRTFFDCBZF09Nn9nZ/8rSP+nl/5XgsyPy+BwXmjI1O9gJA2aMaRJV7W6wcyry//a/n/h9vO9e0nxAptd89Z4p5OojrCmRIhwcaVoCKppQpiiwYGC4oci3J1s7OdLk7+fS/pMv+vnL//BXvclKZSNSAM+SWXJkUe0NLj0WX//rkf5r7//3+do9H66JzbZR9qxkQIy1pECJAeXBS2222ySNkgfu5elDc3SC5ibrGnWLgQKsCh24+8Sa5Ov5DDiS9pisRn0cdZDAZ0S0Uile+h6C7c8udJrEnxQky+oog//uSBCGAA2wxU2tpNTx0yLmJbQKqC+kXQy0YdIF1nSdBpY5YxN6CxgMdAwowmjZBgQIbmIH1n8PvaGQygAgxCU7ecOPiCH5RfB/DF8MB8a////3DOny5x94kIx83WNOuXAgVZlDscksqfylhyIMsp3UV8Z9IHWQgKcEyFIpXvoYhZ70WfA04dZhBk3kGTbsZIOBA5FEGFi7GYcB4yEGOyTNPfT2QZAoZAotzf8jdXOhOf5AMWghiCFORFDgQBv7vl//6mqqqqqoNVZP+FWMOWbAmRzHvpZ6hlE/P8t16eO0DhlXAIVbOJY99v5fmId7ulSm1C/29tPxwqEcxVU4H4FOnSBEld9+noxG+rIkcIV86CU1iISl/pnVT/e1TUDNlEyCql2T/hVfxyzYEyeQ+ctkUzKKe/u3Xp47QOGS4AurAgJgNrzM6Bzl9xVH95XfFv+jOkRzal4eQKdOqxJXu/TyyN9WiI4TzzoRTWIEw1nC4KYXQs+85UMIBlV9UeX/VtpBbAEBNe/0MOtLK8fuwQKwCUsameUlN2zX7j3VuwKiCS//7kgQRAAMMS9FjIR1iZcmLTzzDS4wNbUPnjFSBii2o/PGKZE/nzL2Vxz5RiL5fyFnkEQmyIZOAXbxhGPPmeQggYtIO2l8PWKQf5ttFX0yEGh1RWsh0hLi4bF/dnCWzNf531ceHUVZ1BLJI23DqUAxjob1LKeiSWQEBwYSlRO83fykh+5vds6/fKYcVPny+R/G3q7Lhh2YM6HRj/M+VXf7+DvATBRBsVUgq9Mi+P8EoHKBoxj6+qZEZHqOTg6owKEQOTbUhUSXU5GKkwaGUDttbSUFdQhFnieRdH5yBDi8o6Y/UbazFGYYmXtdJ5VNcZ7+SqtfVcNYDeVeMzFYhjCnvNbUpn9e3yqZW2zKUpStTVrOVm196dqfL/vqyWZJpW0e83R27mFNVd1zWKDzLANtiQBhISWqU2iHE8by2CvIShVjdRtrJ5RVo3sueplUDNfBK3XhrhnQHZVWM35RmFeezlapTPzL/6mVtuqlUrU1a0v/0fZk91/o7VY0rIYylRaPeZ9DFTcMOda87zSoAJJuADXAHKzQVUPgLCMdnj1q+y2v/+5IECoAC6ilIYCwY8FuIyPk9gzoKXP0ABIR1SSqGYagwicB04XKjE6AlQ1JtqfBWzMxfqqkxfKGqOK+WCusbVYaCiBoSkgZErhYGhLJLlnkQmsEnlgacl3Y0RvnVG40FXPLA0sbDX0eIv1qBzmCJEAtvPw1BzK4Jh6FzO1rWd3YEx86DZUFcKSq1DAwal7GwYZ1E/2F/WdGXXpQ81X+H7VS4fZZGaN3qHf2Y8ysl/2vS//gJjAQF1E6tR6RNKPUu6Qq39X3XrrYxWNELCJCIjbNf//xWRmRUdUdsvmhJi+IAv9hJ8+TPzROH//0XOw1/+GssNarGvSDARV3/1hLjMdbwcUN/GY7ypt8YUXHrsoyVFx/yigqNN+OSAFAFRNsNUtYBOJIBQVVJuzVgIGZjHlYaDsJEQkj5YRYiamEn1uThI0KyoiEqwkPy3CbssRa+tP2gzJBUBEvhU6e8kIVHg0WOyoCqTEFNRTMuOTkuM6qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" type="audio/mpeg" />
-			Your browser does not support the audio element.
-		</audio>
-		<audio id="hitWallSoundPlayer" class="sfx">
-			<source src="/project-asteroids/assets/hit-against-wall-B2WDk3kj.mp3" type="audio/mpeg" />
 			Your browser does not support the audio element.
 		</audio>
 
