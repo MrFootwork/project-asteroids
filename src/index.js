@@ -61,6 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	const allSFXPlayers = document.querySelectorAll('audio.sfx');
 
 	/***********************************
+	 *  Sounds
+	 ***********************************/
+	// Button Click
+	const buttonClickSoundPlayer = new Audio('assets/sounds/sci-fi-click.wav');
+	buttonClickSoundPlayer.volume = 0.4;
+
+	/***********************************
 	 *  Game Engine Instance
 	 * ---------------------------------
 	 * After elements are defined,
@@ -96,6 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (state.sfxOn) {
 				buttonHoverSoundPlayer.currentTime = 0;
 				buttonHoverSoundPlayer.play();
+			}
+		});
+		button.addEventListener('click', () => {
+			if (state.sfxOn) {
+				buttonHoverSoundPlayer.currentTime = 0;
+				buttonClickSoundPlayer.play();
 			}
 		});
 	});
@@ -248,9 +261,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		window.addEventListener('resize', game.resizeScreen);
 
 		gameOverButton.addEventListener('click', changeViewToResult);
-		pauseButton.addEventListener('click', () => game.pauseOrResumeGame());
+		pauseButton.addEventListener('click', () => {
+			game.pauseOrResumeGame(musicPlayer);
+		});
 
 		document.addEventListener('keydown', e => game.onKeyDown(e));
-		document.addEventListener('keyup', e => game.onKeyUp(e));
+		document.addEventListener('keyup', e => {
+			game.onKeyUp(e, musicPlayer);
+		});
 	}
 });

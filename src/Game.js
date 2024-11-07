@@ -63,6 +63,14 @@ class Game {
 	}
 
 	/*******************************
+	 *	Private Properties
+	 *******************************/
+	// Sound Player
+	#rocketThrustSoundPlayer = new Audio('assets/sounds/rocket-thrust.wav');
+	#rockBreakSoundPlayer = new Audio('assets/sounds/rock-break.mp3');
+	#metalClangSoundPlayer = new Audio('assets/sounds/metal-clang.mp3');
+
+	/*******************************
 	 *	Public Methods
 	 *******************************/
 	/** Starts the game engine. */
@@ -223,8 +231,9 @@ class Game {
 
 				if (projectileHitsAsteroid) {
 					// play sound
-					const sound = new Audio('assets/sounds/rock-break.mp3');
-					if (this.state.sfxOn) sound.play();
+					// TODO audio pooling rocks
+					this.#rockBreakSoundPlayer.currentTime = 0;
+					if (this.state.sfxOn) this.#rockBreakSoundPlayer.play();
 
 					// handle score
 					this.player.score++;
@@ -270,7 +279,12 @@ class Game {
 			);
 
 			if (asteroidHitsPlayer) {
-				// handle collision
+				// Play clang sound
+				if (this.player.lives && this.state.sfxOn) {
+					this.#metalClangSoundPlayer.play();
+				}
+
+				// Handle collision
 				asteroid.hasCollided = true;
 				this.player.lives--;
 				this.#updatePlayerLives();
@@ -302,11 +316,18 @@ class Game {
 	/*******************************
 	 *	Handle Events
 	 *******************************/
+
 	onKeyDown(event) {
 		switch (event.code) {
 			case 'ArrowUp':
 			case 'KeyW':
 				this.keys.arrowUp.pressed = true;
+
+				if (this.state.sfxOn) {
+					this.#rocketThrustSoundPlayer.volume = 0.2;
+					this.#rocketThrustSoundPlayer.play();
+				}
+
 				break;
 			case 'ArrowDown':
 			case 'KeyS':
@@ -329,11 +350,13 @@ class Game {
 		}
 	}
 
-	onKeyUp(event) {
+	onKeyUp(event, musicPlayer) {
 		switch (event.code) {
 			case 'ArrowUp':
 			case 'KeyW':
 				this.keys.arrowUp.pressed = false;
+				this.#rocketThrustSoundPlayer.pause();
+				this.#rocketThrustSoundPlayer.currentTime = 0;
 				break;
 			case 'ArrowDown':
 			case 'KeyS':
@@ -352,7 +375,7 @@ class Game {
 				break;
 			case 'KeyP':
 			case 'Pause':
-				this.pauseOrResumeGame();
+				this.pauseOrResumeGame(musicPlayer);
 				break;
 
 			default:
@@ -360,14 +383,19 @@ class Game {
 		}
 	}
 
-	pauseOrResumeGame() {
-		if (this.gameloopIntervalID) {
+	pauseOrResumeGame(musicPlayer) {
+		const volumeChange = 0.2;
+		const isPaused = !Boolean(this.gameloopIntervalID);
+
+		if (!isPaused) {
 			this.#stopLoopInterval();
+			musicPlayer.volume -= volumeChange;
 			return;
 		}
 
-		if (!this.gameloopIntervalID) {
+		if (isPaused) {
 			this.#startLoopInterval();
+			musicPlayer.volume += volumeChange;
 			return;
 		}
 	}
@@ -525,8 +553,13 @@ class Game {
 			// Update the last fired timestamp
 			this.lastFired = now;
 
+			// TODO audio pooling laser shot
 			const sound = new Audio('assets/sounds/laser-gun-shot.mp3');
-			if (this.state.sfxOn) sound.play();
+
+			if (this.state.sfxOn) {
+				sound.volume = 0.3;
+				sound.play();
+			}
 
 			const projectileElement = document.createElement('div');
 			projectileElement.className = 'projectile';
