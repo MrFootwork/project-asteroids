@@ -45,7 +45,6 @@ class Spaceship {
 			this.velocity.x = -this.velocity.x;
 			this.velocity.y = -this.velocity.y;
 
-			console.log('BOING');
 			hitWallSoundPlayer.play();
 
 			this.hasHitTheEdge = false;
@@ -94,6 +93,17 @@ class Spaceship {
 
 		this.position.x = position.x;
 		this.position.y = position.y;
+	}
+
+	setVelocity(velocity) {
+		if (!velocity) {
+			this.velocity.x = 0;
+			this.velocity.y = 0;
+			return;
+		}
+
+		this.velocity.x = velocity.x;
+		this.velocity.y = velocity.y;
 	}
 
 	#render() {

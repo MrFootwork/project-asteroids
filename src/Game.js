@@ -126,6 +126,8 @@ class Game {
 
 		// Spaceship
 		this.spaceship.setPosition(this.currentLevel.startPosition);
+		this.spaceship.setVelocity();
+		this.spaceship.orientation = 0;
 
 		// Projectiles
 		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
