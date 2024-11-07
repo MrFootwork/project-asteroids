@@ -13,6 +13,11 @@
 	/* font-weight: normal; */
 }
 
+:root {
+	--positive-green: #c1cbb1;
+	--negative-red: #f38989;
+}
+
 body {
 	font-family: 'Exo2', 'Roboto', 'sans-serif';
 	margin: 0;
@@ -137,18 +142,14 @@ button {
 	& #menuButtonsContainer {
 		display: flex;
 		flex-direction: column;
-		gap: 3rem;
-
-		width: 50%;
-		max-width: 100rem;
-		padding: 5rem 5vw;
+		padding: 5rem 7vw;
 
 		backdrop-filter: blur(20px);
 		box-shadow: -7px 8px 23px 2px rgba(0, 0, 0, 0.44);
-		border-radius: 20px;
+		border-radius: 10px;
 
 		& button {
-			padding: 0;
+			padding: 1rem 0;
 			font-size: 2rem;
 			text-transform: uppercase;
 			background-color: hsl(0, 0%, 0%, 0%);
@@ -166,10 +167,6 @@ button {
 				color: white;
 				transform: scale(1.3);
 				text-shadow: -1px 17px 15px rgba(0, 0, 0, 0.46);
-			}
-
-			&:disabled {
-				/*  */
 			}
 		}
 	}
@@ -196,6 +193,87 @@ button {
 	color: white;
 	height: 100dvh;
 	z-index: 100;
+}
+
+/* ＭＯＤＡＬ */
+#gameModal {
+	padding: 2rem;
+	min-width: 35vw;
+	margin: 0 auto;
+	margin-top: 25vh;
+	user-select: none;
+
+	border: none;
+	border-radius: 8px;
+	background-color: hsl(0, 0%, 0%, 0.1);
+	backdrop-filter: blur(8px);
+	box-shadow: -7px 8px 23px 2px rgba(0, 0, 0, 0.44);
+
+	& #modalMessage {
+		margin-bottom: 2rem;
+		background-color: rgba(0, 0, 0, 0.2);
+		border-radius: 6px;
+		text-align: center;
+		padding: 2rem;
+
+		box-shadow: inset -4px 3px 19px -7px #000000,
+			inset 3px -4px 7px -5px rgba(255, 255, 255, 0.5);
+
+		/* Modal Title Presets */
+		& > p {
+			color: white;
+		}
+
+		& > *.win,
+		& > *.loose {
+			font-weight: bold;
+			font-family: 'astro';
+			font-size: 3rem;
+			padding-bottom: 2rem;
+		}
+
+		& > *.win {
+			color: var(--positive-green);
+		}
+
+		& > *.loose {
+			color: var(--negative-red);
+		}
+	}
+
+	& #buttonContainer {
+		display: flex;
+		justify-content: center;
+
+		& button {
+			outline: none;
+			padding: 1rem;
+			background-color: hsl(0, 0%, 0%, 0%);
+			border: none;
+
+			transition: all 0.01s ease-in-out;
+
+			&:hover,
+			&:focus {
+				font-weight: bold;
+				transform: scale(1.1);
+				text-shadow: -1px 17px 15px rgba(0, 0, 0, 0.46);
+			}
+
+			&#positive {
+				color: var(--positive-green);
+			}
+
+			&#negative {
+				color: var(--negative-red);
+			}
+		}
+	}
+}
+
+#gameModal::backdrop {
+	background-color: hsla(0, 0%, 0%, 0.2);
+	backdrop-filter: blur(1px);
 }
 
 /* ＧＡＭＥ　ＯＢＪＥＣＴＳ*/

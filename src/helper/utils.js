@@ -15,3 +15,13 @@ export function getBasePath() {
 
 	return basePath;
 }
+
+export function logEvery60Frames(currentFrame, params) {
+	if (!currentFrame % 60) {
+		console.log(
+			`🚀 at Remaining Time: `,
+			Math.floor(currentFrame / 60),
+			params
+		);
+	}
+}

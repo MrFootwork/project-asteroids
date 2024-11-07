@@ -1,5 +1,5 @@
 import Game from './Game.js';
-import { getBasePath } from './helper/path.js';
+import { getBasePath } from './helper/utils.js';
 
 let game;
 
@@ -7,7 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  States
 	 ***********************************/
-	var state = { musicOn: true, sfxOn: true, musicLow: false };
+	var state = {
+		musicOn: true,
+		sfxOn: true,
+		musicLow: false,
+		modal: {
+			element: null,
+		},
+	};
 
 	/***********************************
 	 *  HTML Elements
@@ -16,6 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	const musicControlPanel = document.querySelector('#musicControlPanel');
 	const musicToggler = document.querySelector('.icon-button.music');
 	const sfxToggler = document.querySelector('.icon-button.sfx');
+
+	// Modal
+	const modal = document.querySelector('#gameModal');
+	const messageElement = modal.querySelector('p#modalMessage');
+	const goodButton = modal.querySelector('#positive');
+	const badButton = modal.querySelector('#negative');
+
+	state.modal.element = modal;
 
 	// Intro
 	const introOverlay = document.querySelector('#introOverlay');
@@ -78,6 +93,26 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Event Listeners
 	 ***********************************/
+	// Modal
+	// Think of how to share this function across both files.
+	badButton.addEventListener('click', () => {
+		game.reset();
+
+		// Change View
+		homeScreen.style.display = 'none';
+		gameScreen.style.display = 'none';
+		resultScreen.style.display = 'block';
+
+		modal.close();
+	});
+
+	// Handle click on goodButton
+	goodButton.addEventListener('click', () => {
+		game.reset();
+		modal.close();
+		game.start();
+	});
+
 	// Intro
 	introScreen.addEventListener('click', playIntroVideo);
 	introScreen.addEventListener('keyup', skipIntro);
@@ -115,6 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Event Handlers
 	 ***********************************/
+	// Modal
+	// document
+	// 	.querySelector('#modalButton')
+	// 	.addEventListener('click', modal.showModal);
+
 	// Music Control
 	musicToggler.addEventListener('click', e => {
 		state.musicOn = !state.musicOn;
@@ -243,9 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			game.start();
 		});
 	}
-
-	// TESTING start
-	// changeViewToGame();
 
 	/***********************************
 	 *  Grouping Functions

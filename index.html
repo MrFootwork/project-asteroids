@@ -48,9 +48,18 @@
 
 		<!-- Game Screen -->
 		<div id="gameScreen">
+			<dialog id="gameModal">
+				<p id="modalMessage"></p>
+				<div id="buttonContainer">
+					<button id="positive">Try Again</button>
+					<button id="negative">Leave Game</button>
+				</div>
+			</dialog>
+
 			<div>
 				<button id="gameOverButton">Game Over</button>
 				<button id="pauseButton">Pause / Play</button>
+				<button id="modalButton">Modal</button>
 			</div>
 			<div>
 				<p>Time to survive: <span id="timeDisplay">2:00</span></p>
@@ -59,6 +68,7 @@
 				<p>☄ Score <span id="scoreDisplay">0</span></p>
 				<p>❤ Lives <span id="livesDisplay">3</span></p>
 			</div>
+
 			<div id="backgroundImageSolid"></div>
 			<div id="backgroundImageTransparent"></div>
 		</div>
@@ -112,10 +122,6 @@
 			<source src="assets/sounds/button-hover.mp3" type="audio/mpeg" />
 			Your browser does not support the audio element.
 		</audio>
-		<!-- <audio id="hitWallSoundPlayer" class="sfx">
-			<source src="assets/sounds/hit-against-wall.mp3" type="audio/mpeg" />
-			Your browser does not support the audio element.
-		</audio> -->
 
 		<!-- Game Engine -->
 		<script src="./src/index.js" type="module"></script>

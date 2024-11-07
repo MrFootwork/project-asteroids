@@ -2,11 +2,12 @@ import Spaceship from './objects/Spaceship.js';
 import Projectile from './objects/Projectile.js';
 import Asteroid from './objects/Asteroid.js';
 import levelDictionary from '../data/levels.js';
-import { getBasePath } from './helper/path.js';
+import { getBasePath, logEvery60Frames } from './helper/utils.js';
+
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
 // TESTING time
-const TIME_TO_SURVIVE = Infinity; // 2 minutes
+const TIME_TO_SURVIVE = 110; // 2 minutes
 
 class Game {
 	constructor({ gameScreen, state }) {
@@ -28,6 +29,7 @@ class Game {
 		 *******************************/
 		this.currentFrame = 0;
 		this.gameloopIntervalID = null;
+		this.wasEnded = false;
 
 		/*******************************
 		 *	Game State
@@ -95,6 +97,8 @@ class Game {
 
 		// Finally start the loops
 		requestAnimationFrame(() => this.#startLoopInterval());
+
+		console.warn('game at start: ', this);
 	}
 
 	reset() {
@@ -110,9 +114,6 @@ class Game {
 
 		// Load data for next level
 		this.currentLevel = levelDictionary[this.currentLevelID];
-
-		// Reset playerWon flag
-		this.player.hasWon = false;
 
 		// Remove all remaining elements
 		[this.asteroids, this.projectiles].forEach((container, i) => {
@@ -130,9 +131,13 @@ class Game {
 			for (const object of orphanedObjects) object.remove();
 		});
 
+		// Game
+		this.wasEnded = false;
+
 		// Player
 		this.player.lives = 3;
 		this.player.score = 0;
+		this.player.hasWon = false;
 
 		// Spaceship
 		this.spaceship.setPosition(this.currentLevel.startPosition);
@@ -175,12 +180,37 @@ class Game {
 			this.currentFrame++;
 			this.#updateTime();
 
-			if (this.#playerWinsOrLooses()) {
+			// Handle Game End
+			if (this.wasEnded) {
 				this.#stopLoopInterval();
 
+				if (!this.currentFrame % 60)
+					console.log('game at end: ', this.currentFrame, this);
+
 				if (this.player.lives === 0) {
+					// Handle Defeat
 					this.gameScreen.parentElement.style.backgroundColor = 'black';
 					this.gameScreen.classList.add('shake');
+
+					this.#showModal({
+						message: /*html*/ `
+							<p class="loose">DEFEAT 💀</p>
+							<p>Don't give up! You can do it.</p>
+							<p>Wanna try again level ${this.currentLevelID}? 💪🏻</p>
+						`,
+						preset: 'loose',
+					});
+				} else {
+					// Handle Victory
+					this.#showModal({
+						message: /*html*/ `
+							<p class="win">VICTORY ✌🏻</p>
+							<p>Good job! Was level ${this.currentLevelID} to easy?</p>
+							<p> Now let's move on to the next level.</p	>
+							<p>Can you handle even more asteroids? ☄</p>
+						`,
+						preset: 'win',
+					});
 				}
 
 				return;
@@ -188,6 +218,40 @@ class Game {
 
 			this.#gameLoop();
 		}, FRAME_DURATION);
+	}
+
+	/**
+	 * Opens a modal with a custom message and buttons by `preset`.
+	 *
+	 * @param {{ message: any; preset: any; }} param0
+	 * @param {*} param0.message any string, also HTML strings
+	 * @param {*} param0.preset 'win' or 'loose' (deafult)
+	 */
+	#showModal({ message, preset = 'loose' }) {
+		const modal = this.state.modal.element;
+		const messageElement = modal.querySelector('p#modalMessage');
+		const goodButton = modal.querySelector('#positive');
+		const badButton = modal.querySelector('#negative');
+
+		messageElement.innerHTML = message;
+
+		// Apply Modal Preset for WIN
+		if (preset === 'win') {
+			messageElement.classList.add('win');
+			goodButton.innerHTML = 'Continue';
+			badButton.innerHTML = 'Leave Game';
+		}
+
+		// Apply Modal Preset for LOOSE
+		if (preset === 'loose') {
+			messageElement.classList.add('loose');
+			goodButton.innerHTML = 'Try Again';
+			badButton.innerHTML = 'Leave Game';
+		}
+
+		modal.showModal();
+		// Loose focus on good button when showing up
+		goodButton.blur();
 	}
 
 	#updateBackground() {
@@ -204,6 +268,8 @@ class Game {
 	}
 
 	#gameLoop() {
+		this.#playerWinsOrLooses();
+
 		if (this.spaceship.hasHitTheEdge || this.frameAtObstacleHit) {
 			this.#animateDeflection();
 		} else this.spaceship.update();
@@ -420,14 +486,16 @@ class Game {
 		}
 
 		if (timeIsUp || playerIsDead) {
-			console.log(
-				'Game has ended. TimeIsUp, playerIsDead: ',
-				timeIsUp,
-				playerIsDead
-			);
+			this.wasEnded = true;
 		}
-
-		return timeIsUp || playerIsDead;
+		if (!(this.currentFrame % FRAMES_PER_SECOND))
+			console.log(`🚀 ~ Game ~ #playerWinsOrLooses:`, {
+				timRemaining: this.remainingTime,
+				timeIsUp,
+				playerIsDead,
+				playerHasWon: this.player.hasWon,
+				gameWasEnded: this.wasEnded,
+			});
 	}
 
 	#stopLoopInterval() {
