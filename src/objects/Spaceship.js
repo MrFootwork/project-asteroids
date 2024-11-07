@@ -46,8 +46,6 @@ class Spaceship {
 			this.velocity.x = -this.velocity.x;
 			this.velocity.y = -this.velocity.y;
 
-			if (this.state.sfxOn) hitWallSoundPlayer.play();
-
 			this.hasHitTheEdge = false;
 		}
 

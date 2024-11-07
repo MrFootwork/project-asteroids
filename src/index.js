@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  States
 	 ***********************************/
-	var state = { musicOn: true, sfxOn: true };
+	var state = { musicOn: true, sfxOn: true, musicLow: false };
 
 	/***********************************
 	 *  HTML Elements
@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const buttonHoverSoundPlayer = document.querySelector(
 		'#buttonHoverSoundPlayer'
 	);
-	const hitWallSoundPlayer = document.querySelector('#hitWallSoundPlayer');
 	const allButtons = document.querySelectorAll('button:not(:disabled)');
 	const allSFXPlayers = document.querySelectorAll('audio.sfx');
 
@@ -179,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Spin up a game
 		startGame();
 
-		// Change Music
+		// Reset Music
 		const isWrongSong =
 			musicPlayerSource.src.split('/').at(-1) !== 'stardust-ambient.mp3';
 
@@ -188,7 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			musicPlayer.load();
 		}
 
+		state.musicLow = false;
 		musicPlayer.volume = 0.3;
+
 		if (state.musicOn) musicPlayer.play();
 
 		// Change view
@@ -240,14 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		requestAnimationFrame(() => {
 			game.start();
-
-			// TESTING pause
-			const pauseFrameAt = 29;
-
-			setTimeout(() => {
-				// game.pauseOrResumeGame();
-				console.warn(`Pausing for testing at frame ${pauseFrameAt}.`);
-			}, pauseFrameAt);
 		});
 	}
 
@@ -261,8 +254,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		window.addEventListener('resize', game.resizeScreen);
 
 		gameOverButton.addEventListener('click', changeViewToResult);
-		pauseButton.addEventListener('click', () => {
-			game.pauseOrResumeGame(musicPlayer);
+		pauseButton.addEventListener('click', e => {
+			game.pauseOrResumeGame();
+			game.toggleMusicVolume(musicPlayer);
+
+			// Remove focus from the button
+			e.target.blur();
 		});
 
 		document.addEventListener('keydown', e => game.onKeyDown(e));

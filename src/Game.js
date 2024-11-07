@@ -69,6 +69,7 @@ class Game {
 	#rocketThrustSoundPlayer = new Audio('assets/sounds/rocket-thrust.wav');
 	#rockBreakSoundPlayer = new Audio('assets/sounds/rock-break.mp3');
 	#metalClangSoundPlayer = new Audio('assets/sounds/metal-clang.mp3');
+	#hitWallSoundPlayer = new Audio('assets/sounds/hit-against-wall.mp3');
 
 	/*******************************
 	 *	Public Methods
@@ -375,7 +376,8 @@ class Game {
 				break;
 			case 'KeyP':
 			case 'Pause':
-				this.pauseOrResumeGame(musicPlayer);
+				this.toggleMusicVolume(musicPlayer);
+				this.pauseOrResumeGame();
 				break;
 
 			default:
@@ -383,21 +385,27 @@ class Game {
 		}
 	}
 
-	pauseOrResumeGame(musicPlayer) {
-		const volumeChange = 0.2;
+	pauseOrResumeGame() {
 		const isPaused = !Boolean(this.gameloopIntervalID);
 
 		if (!isPaused) {
 			this.#stopLoopInterval();
-			musicPlayer.volume -= volumeChange;
 			return;
 		}
 
 		if (isPaused) {
 			this.#startLoopInterval();
-			musicPlayer.volume += volumeChange;
 			return;
 		}
+	}
+
+	toggleMusicVolume(musicPlayer) {
+		const volumeChange = 0.2;
+
+		if (!this.state.musicLow) musicPlayer.volume -= volumeChange;
+		if (this.state.musicLow) musicPlayer.volume += volumeChange;
+
+		this.state.musicLow = !this.state.musicLow;
 	}
 
 	/*******************************
@@ -430,6 +438,18 @@ class Game {
 	#animateDeflection() {
 		// Store the first frame
 		if (!this.frameAtObstacleHit) this.frameAtObstacleHit = this.currentFrame;
+
+		// Play Sound
+		// HACK when player pause -> game over it would keep repeating
+		// since gameScreen is display none? 🤷🏻‍♂️
+		if (
+			this.spaceship.hasHitTheEdge &&
+			this.state.sfxOn &&
+			this.gameScreen.clientWidth
+		) {
+			this.#hitWallSoundPlayer.volume = 0.5;
+			this.#hitWallSoundPlayer.play();
+		}
 
 		// Animate the deflection until animation duration has ended
 		this.spaceship.deflectFromObstacle();
