@@ -2,15 +2,12 @@ import Spaceship from './objects/Spaceship.js';
 import Projectile from './objects/Projectile.js';
 import Asteroid from './objects/Asteroid.js';
 import levelDictionary from '../data/levels.js';
+import { getBasePath } from './helper/path.js';
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
 // TESTING time
 const TIME_TO_SURVIVE = 15; // 2 minutes
-
-// TODO test, if still needed after using vite bundling
-const isGitHubPages = window.location.hostname === 'mrfootwork.github.io';
-const basePath = isGitHubPages ? '/project-asteroids/' : '';
 
 class Game {
 	constructor({ gameScreen }) {
@@ -462,7 +459,7 @@ class Game {
 		asteroidElement.className = 'asteroid';
 
 		const asteroidImage = document.createElement('img');
-		asteroidImage.src = `${basePath}assets/images/asteroid.png`;
+		asteroidImage.src = `${getBasePath()}assets/images/asteroid.png`;
 
 		asteroidElement.appendChild(asteroidImage);
 		this.gameScreen.appendChild(asteroidElement);
@@ -541,7 +538,7 @@ class Game {
 		spaceshipElement.id = 'spaceship';
 
 		const spaceshipImageElement = document.createElement('img');
-		spaceshipImageElement.src = `${basePath}assets/images/spaceship.png`;
+		spaceshipImageElement.src = `${getBasePath()}assets/images/spaceship.png`;
 
 		spaceshipElement.appendChild(spaceshipImageElement);
 		this.gameScreen.appendChild(spaceshipElement);

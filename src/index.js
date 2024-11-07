@@ -1,4 +1,5 @@
 import Game from './Game.js';
+import { getBasePath } from './helper/path.js';
 
 let game;
 
@@ -128,6 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		musicPlayer.volume = 0.6;
 		musicPlayer.play().catch(error => console.error('Playback error:', error));
 
+		// First Video
+		videoPlayer.src = `${getBasePath()}assets/videos/asteroids-migration.mp4`;
 		videoPlayer.playbackRate = 0.7;
 		videoPlayer.play();
 
@@ -140,8 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Second Video
 		setTimeout(() => {
 			console.log('next Video');
-			videoPlayer.src =
-				'/project-asteroids/assets/videos/asteroid-approaching-earth.mp4';
+			videoPlayer.src = `${getBasePath()}assets/videos/asteroid-approaching-earth.mp4`;
 		}, 8_820);
 	}
 
