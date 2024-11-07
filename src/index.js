@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const buttonHoverSoundPlayer = document.querySelector(
 		'#buttonHoverSoundPlayer'
 	);
+	const hitWallSoundPlayer = document.querySelector('#hitWallSoundPlayer');
 	const allButtons = document.querySelectorAll('button:not(:disabled)');
 	const allSFXPlayers = document.querySelectorAll('audio.sfx');
 

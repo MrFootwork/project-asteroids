@@ -18,14 +18,49 @@ class Spaceship {
 		this.rotaionalVelocity = 0;
 		this.orientation = 0; // Orientation in radians
 		this.thrustOrientation = 0;
+		this.dimension = {
+			width: spaceshipElement.clientWidth,
+			height: spaceshipElement.clientHeight,
+		};
+		this.hasHitTheEdge = false;
 	}
 
 	update() {
+		// Might have missed this info during object initialization
+		this.#initializeDimension();
+
+		// Actual updates
 		this.#updateKeys();
 		this.#rotate();
 		this.#updateVelocity();
+		this.#hitsTheEdge();
 		this.#updatePosition();
 
+		this.#render();
+	}
+
+	deflectFromObstacle() {
+		// Mirror the velocity only in the first frame
+		if (this.hasHitTheEdge) {
+			this.velocity.x = -this.velocity.x;
+			this.velocity.y = -this.velocity.y;
+
+			console.log('BOING');
+			hitWallSoundPlayer.play();
+
+			this.hasHitTheEdge = false;
+		}
+
+		// Allow rotation during deflection
+		this.#rotate();
+
+		// Gradually slow down
+		const drag = 0.9;
+		this.velocity.x *= drag;
+		this.velocity.y *= drag;
+
+		// Update Position
+		this.#updatePosition();
 		this.#render();
 	}
 
@@ -132,9 +167,25 @@ class Spaceship {
 	}
 
 	#updatePosition() {
-		// FIXME keep spaceship in bound
 		this.position.x += this.velocity.x;
 		this.position.y += this.velocity.y;
+	}
+
+	#initializeDimension() {
+		if (!this.dimension.width) {
+			this.dimension.width = this.element.clientWidth;
+			this.dimension.height = this.element.clientHeight;
+		}
+	}
+
+	#hitsTheEdge() {
+		const hitsTheEdge =
+			this.position.x < 0 || // Left of screen
+			this.position.x + this.dimension.width > this.gameScreen.clientWidth || // Right of screen
+			this.position.y < 0 || // Top of screen
+			this.position.y + this.dimension.height > this.gameScreen.clientHeight; // Bottom ofscreen
+
+		this.hasHitTheEdge = hitsTheEdge;
 	}
 }
 

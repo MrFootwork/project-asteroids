@@ -7,7 +7,7 @@ import { getBasePath } from './helper/path.js';
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
 // TESTING time
-const TIME_TO_SURVIVE = 15; // 2 minutes
+const TIME_TO_SURVIVE = Infinity; // 2 minutes
 
 class Game {
 	constructor({ gameScreen }) {
@@ -43,9 +43,13 @@ class Game {
 			gameScreen,
 			keys: this.keys,
 		});
-		this.playerLives = 3;
-		this.playerScore = 0;
-		this.playerWon = false;
+		this.player = {
+			lives: 3,
+			score: 0,
+			hasWon: false,
+		};
+		this.frameAtObstacleHit = null;
+		this.HIT_OBSTACLE_DURATION = 40;
 
 		// Projectiles
 		this.projectiles = [];
@@ -90,15 +94,15 @@ class Game {
 		this.remainingTime = TIME_TO_SURVIVE;
 
 		// Determine next leve ID
-		if (!this.playerWon) this.currentLevelID = 1;
-		if (this.playerWon && levelDictionary[this.currentLevelID + 1])
+		if (!this.player.hasWon) this.currentLevelID = 1;
+		if (this.player.hasWon && levelDictionary[this.currentLevelID + 1])
 			++this.currentLevelID;
 
 		// Load data for next level
 		this.currentLevel = levelDictionary[this.currentLevelID];
 
 		// Reset playerWon flag
-		this.playerWon = false;
+		this.player.hasWon = false;
 
 		// Remove all remaining elements
 		[this.asteroids, this.projectiles].forEach((container, i) => {
@@ -117,8 +121,8 @@ class Game {
 		});
 
 		// Player
-		this.playerLives = 3;
-		this.playerScore = 0;
+		this.player.lives = 3;
+		this.player.score = 0;
 
 		// Spaceship
 		this.spaceship.setPosition(this.currentLevel.startPosition);
@@ -161,7 +165,7 @@ class Game {
 			if (this.#playerWinsOrLooses()) {
 				this.#stopLoopInterval();
 
-				if (this.playerLives === 0) {
+				if (this.player.lives === 0) {
 					this.gameScreen.parentElement.style.backgroundColor = 'black';
 					this.gameScreen.classList.add('shake');
 				}
@@ -187,7 +191,10 @@ class Game {
 	}
 
 	#gameLoop() {
-		this.spaceship.update();
+		if (this.spaceship.hasHitTheEdge || this.frameAtObstacleHit) {
+			this.#animateDeflection();
+		} else this.spaceship.update();
+
 		this.#updateBackground();
 		this.#createProjectile();
 		this.#spawnLaterAsteroids();
@@ -212,7 +219,7 @@ class Game {
 
 				if (projectileHitsAsteroid) {
 					// handle score
-					this.playerScore++;
+					this.player.score++;
 					this.#updateScore();
 
 					// handle projectile
@@ -257,12 +264,12 @@ class Game {
 			if (asteroidHitsPlayer) {
 				// handle collision
 				asteroid.hasCollided = true;
-				this.playerLives--;
+				this.player.lives--;
 				this.#updatePlayerLives();
 			}
 
 			// If collision kills player, asteroid should stay visible
-			if (asteroidHitsPlayer && !this.playerLives) break;
+			if (asteroidHitsPlayer && !this.player.lives) break;
 
 			// Remove asteroid
 			const leavesAfterEntry = asteroid.hasEnteredScreen && asteroid.isOutside;
@@ -362,10 +369,10 @@ class Game {
 	 *******************************/
 	#playerWinsOrLooses() {
 		const timeIsUp = this.remainingTime === 0;
-		const playerIsDead = this.playerLives === 0;
+		const playerIsDead = this.player.lives === 0;
 
 		if (timeIsUp && !playerIsDead) {
-			this.playerWon = true;
+			this.player.hasWon = true;
 		}
 
 		if (timeIsUp || playerIsDead) {
@@ -382,6 +389,21 @@ class Game {
 	#stopLoopInterval() {
 		clearInterval(this.gameloopIntervalID);
 		this.gameloopIntervalID = null;
+	}
+
+	#animateDeflection() {
+		// Store the first frame
+		if (!this.frameAtObstacleHit) this.frameAtObstacleHit = this.currentFrame;
+
+		// Animate the deflection until animation duration has ended
+		this.spaceship.deflectFromObstacle();
+
+		// Check if animation duration has passed
+		const reachedLastAnimationFrame =
+			this.currentFrame - this.frameAtObstacleHit >= this.HIT_OBSTACLE_DURATION;
+
+		// Stop the animation
+		if (reachedLastAnimationFrame) this.frameAtObstacleHit = null;
 	}
 
 	#spawnInitialAsteroids(count) {
@@ -526,11 +548,11 @@ class Game {
 	}
 
 	#updateScore() {
-		scoreDisplay.textContent = this.playerScore;
+		scoreDisplay.textContent = this.player.score;
 	}
 
 	#updatePlayerLives() {
-		livesDisplay.textContent = this.playerLives;
+		livesDisplay.textContent = this.player.lives;
 	}
 
 	#createSpaceshipElement() {
