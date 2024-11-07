@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  States
 	 ***********************************/
-	const state = { musicOn: true, sfxOn: true };
+	var state = { musicOn: true, sfxOn: true };
 
 	/***********************************
 	 *  HTML Elements
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	 * create a game instance before
 	 * event listeners are declared.
 	 ***********************************/
-	game = new Game({ gameScreen });
+	game = new Game({ gameScreen, state });
 
 	/***********************************
 	 *  Event Listeners
@@ -104,20 +104,26 @@ document.addEventListener('DOMContentLoaded', () => {
 	 *  Event Handlers
 	 ***********************************/
 	// Music Control
-	musicToggler.addEventListener('click', () => {
+	musicToggler.addEventListener('click', e => {
 		state.musicOn = !state.musicOn;
 
 		if (musicPlayer.paused) musicPlayer.play();
 		else musicPlayer.pause();
+
+		// Remove focus from the button
+		e.target.blur();
 	});
 
-	sfxToggler.addEventListener('click', () => {
+	sfxToggler.addEventListener('click', e => {
 		state.sfxOn = !state.sfxOn;
 
 		allSFXPlayers.forEach(player => {
 			player.pause();
 			player.currentTime = 0;
 		});
+
+		// Remove focus from the button
+		e.target.blur();
 	});
 
 	// Intro View
@@ -181,6 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Game View
 	/** Switching to Result View. */
 	function changeViewToResult() {
+		// Stop game loop
+		game.pauseOrResumeGame();
+
+		// Change View
 		homeScreen.style.display = 'none';
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'block';

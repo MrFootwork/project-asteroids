@@ -1,11 +1,12 @@
 class Spaceship {
-	constructor({ spaceshipElement, gameScreen, keys }) {
+	constructor({ spaceshipElement, gameScreen, keys, state }) {
 		// External State
 		this.gameScreen = gameScreen;
 		this.element = spaceshipElement;
 		this.keys = keys;
 		this.isAccelerating = false;
 		this.isDecelerating = false;
+		this.state = state;
 
 		// Spaceship Characteristics
 		this.ANGLE_OFFSET = Math.PI / 2;
@@ -45,7 +46,7 @@ class Spaceship {
 			this.velocity.x = -this.velocity.x;
 			this.velocity.y = -this.velocity.y;
 
-			hitWallSoundPlayer.play();
+			if (this.state.sfxOn) hitWallSoundPlayer.play();
 
 			this.hasHitTheEdge = false;
 		}

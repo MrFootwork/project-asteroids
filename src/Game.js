@@ -3,14 +3,13 @@ import Projectile from './objects/Projectile.js';
 import Asteroid from './objects/Asteroid.js';
 import levelDictionary from '../data/levels.js';
 import { getBasePath } from './helper/path.js';
-
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
 // TESTING time
 const TIME_TO_SURVIVE = Infinity; // 2 minutes
 
 class Game {
-	constructor({ gameScreen }) {
+	constructor({ gameScreen, state }) {
 		/*******************************
 		 *	External State
 		 *******************************/
@@ -22,6 +21,7 @@ class Game {
 			space: { pressed: false },
 		};
 		this.gameScreen = gameScreen;
+		this.state = state;
 
 		/*******************************
 		 *	Internal State
@@ -42,6 +42,7 @@ class Game {
 			spaceshipElement: this.#createSpaceshipElement(),
 			gameScreen,
 			keys: this.keys,
+			state,
 		});
 		this.player = {
 			lives: 3,
@@ -128,6 +129,7 @@ class Game {
 		this.spaceship.setPosition(this.currentLevel.startPosition);
 		this.spaceship.setVelocity();
 		this.spaceship.orientation = 0;
+		this.spaceship.update();
 
 		// Projectiles
 		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
@@ -220,6 +222,10 @@ class Game {
 				);
 
 				if (projectileHitsAsteroid) {
+					// play sound
+					const sound = new Audio('assets/sounds/rock-break.mp3');
+					if (this.state.sfxOn) sound.play();
+
 					// handle score
 					this.player.score++;
 					this.#updateScore();
@@ -518,6 +524,9 @@ class Game {
 		if (this.keys.space.pressed && now - this.lastFired >= this.fireRate) {
 			// Update the last fired timestamp
 			this.lastFired = now;
+
+			const sound = new Audio('assets/sounds/laser-gun-shot.mp3');
+			if (this.state.sfxOn) sound.play();
 
 			const projectileElement = document.createElement('div');
 			projectileElement.className = 'projectile';
