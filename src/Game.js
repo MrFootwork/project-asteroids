@@ -1,16 +1,19 @@
 import Spaceship from './objects/Spaceship.js';
 import Projectile from './objects/Projectile.js';
 import Asteroid from './objects/Asteroid.js';
+
 import levelDictionary from '../data/levels.js';
-import { getBasePath, logEvery60Frames } from './helper/utils.js';
+import dialogMessages from '../data/dialogMessages.js';
+
+import { getBasePath } from './helper/utils.js';
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
-// TESTING time
-const TIME_TO_SURVIVE = 110; // 2 minutes
+// TESTING time starting level
+const TIME_TO_SURVIVE = 24; // 2 minutes
 
 class Game {
-	constructor({ gameScreen, state }) {
+	constructor({ gameScreen, state, statistics }) {
 		/*******************************
 		 *	External State
 		 *******************************/
@@ -23,6 +26,7 @@ class Game {
 		};
 		this.gameScreen = gameScreen;
 		this.state = state;
+		this.statistics = statistics;
 
 		/*******************************
 		 *	Internal State
@@ -30,12 +34,15 @@ class Game {
 		this.currentFrame = 0;
 		this.gameloopIntervalID = null;
 		this.wasEnded = false;
+		this.isPaused = false;
 
 		/*******************************
 		 *	Game State
 		 *******************************/
 		// Level
-		this.currentLevelID = 1;
+		// TESTING start level
+		this.START_LEVEL = 4;
+		this.currentLevelID = this.START_LEVEL;
 		this.currentLevel = levelDictionary[this.currentLevelID];
 		this.remainingTime = TIME_TO_SURVIVE;
 
@@ -50,6 +57,8 @@ class Game {
 			lives: 3,
 			score: 0,
 			hasWon: false,
+			shots: 0,
+			missedTargets: 0,
 		};
 		this.frameAtObstacleHit = null;
 		this.HIT_OBSTACLE_DURATION = 40;
@@ -108,7 +117,7 @@ class Game {
 		this.remainingTime = TIME_TO_SURVIVE;
 
 		// Determine next leve ID
-		if (!this.player.hasWon) this.currentLevelID = 1;
+		if (!this.player.hasWon) this.currentLevelID = this.START_LEVEL;
 		if (this.player.hasWon && levelDictionary[this.currentLevelID + 1])
 			++this.currentLevelID;
 
@@ -133,6 +142,7 @@ class Game {
 
 		// Game
 		this.wasEnded = false;
+		this.isPaused = false;
 
 		// Player
 		this.player.lives = 3;
@@ -160,18 +170,6 @@ class Game {
 		};
 	}
 
-	/**
-	 * Returns a formatted string for the remaining game time
-	 *
-	 * @returns {string} `"1:35"` for `this.remainingTime = 95`
-	 */
-	getFormattedRemainingTime() {
-		const minutes = Math.floor(this.remainingTime / 60);
-		const seconds = (this.remainingTime % 60).toString().padStart(2, '0');
-
-		return `${minutes}:${seconds}`;
-	}
-
 	/*******************************
 	 *	Game Loop
 	 *******************************/
@@ -184,33 +182,21 @@ class Game {
 			if (this.wasEnded) {
 				this.#stopLoopInterval();
 
+				// Let Statistics know about it
+				this.statistics.loadGame(this);
+
 				if (!this.currentFrame % 60)
 					console.log('game at end: ', this.currentFrame, this);
 
-				if (this.player.lives === 0) {
+				if (this.player.lives <= 0) {
 					// Handle Defeat
 					this.gameScreen.parentElement.style.backgroundColor = 'black';
 					this.gameScreen.classList.add('shake');
 
-					this.#showModal({
-						message: /*html*/ `
-							<p class="loose">DEFEAT 💀</p>
-							<p>Don't give up! You can do it.</p>
-							<p>Wanna try again level ${this.currentLevelID}? 💪🏻</p>
-						`,
-						preset: 'loose',
-					});
+					this.showModal(dialogMessages.loose);
 				} else {
 					// Handle Victory
-					this.#showModal({
-						message: /*html*/ `
-							<p class="win">VICTORY ✌🏻</p>
-							<p>Good job! Was level ${this.currentLevelID} to easy?</p>
-							<p> Now let's move on to the next level.</p	>
-							<p>Can you handle even more asteroids? ☄</p>
-						`,
-						preset: 'win',
-					});
+					this.showModal(dialogMessages.win);
 				}
 
 				return;
@@ -218,40 +204,6 @@ class Game {
 
 			this.#gameLoop();
 		}, FRAME_DURATION);
-	}
-
-	/**
-	 * Opens a modal with a custom message and buttons by `preset`.
-	 *
-	 * @param {{ message: any; preset: any; }} param0
-	 * @param {*} param0.message any string, also HTML strings
-	 * @param {*} param0.preset 'win' or 'loose' (deafult)
-	 */
-	#showModal({ message, preset = 'loose' }) {
-		const modal = this.state.modal.element;
-		const messageElement = modal.querySelector('p#modalMessage');
-		const goodButton = modal.querySelector('#positive');
-		const badButton = modal.querySelector('#negative');
-
-		messageElement.innerHTML = message;
-
-		// Apply Modal Preset for WIN
-		if (preset === 'win') {
-			messageElement.classList.add('win');
-			goodButton.innerHTML = 'Continue';
-			badButton.innerHTML = 'Leave Game';
-		}
-
-		// Apply Modal Preset for LOOSE
-		if (preset === 'loose') {
-			messageElement.classList.add('loose');
-			goodButton.innerHTML = 'Try Again';
-			badButton.innerHTML = 'Leave Game';
-		}
-
-		modal.showModal();
-		// Loose focus on good button when showing up
-		goodButton.blur();
 	}
 
 	#updateBackground() {
@@ -363,6 +315,10 @@ class Game {
 			// Remove asteroid
 			const leavesAfterEntry = asteroid.hasEnteredScreen && asteroid.isOutside;
 
+			// Collect Data
+			if (leavesAfterEntry) this.player.missedTargets++;
+
+			// Remove Asteroid from game and DOM
 			if (
 				leavesAfterEntry ||
 				asteroid.hasCollided ||
@@ -390,7 +346,7 @@ class Game {
 			case 'KeyW':
 				this.keys.arrowUp.pressed = true;
 
-				if (this.state.sfxOn) {
+				if (this.state.sfxOn && !this.isPaused) {
 					this.#rocketThrustSoundPlayer.volume = 0.2;
 					this.#rocketThrustSoundPlayer.play();
 				}
@@ -443,7 +399,8 @@ class Game {
 			case 'KeyP':
 			case 'Pause':
 				this.toggleMusicVolume(musicPlayer);
-				this.pauseOrResumeGame();
+				this.showModal(dialogMessages.pause);
+				this.togglePause();
 				break;
 
 			default:
@@ -451,16 +408,17 @@ class Game {
 		}
 	}
 
-	pauseOrResumeGame() {
-		const isPaused = !Boolean(this.gameloopIntervalID);
-
-		if (!isPaused) {
+	togglePause() {
+		if (!this.isPaused) {
 			this.#stopLoopInterval();
+			this.isPaused = true;
 			return;
 		}
 
-		if (isPaused) {
+		if (this.isPaused) {
 			this.#startLoopInterval();
+			this.isPaused = false;
+			this.state.modal.element.close();
 			return;
 		}
 	}
@@ -478,24 +436,11 @@ class Game {
 	 *	Private Methods
 	 *******************************/
 	#playerWinsOrLooses() {
-		const timeIsUp = this.remainingTime === 0;
-		const playerIsDead = this.player.lives === 0;
+		const timeIsUp = this.remainingTime <= 0;
+		const playerIsDead = this.player.lives <= 0;
 
-		if (timeIsUp && !playerIsDead) {
-			this.player.hasWon = true;
-		}
-
-		if (timeIsUp || playerIsDead) {
-			this.wasEnded = true;
-		}
-		if (!(this.currentFrame % FRAMES_PER_SECOND))
-			console.log(`🚀 ~ Game ~ #playerWinsOrLooses:`, {
-				timRemaining: this.remainingTime,
-				timeIsUp,
-				playerIsDead,
-				playerHasWon: this.player.hasWon,
-				gameWasEnded: this.wasEnded,
-			});
+		if (timeIsUp && !playerIsDead) this.player.hasWon = true;
+		if (timeIsUp || playerIsDead) this.wasEnded = true;
 	}
 
 	#stopLoopInterval() {
@@ -508,8 +453,6 @@ class Game {
 		if (!this.frameAtObstacleHit) this.frameAtObstacleHit = this.currentFrame;
 
 		// Play Sound
-		// HACK when player pause -> game over it would keep repeating
-		// since gameScreen is display none? 🤷🏻‍♂️
 		if (
 			this.spaceship.hasHitTheEdge &&
 			this.state.sfxOn &&
@@ -668,6 +611,8 @@ class Game {
 				spaceshipElement: this.spaceship.element,
 			});
 
+			this.player.shots++;
+
 			this.projectiles.push(projectile);
 		}
 	}
@@ -680,11 +625,11 @@ class Game {
 	}
 
 	#updateScore() {
-		scoreDisplay.textContent = this.player.score;
+		scoreDisplay.textContent = Math.max(this.player.score, 0);
 	}
 
 	#updatePlayerLives() {
-		livesDisplay.textContent = this.player.lives;
+		livesDisplay.textContent = Math.max(this.player.lives, 0);
 	}
 
 	#createSpaceshipElement() {
@@ -698,6 +643,76 @@ class Game {
 		this.gameScreen.appendChild(spaceshipElement);
 
 		return spaceshipElement;
+	}
+
+	/*******************************
+	 *	Internal Helper Functions
+	 *******************************/
+
+	/**
+	 * Returns a formatted string for the remaining game time
+	 *
+	 * @returns {string} `"1:35"` for `this.remainingTime = 95`
+	 */
+	getFormattedRemainingTime() {
+		const minutes = Math.floor(Math.max(this.remainingTime, 0) / 60);
+		const seconds = (Math.max(this.remainingTime, 0) % 60)
+			.toString()
+			.padStart(2, '0');
+
+		return `${minutes}:${seconds}`;
+	}
+
+	/**
+	 * Opens a modal with a custom message and buttons by `preset`.
+	 *
+	 * @param {{ message: any; preset: any; }} param0
+	 * @param {*} param0.message any string, also HTML strings
+	 * @param {*} param0.preset 'win' or 'loose' (deafult)
+	 */
+	showModal({ message, preset = 'loose' }) {
+		const modal = this.state.modal.element;
+		const messageElement = modal.querySelector('p#modalMessage');
+		const goodButton = modal.querySelector('#positive');
+		const badButton = modal.querySelector('#negative');
+
+		messageElement.innerHTML = message;
+
+		// Apply Modal Preset for WIN
+		if (preset === 'win') {
+			cleanupClasslists();
+			messageElement.classList.add('win');
+			goodButton.innerHTML = 'Continue';
+			badButton.innerHTML = 'Leave Game';
+		}
+
+		// Apply Modal Preset for LOOSE
+		if (preset === 'loose') {
+			cleanupClasslists();
+			messageElement.classList.add('loose');
+			goodButton.innerHTML = 'Try Again';
+			badButton.innerHTML = 'Leave Game';
+		}
+
+		// Apply Modal Preset for PAUSE
+		if (preset === 'pause') {
+			cleanupClasslists();
+			messageElement.classList.add('pause');
+			goodButton.innerHTML = 'Continue';
+			badButton.innerHTML = 'Leave Game';
+		}
+
+		function cleanupClasslists() {
+			messageElement.classList.value = '';
+			goodButton.classList.value = '';
+			badButton.classList.value = '';
+		}
+
+		modal.showModal();
+
+		// BUG first tab is always bad button instead of good button
+		goodButton.blur();
+		badButton.blur();
 	}
 }
 

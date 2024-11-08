@@ -1,7 +1,10 @@
 import Game from './Game.js';
+import dialogMessages from '../data/dialogMessages.js';
 import { getBasePath } from './helper/utils.js';
+import Statistics from './Statistics.js';
 
-let game;
+// let game;
+// let statistics;
 
 document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
@@ -66,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const resultScreen = document.querySelector('#resultScreen');
 	const toHomeButton = document.querySelector('#toHomeButton');
 	const restartButton = document.querySelector('#restartButton');
+	const subtitleH3 = document.querySelector('#resultSubTitle');
 
 	// SFX
 	const buttonHoverSoundPlayer = document.querySelector(
@@ -82,32 +86,37 @@ document.addEventListener('DOMContentLoaded', () => {
 	buttonClickSoundPlayer.volume = 0.4;
 
 	/***********************************
+	 *  Statistics Instance
+	 * ---------------------------------
+	 * The Statistics instance will
+	 * collect game data and store it.
+	 ***********************************/
+	const statistics = new Statistics();
+
+	/***********************************
 	 *  Game Engine Instance
 	 * ---------------------------------
 	 * After elements are defined,
 	 * create a game instance before
 	 * event listeners are declared.
 	 ***********************************/
-	game = new Game({ gameScreen, state });
+	const game = new Game({ gameScreen, state, statistics });
 
 	/***********************************
 	 *  Event Listeners
 	 ***********************************/
 	// Modal
-	// Think of how to share this function across both files.
-	badButton.addEventListener('click', () => {
-		game.reset();
-
-		// Change View
-		homeScreen.style.display = 'none';
-		gameScreen.style.display = 'none';
-		resultScreen.style.display = 'block';
-
-		modal.close();
-	});
+	badButton.addEventListener('click', changeViewToResult);
 
 	// Handle click on goodButton
 	goodButton.addEventListener('click', () => {
+		if (messageElement.classList.contains('pause')) {
+			game.toggleMusicVolume(musicPlayer);
+			game.togglePause();
+			modal.close();
+			return;
+		}
+
 		game.reset();
 		modal.close();
 		game.start();
@@ -150,11 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	/***********************************
 	 *  Event Handlers
 	 ***********************************/
-	// Modal
-	// document
-	// 	.querySelector('#modalButton')
-	// 	.addEventListener('click', modal.showModal);
-
 	// Music Control
 	musicToggler.addEventListener('click', e => {
 		state.musicOn = !state.musicOn;
@@ -241,13 +245,42 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Game View
 	/** Switching to Result View. */
 	function changeViewToResult() {
-		// Stop game loop
-		game.pauseOrResumeGame();
+		// Set Background
+
+		// Stop game loop, if not already paused
+		if (!game.isPaused) game.togglePause();
+
+		// Collect Data
+		if (statistics.games.length <= 1) statistics.loadGame(game);
+		console.log({ statistics });
+
+		// Render Results
+		renderStatistics();
+
+		// TESTING music on result view
+		// Play some Music
+		// const nextSong = game.player.hasWon
+		const nextSong = false
+			? 'assets/sounds/achievement.mp3'
+			: 'assets/sounds/defeat-background.mp3';
+
+		musicPlayerSource.src = nextSong;
+		musicPlayer.load();
+		if (state.musicOn) musicPlayer.play();
+
+		// Reset game
+		// TODO check if this is really necessary
+		// game.reset();
+
+		// Close modal
+		if (modal.open) modal.close();
 
 		// Change View
 		homeScreen.style.display = 'none';
 		gameScreen.style.display = 'none';
-		resultScreen.style.display = 'block';
+		resultScreen.style.display = 'flex';
+
+		console.log({ game });
 	}
 
 	// Result View
@@ -268,6 +301,92 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		// Show Music Controls
 		musicControlPanel.classList.add('show');
+	}
+	/***********************************
+	 *  Renderer for Statistics
+	 ***********************************/
+	function renderStatistics() {
+		const statisticsHTML = document.querySelector('#statistics');
+
+		console.log('Rendering statistics...');
+		const sortedGames = statistics.games.sort(
+			({ timestamp: timeA }, { timestamp: timeB }) => {
+				return timeB - timeA;
+			}
+		);
+
+		// Result View Sub Title
+		const subtitleHTML = sortedGames.at(-1).won ? 'You won!' : 'You lost';
+		subtitleH3.textContent = subtitleHTML;
+
+		// Iterate through statistics and build table rows
+		const tableRows = sortedGames.reduce((allRows, curr) => {
+			// Level Completion
+			const formattedCompletion = curr.won ? '✅' : '❌';
+
+			// Time Format
+			const formattedDate = new Intl.DateTimeFormat('en-GB', {
+				weekday: 'short', // "Di"
+				day: '2-digit', // "12", "8"
+				month: 'short', // "Okt"
+				year: '2-digit', // "24"
+				hour: '2-digit', // "12"
+				minute: '2-digit', // "35"
+			}).format(curr.timestamp);
+
+			// Accuracy
+			const formattedAccuracy = `${Math.round(curr.accuracy * 100)}%`;
+
+			const currentRow = /*html*/ `
+				<tr>
+					<th scope="row">${curr.level}</th>
+					<td>${formattedCompletion}</td>
+					<td>${formattedDate}</td>
+					<td>${curr.kills}</td>
+					<td>${curr.missedTargets}</td>
+					<td>${curr.shots}</td>
+					<td>${formattedAccuracy}</td>
+					<td>${curr.health}</td>
+				</tr>	
+			`;
+			return allRows + currentRow;
+		}, '');
+
+		const table = /*html*/ `
+			<table>
+				<!-- Table Caption -->
+				<caption>How you have done in each level</caption>
+				
+				<!-- Table Head (Column Headers) -->
+				<thead>
+					<tr>
+						<th scope="col" scope="row">Level</th>
+						<td scope="col">✔ Completed</td>
+						<td scope="col">⌚ Time</td>
+						<td scope="col">🌠 Kills</td>
+						<td scope="col">💩 Missed Targets</td>
+						<td scope="col">🔫 Shots</td>
+						<td scope="col">🎯 Accuracy</td>
+						<td scope="col">🩺 Health</td>
+					</tr>
+				</thead>
+				
+				<!-- Table Body (Main Data) -->
+				<tbody>
+					${tableRows}
+				</tbody>
+				
+				<!-- Table Footer -->
+				<!-- <tfoot>
+					<tr>
+						<th scope="row">Total</th>
+						<td colspan="3">Footer data or total calculation here</td>
+					</tr>
+				</tfoot> -->
+			</table>
+		`;
+
+		statisticsHTML.innerHTML = table;
 	}
 
 	/***********************************
@@ -292,8 +411,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		gameOverButton.addEventListener('click', changeViewToResult);
 		pauseButton.addEventListener('click', e => {
-			game.pauseOrResumeGame();
+			game.togglePause();
 			game.toggleMusicVolume(musicPlayer);
+
+			// Has to be after game.togglePause()
+			// because it nullifies game.gameLoopIntervalID
+			const isPaused = !Boolean(game.isPaused);
+
+			console.log('isPaused: ', isPaused);
+
+			if (game.isPaused) game.showModal(dialogMessages.pause);
 
 			// Remove focus from the button
 			e.target.blur();

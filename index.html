@@ -51,8 +51,8 @@
 			<dialog id="gameModal">
 				<p id="modalMessage"></p>
 				<div id="buttonContainer">
-					<button id="positive">Try Again</button>
-					<button id="negative">Leave Game</button>
+					<button id="positive" tabindex="1">Try Again</button>
+					<button id="negative" tabindex="2">Leave Game</button>
 				</div>
 			</dialog>
 
@@ -75,8 +75,18 @@
 
 		<!-- Result Screen -->
 		<div id="resultScreen">
-			<button id="toHomeButton">Back to Home</button>
-			<button id="restartButton">🔄 Restart Game</button>
+			<h2>RESULTS</h2>
+			<h3 id="resultSubTitle"></h3>
+			<div id="resultStatisticsContainer">
+				<div id="statistics">
+					There should be some statistics here. Something must have gotten wrong
+					📈📉🔢
+				</div>
+				<div id="resultButtonContainer">
+					<button id="toHomeButton">Back to Home</button>
+					<button id="restartButton">Restart Game</button>
+				</div>
+			</div>
 
 			<!-- pixabay attribution -->
 			<!-- Sound Effect from -->

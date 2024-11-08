@@ -30,9 +30,16 @@ const levelDictionary = {
 	5: {
 		initialAsteroids: 11,
 		spawnRate: 2000,
-		speedMultiplier: 1.2,
+		speedMultiplier: 1.5,
 		startPosition: null,
 		asteroidSpeed: 2.5,
+	},
+	6: {
+		initialAsteroids: 60,
+		spawnRate: Infinity,
+		speedMultiplier: 2,
+		startPosition: null,
+		asteroidSpeed: 3,
 	},
 };
 
