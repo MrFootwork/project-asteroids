@@ -5,6 +5,15 @@
 ## Description
 The projects recreates the famous game Asteroids, which was released by Atari in 1981. The player controls a spaceship on a screen. Asteroids coming in from all sides can be shot into smaller pieces. The player looses, if he looses all his lives by bumping into asteroids too often.
 
+## Game Controls
+| Key        | Action           |
+| :-------------: |:-------------|
+| W, 🔼      | Thrust |
+| A, ◀     | Rotate anti-clockwise ↪      |
+| D, ▶ | Rotate clockwise ↩      |
+| S, 🔽 | Breaks      |
+| Space | Shoots projectiles      |
+| P, Pause | Pauses and resumes the game      |
 
 ## MVP
 - [x] Start game
