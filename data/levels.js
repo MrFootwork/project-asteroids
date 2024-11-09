@@ -1,4 +1,5 @@
 const levelDictionary = {
+	// TESTING level data
 	1: {
 		initialAsteroids: 3,
 		spawnRate: 5000,
@@ -21,22 +22,22 @@ const levelDictionary = {
 		asteroidSpeed: 2.5,
 	},
 	4: {
-		initialAsteroids: 9,
-		spawnRate: 2500,
-		speedMultiplier: 1.5,
-		startPosition: null,
-		asteroidSpeed: 2.5,
-	},
-	5: {
-		initialAsteroids: 11,
+		initialAsteroids: 15,
 		spawnRate: 2000,
 		speedMultiplier: 1.5,
 		startPosition: null,
 		asteroidSpeed: 2.5,
 	},
+	5: {
+		initialAsteroids: 20,
+		spawnRate: 1500,
+		speedMultiplier: 1.5,
+		startPosition: null,
+		asteroidSpeed: 2.5,
+	},
 	6: {
-		initialAsteroids: 60,
-		spawnRate: Infinity,
+		initialAsteroids: 25,
+		spawnRate: 1000,
 		speedMultiplier: 2,
 		startPosition: null,
 		asteroidSpeed: 3,

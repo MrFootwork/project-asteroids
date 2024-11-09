@@ -6,7 +6,7 @@ import Statistics from './Statistics.js';
 // let game;
 // let statistics;
 
-document.addEventListener('DOMContentLoaded', () => {
+window.onload = () => {
 	/***********************************
 	 *  States
 	 ***********************************/
@@ -268,10 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		musicPlayer.load();
 		if (state.musicOn) musicPlayer.play();
 
-		// Reset game
-		// TODO check if this is really necessary
-		// game.reset();
-
 		// Close modal
 		if (modal.open) modal.close();
 
@@ -431,4 +427,4 @@ document.addEventListener('DOMContentLoaded', () => {
 			game.onKeyUp(e, musicPlayer);
 		});
 	}
-});
+};

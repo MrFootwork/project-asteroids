@@ -24,11 +24,16 @@ class Spaceship {
 			height: spaceshipElement.clientHeight,
 		};
 		this.hasHitTheEdge = false;
+
+		// Thrust Sprite Image
+		this.thrustImageIsSet = false;
+		this.thrustElement = null;
 	}
 
 	update() {
 		// Might have missed this info during object initialization
 		this.#initializeDimension();
+		this.#initializeThrustImage();
 
 		// Actual updates
 		this.#updateKeys();
@@ -110,6 +115,27 @@ class Spaceship {
 		this.element.style.top = `${this.position.y}px`;
 
 		this.element.style.transform = `rotate(${this.orientation}rad)`;
+
+		// Render Thrust Animation
+		const thrustElementClass = this.thrustElement.classList;
+		const thrustingClass = 'thrusting';
+
+		if (this.isAccelerating) thrustElementClass.add(thrustingClass);
+		else thrustElementClass.remove(thrustingClass);
+	}
+
+	#initializeThrustImage() {
+		if (!this.thrustImageIsSet) {
+			// Create DIV as image container for thrust animation
+			const imageContainer = document.createElement('div');
+			this.element.appendChild(imageContainer);
+
+			imageContainer.classList.add('thrust-image-container');
+
+			// Set Spaceship Properties
+			this.thrustElement = imageContainer;
+			this.thrustImageIsSet = true;
+		}
 	}
 
 	#updateKeys() {

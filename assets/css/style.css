@@ -417,6 +417,38 @@ button {
 #spaceship {
 	position: absolute;
 	width: 4rem;
+
+	& .thrust-image-container.thrusting {
+		position: absolute;
+		top: 0;
+		left: 0;
+
+		background-image: url('../images/thrust-blue-fire.png');
+		background-size: auto;
+		background-repeat: no-repeat;
+		background-position: 0px 0px;
+
+		/* Sprite Animation */
+		width: 42px;
+		height: 80px;
+
+		transform: rotate(180deg) translate(-11px, -52px);
+
+		animation: thrustAnimation 0.15s steps(7) infinite;
+	}
+}
+
+/* Keyframes to cycle through each frame and back */
+@keyframes thrustAnimation {
+	0% {
+		background-position: 0px 0px;
+	}
+	50% {
+		background-position: -414px 0px;
+	}
+	100% {
+		background-position: 0px 0px;
+	}
 }
 
 .projectile {

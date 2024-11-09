@@ -9,8 +9,9 @@ import { getBasePath } from './helper/utils.js';
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
-// TESTING time starting level
-const TIME_TO_SURVIVE = 24; // 2 minutes
+// TESTING time limit & start level
+const TIME_TO_SURVIVE = 40; // 2 minutes
+const START_LEVEL = 1;
 
 class Game {
 	constructor({ gameScreen, state, statistics }) {
@@ -40,9 +41,7 @@ class Game {
 		 *	Game State
 		 *******************************/
 		// Level
-		// TESTING start level
-		this.START_LEVEL = 4;
-		this.currentLevelID = this.START_LEVEL;
+		this.currentLevelID = START_LEVEL;
 		this.currentLevel = levelDictionary[this.currentLevelID];
 		this.remainingTime = TIME_TO_SURVIVE;
 
@@ -65,12 +64,16 @@ class Game {
 
 		// Projectiles
 		this.projectiles = [];
+		// BUG doesn't affect the actual fire rate
 		this.fireRate = FRAMES_PER_SECOND / 2; // Time in frames between shots
 		this.lastFired = null; // Timestamp of the last shot
 
 		// Asteroids
 		this.asteroids = [];
 		this.baseAsteroidSpeed = 1.5;
+
+		this.#rocketThrustSoundPlayer.volume = 0.2;
+		this.#rocketThrustSoundPlayer.loop = true;
 	}
 
 	/*******************************
@@ -117,7 +120,7 @@ class Game {
 		this.remainingTime = TIME_TO_SURVIVE;
 
 		// Determine next leve ID
-		if (!this.player.hasWon) this.currentLevelID = this.START_LEVEL;
+		if (!this.player.hasWon) this.currentLevelID = START_LEVEL;
 		if (this.player.hasWon && levelDictionary[this.currentLevelID + 1])
 			++this.currentLevelID;
 
@@ -349,7 +352,8 @@ class Game {
 				this.keys.arrowUp.pressed = true;
 
 				if (this.state.sfxOn && !this.isPaused) {
-					this.#rocketThrustSoundPlayer.volume = 0.2;
+					// this.#rocketThrustSoundPlayer.volume = 0.2;
+					// this.#rocketThrustSoundPlayer.loop = true
 					this.#rocketThrustSoundPlayer.play();
 				}
 
