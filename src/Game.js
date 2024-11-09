@@ -147,6 +147,8 @@ class Game {
 		// Player
 		this.player.lives = 3;
 		this.player.score = 0;
+		this.player.shots = 0;
+		this.player.missedTargets = 0;
 		this.player.hasWon = false;
 
 		// Spaceship
