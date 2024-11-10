@@ -11,6 +11,9 @@ window.onload = () => {
 	 *  States
 	 ***********************************/
 	var state = {
+		intro: {
+			isPlaying: false,
+		},
 		musicOn: true,
 		sfxOn: true,
 		musicLow: false,
@@ -123,7 +126,7 @@ window.onload = () => {
 	});
 
 	// Intro
-	introScreen.addEventListener('click', playIntroVideo);
+	introScreen.addEventListener('click', onClickOnIntro);
 	introScreen.addEventListener('keyup', skipIntro);
 
 	// add in game event listeners
@@ -188,7 +191,14 @@ window.onload = () => {
 		changeViewToHome();
 	});
 
-	function playIntroVideo() {
+	function onClickOnIntro() {
+		if (state.intro.isPlaying) {
+			videoPlayer.pause();
+			musicPlayer.pause();
+			changeViewToHome();
+		}
+
+		// Play Music
 		musicPlayer.volume = 0.6;
 		musicPlayer.play().catch(error => console.error('Playback error:', error));
 
@@ -208,10 +218,12 @@ window.onload = () => {
 			console.log('next Video');
 			videoPlayer.src = `${getBasePath()}assets/videos/asteroid-approaching-earth.mp4`;
 		}, 8_820);
+
+		state.intro.isPlaying = true;
 	}
 
 	function skipIntro(e) {
-		if (e.code === 'Space') {
+		if (e.code === 'Space' || e.code === 'Escape' || e.code === 'Enter') {
 			changeViewToHome();
 		}
 	}
