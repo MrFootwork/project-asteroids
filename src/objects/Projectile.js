@@ -6,6 +6,7 @@ class Projectile {
 		velocity,
 		projectileElement,
 		orientation,
+		damage = 40,
 	}) {
 		// External State
 		this.gameScreen = gameScreen;
@@ -15,6 +16,7 @@ class Projectile {
 
 		// Projectile Characteristics
 		this.width = 20;
+		this.damage = damage;
 
 		// Internal State
 		this.position = position;

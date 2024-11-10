@@ -550,6 +550,7 @@ class Game {
 		};
 
 		// build asteroid in DOM
+		// FIXME asteroid needs static non rotatic parent for health bar!
 		const asteroidElement = document.createElement('div');
 		asteroidElement.className = 'asteroid';
 

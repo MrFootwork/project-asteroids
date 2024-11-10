@@ -196,6 +196,7 @@ window.onload = () => {
 			videoPlayer.pause();
 			musicPlayer.pause();
 			changeViewToHome();
+			// FIXME clear all timeouts
 		}
 
 		// Play Music

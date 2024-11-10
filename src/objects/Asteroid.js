@@ -1,3 +1,5 @@
+import Bar from './Bar.js';
+
 class Asteroid {
 	constructor({ position, velocity, width, element, gameScreen }) {
 		// External State
@@ -12,6 +14,14 @@ class Asteroid {
 
 		// Internal State
 		this.orientation = 0;
+		this.health = Math.round(width);
+		this.healthBar = new Bar({
+			totalValue: this.health,
+			parentElement: this.element,
+		});
+		// FIXME implement health bar
+		console.log(`🚀 ~ Asteroid ~ constructor ~ this.health:`, this.health);
+
 		this.isOutside = false;
 		this.hasCollided = false;
 		this.isShot = false;
@@ -28,6 +38,7 @@ class Asteroid {
 		if (!this.hasEnteredScreen) this.#handleScreenEntry();
 
 		this.#render();
+		this.healthBar.render();
 	}
 
 	getCollisionShape() {
@@ -44,6 +55,7 @@ class Asteroid {
 
 		this.element.style.transform = `rotate(${this.orientation}rad)`;
 
+		// First Render Setup
 		if (!this.hasBeenRenderedOnce) {
 			this.element.style.width = `${this.width}px`;
 			this.hasBeenRenderedOnce = true;

@@ -475,6 +475,22 @@ button {
 	aspect-ratio: 1;
 }
 
+.health-bar-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 50px;
+	height: 10px;
+	border-radius: 50%;
+	outline: 1px solid red;
+
+	& .health-bar {
+		height: 90%;
+		width: 75%;
+		background-color: green;
+	}
+}
+
 /* ＥＦＦＥＣＴＳ */
 /* prettier-ignore */
 @keyframes shake {
