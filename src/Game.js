@@ -188,7 +188,7 @@ class Game {
 				this.#stopLoopInterval();
 
 				// Let Statistics know about it
-				this.statistics.loadGame(this);
+				this.statistics.addGame(this);
 
 				if (!this.currentFrame % 60)
 					console.log('game at end: ', this.currentFrame, this);

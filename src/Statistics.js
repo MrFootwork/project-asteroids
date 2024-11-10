@@ -30,7 +30,7 @@ class Statistics {
 	/***********************************
 	 *  Setters
 	 ***********************************/
-	loadGame(game) {
+	addGame(game) {
 		this.currentRawGame = game;
 		this.#extractDataFrom(game);
 	}

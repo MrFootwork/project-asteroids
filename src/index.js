@@ -67,9 +67,9 @@ window.onload = () => {
 
 	// Result View
 	const resultScreen = document.querySelector('#resultScreen');
+	const subtitleH3 = document.querySelector('#resultSubTitle');
 	const toHomeButton = document.querySelector('#toHomeButton');
 	const restartButton = document.querySelector('#restartButton');
-	const subtitleH3 = document.querySelector('#resultSubTitle');
 
 	// SFX
 	const buttonHoverSoundPlayer = document.querySelector(
@@ -216,9 +216,12 @@ window.onload = () => {
 		}
 	}
 
-	// Home View
+	// Home View => Game View
 	/** Switching to Game View. Does everything to start a game */
 	function changeViewToGame() {
+		// Remove Shake
+		gameScreen.classList.remove('shake');
+
 		// Spin up a game
 		startGame();
 
@@ -242,25 +245,26 @@ window.onload = () => {
 		resultScreen.style.display = 'none';
 	}
 
-	// Game View
+	// Game View => Result View
 	/** Switching to Result View. */
 	function changeViewToResult() {
 		// Set Background
+		resultScreen.style.backgroundImage = game.player.hasWon
+			? "url('assets/images/result-victory.jpg')"
+			: "url('assets/images/result-defeat.jpg')";
 
 		// Stop game loop, if not already paused
 		if (!game.isPaused) game.togglePause();
 
 		// Collect Data
-		if (statistics.games.length <= 1) statistics.loadGame(game);
-		console.log({ statistics });
+		if (statistics.games.length <= 1) statistics.addGame(game);
+		console.log(statistics);
 
 		// Render Results
 		renderStatistics();
 
-		// TESTING music on result view
 		// Play some Music
-		// const nextSong = game.player.hasWon
-		const nextSong = false
+		const nextSong = game.player.hasWon
 			? 'assets/sounds/achievement.mp3'
 			: 'assets/sounds/defeat-background.mp3';
 
@@ -276,10 +280,10 @@ window.onload = () => {
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'flex';
 
-		console.log({ game });
+		console.log(game);
 	}
 
-	// Result View
+	// Result View => Home View
 	/** Switching to Home View. */
 	function changeViewToHome() {
 		// Change music
@@ -312,8 +316,7 @@ window.onload = () => {
 		);
 
 		// Result View Sub Title
-		const subtitleHTML = sortedGames.at(-1).won ? 'You won!' : 'You lost';
-		subtitleH3.textContent = subtitleHTML;
+		subtitleH3.textContent = sortedGames[0].won ? 'You won!' : 'You lost!';
 
 		// Iterate through statistics and build table rows
 		const tableRows = sortedGames.reduce((allRows, curr) => {

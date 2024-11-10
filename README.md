@@ -3,24 +3,24 @@
 [Click here to see deployed game](https://mrfootwork.github.io/project-asteroids/)
 
 ## Description
-The projects recreates the famous game Asteroids, which was released by Atari in 1981. The player controls a spaceship on a screen. Asteroids coming in from all sides can be shot into smaller pieces. The player looses, if he looses all his lives by bumping into asteroids too often.
+The projects recreates the famous game Asteroids, which was released by Atari in 1981. The player controls a spaceship on a screen. Asteroids coming in from all sides can be shot into smaller pieces. The player loses, if he loses all his lives by bumping into asteroids too often.
 
 ## Game Controls
-| Key        | Action           |
-| :-------------: |:-------------|
-| W, 🔼      | Thrust |
-| A, ◀     | Rotate anti-clockwise ↪      |
-| D, ▶ | Rotate clockwise ↩      |
-| S, 🔽 | Breaks      |
-| Space | Shoots projectiles      |
-| P, Pause | Pauses and resumes the game      |
+| Key       | Action                        |
+| :-------: |:------------------------------|
+| W, 🔼     | Thrust                        |
+| A, ◀      | Rotate anti-clockwise ↪       |
+| D, ▶      | Rotate clockwise ↩            |
+| S, 🔽     | Breaks                        |
+| Space     | Shoots projectiles            |
+| P, Pause  | Pauses and resumes the game   |
 
 ## MVP
 - [x] Start game
 - [x] Player can shoot asteroids
 - [x] Asteroids keep spawning into the screen
 - [x] Asteroids take players lives until he dies
-- [x] Player looses, if he has no lives left
+- [x] Player loses, if he has no lives left
 - [x] Player wins, if he survives
 - [x] After the game ends, the game can be restarted
 
@@ -77,7 +77,7 @@ in general: The game seems to keeps running after game over
 - [ ]  add victorious short musik on level completion
 - [ ]  🐞 on DEFEAT: try again shoud maintain levelID
 - [ ]  🐞 on Pause: intercept ESC to also resume game
-- [ ]  ‼build result display (win/loose)
+- [ ]  ‼build result display (win/lose)
 - [ ]  ‼build game UI: with shield, speed, gun cool down, overheat, current Level
 - [x]  indicate when pausing the game
 - [ ]  indicate, that player was hit
@@ -162,7 +162,6 @@ in general: The game seems to keeps running after game over
 
 ## Links
 
-- [Trello Link](https://trello.com)
-- [Slides Link](http://slides.com)
+- [Slides Link](https://docs.google.com/presentation/d/1twygpWXAByjSrPZs7Sx-PUHpiEzXlUVhO3skZOzlV1Q/edit?usp=drive_link)
 - [Github repository Link](http://github.com/MrFootwork/project-asteroids)
 - [Live Demo](https://mrfootwork.github.io/project-asteroids/)
