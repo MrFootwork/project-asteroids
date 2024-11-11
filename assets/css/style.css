@@ -337,6 +337,40 @@ button {
 	z-index: 100;
 }
 
+#gameUI {
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	z-index: 500;
+
+	display: flex;
+	justify-content: center;
+
+	& div {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+
+		border-radius: 5px;
+		padding: 1rem;
+
+		& span {
+			font-family: monospace;
+		}
+	}
+
+	& #essential,
+	& #ship {
+		width: 15rem;
+	}
+
+	& #time #timeDisplay {
+		font-size: 2rem;
+	}
+}
+
 /* ＭＯＤＡＬ */
 #gameModal {
 	padding: 2rem;
@@ -443,24 +477,17 @@ button {
 		/* Sprite Animation */
 		width: 42px;
 		height: 80px;
-
 		transform: rotate(180deg) translate(-11px, -52px);
-
 		animation: thrustAnimation 0.15s steps(7) infinite;
 	}
 }
 
 /* Keyframes to cycle through each frame and back */
+/* prettier-ignore */
 @keyframes thrustAnimation {
-	0% {
-		background-position: 0px 0px;
-	}
-	50% {
-		background-position: -414px 0px;
-	}
-	100% {
-		background-position: 0px 0px;
-	}
+	0% { background-position: 0px 0px; }
+	50% { background-position: -414px 0px; }
+	100% { background-position: 0px 0px; }
 }
 
 .projectile {

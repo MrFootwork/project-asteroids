@@ -17,7 +17,7 @@ class Statistics {
 			shotsHit: game.player.shotsHit,
 			shots: game.player.shots,
 			accuracy: game.player.shotsHit / game.player.shots,
-			health: Math.max(game.player.lives, 0),
+			health: Math.max(game.player.health, 0),
 		};
 
 		this.games.push(data);

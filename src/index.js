@@ -270,7 +270,8 @@ window.onload = () => {
 		if (!game.isPaused) game.togglePause();
 
 		// Collect Data
-		if (statistics.games.length <= 1) statistics.addGame(game);
+		statistics.addGame(game);
+		// if (statistics.games.length <= 1) statistics.addGame(game);
 		console.log(statistics);
 
 		// Render Results
@@ -361,7 +362,7 @@ window.onload = () => {
 					<td>${gameData.escapedTargets}</td>
 					<td>${gameData.shots}</td>
 					<td>${formattedAccuracy}</td>
-					<td>${gameData.health}</td>
+					<td>${gameData.health}%</td>
 				</tr>	
 			`;
 			return allRows + currentRow;

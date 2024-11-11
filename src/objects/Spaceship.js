@@ -14,6 +14,7 @@ class Spaceship {
 		this.ROTATIONAL_SPEED = 0.2;
 
 		// Internal State
+		this.health = 100;
 		this.position = { x: 0, y: 0 };
 		this.velocity = { x: 0, y: 0 };
 		this.rotaionalVelocity = 0;

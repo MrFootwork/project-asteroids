@@ -10,8 +10,9 @@ import { getBasePath } from './helper/utils.js';
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
 // TESTING time limit & start level
-const TIME_TO_SURVIVE = Infinity; // 2 minutes
+const TIME_TO_SURVIVE = 1000; // 2 minutes
 const START_LEVEL = 1;
+const START_HEALTH = 100;
 
 class Game {
 	constructor({ gameScreen, state, statistics }) {
@@ -53,7 +54,7 @@ class Game {
 			state,
 		});
 		this.player = {
-			lives: 3,
+			health: 3,
 			score: 0,
 			hasWon: false,
 			shots: 0,
@@ -75,6 +76,13 @@ class Game {
 
 		this.#rocketThrustSoundPlayer.volume = 0.2;
 		this.#rocketThrustSoundPlayer.loop = true;
+
+		/*******************************
+		 *	HTML Elements
+		 *******************************/
+		this.gameUI = this.gameScreen.querySelector('#gameUI');
+		this.uiChildren = this.gameScreen.querySelectorAll('#gameUI>div');
+		console.log(`🚀 ~ Game ~ constructor ~ this.uiChildren:`, this.uiChildren);
 	}
 
 	/*******************************
@@ -95,7 +103,7 @@ class Game {
 		requestAnimationFrame(() => {
 			timeDisplay.textContent = this.getFormattedRemainingTime();
 			this.#updateScore();
-			this.#updatePlayerLives();
+			this.#updatePlayerHealth();
 			this.#updateTime();
 		});
 
@@ -119,6 +127,11 @@ class Game {
 		this.gameloopIntervalID = null;
 		this.currentFrame = 0;
 		this.remainingTime = TIME_TO_SURVIVE;
+
+		// Reset UI Color
+		this.uiChildren.forEach(
+			div => (div.style.backgroundColor = 'hsla(200, 75%, 50%, 0.2)')
+		);
 
 		// Determine next leve ID
 		if (!this.player.hasWon) this.currentLevelID = START_LEVEL;
@@ -149,7 +162,7 @@ class Game {
 		this.isPaused = false;
 
 		// Player
-		this.player.lives = 3;
+		this.player.health = START_HEALTH;
 		this.player.score = 0;
 		this.player.shots = 0;
 		this.player.shotsHit = 0;
@@ -195,7 +208,7 @@ class Game {
 				if (!this.currentFrame % 60)
 					console.log('game at end: ', this.currentFrame, this);
 
-				if (this.player.lives <= 0) {
+				if (this.player.health <= 0) {
 					// Handle Defeat
 					this.gameScreen.parentElement.style.backgroundColor = 'black';
 					this.gameScreen.classList.add('shake');
@@ -316,18 +329,38 @@ class Game {
 
 			if (asteroidHitsPlayer) {
 				// Play clang sound
-				if (this.player.lives && this.state.sfxOn) {
+				if (this.player.health && this.state.sfxOn) {
 					this.#metalClangSoundPlayer.play();
 				}
 
 				// Handle collision
 				asteroid.hasCollided = true;
-				this.player.lives--;
-				this.#updatePlayerLives();
+				this.player.health -= asteroid.damage;
+				this.#updatePlayerHealth();
+
+				// Update UI
+				const THRESHHOLD_ORANGE = 0.7;
+				const THRESHHOLD_RED = 0.3;
+
+				const healthInOrange =
+					THRESHHOLD_RED < this.player.health / START_HEALTH &&
+					this.player.health / START_HEALTH <= THRESHHOLD_ORANGE;
+				const healthInRed = this.player.health / START_HEALTH <= THRESHHOLD_RED;
+
+				if (healthInOrange) {
+					this.uiChildren.forEach(
+						div => (div.style.backgroundColor = 'hsla(50, 80%, 60%, 0.2)')
+					);
+				}
+				if (healthInRed) {
+					this.uiChildren.forEach(
+						div => (div.style.backgroundColor = 'hsla(0, 75%, 60%, 0.4)')
+					);
+				}
 			}
 
 			// If collision kills player, asteroid should stay visible
-			if (asteroidHitsPlayer && !this.player.lives) break;
+			if (asteroidHitsPlayer && !this.player.health) break;
 
 			// Remove asteroid
 			const leavesAfterEntry = asteroid.hasEnteredScreen && asteroid.isOutside;
@@ -455,7 +488,7 @@ class Game {
 	 *******************************/
 	#playerWinsOrLooses() {
 		const timeIsUp = this.remainingTime <= 0;
-		const playerIsDead = this.player.lives <= 0;
+		const playerIsDead = this.player.health <= 0;
 
 		if (timeIsUp && !playerIsDead) this.player.hasWon = true;
 		if (timeIsUp || playerIsDead) this.wasEnded = true;
@@ -646,8 +679,8 @@ class Game {
 		scoreDisplay.textContent = Math.max(this.player.score, 0);
 	}
 
-	#updatePlayerLives() {
-		livesDisplay.textContent = Math.max(this.player.lives, 0);
+	#updatePlayerHealth() {
+		livesDisplay.textContent = Math.max(this.player.health, 0);
 	}
 
 	#createSpaceshipElement() {
