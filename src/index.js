@@ -293,6 +293,9 @@ window.onload = () => {
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'flex';
 
+		// Stop Animation
+		gameScreen.classList.remove('shake');
+
 		console.log(game);
 	}
 
