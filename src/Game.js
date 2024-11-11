@@ -202,12 +202,6 @@ class Game {
 			if (this.wasEnded) {
 				this.#stopLoopInterval();
 
-				// Let Statistics know about it
-				this.statistics.addGame(this);
-
-				if (!this.currentFrame % 60)
-					console.log('game at end: ', this.currentFrame, this);
-
 				if (this.player.health <= 0) {
 					// Handle Defeat
 					this.gameScreen.parentElement.style.backgroundColor = 'black';
@@ -352,6 +346,7 @@ class Game {
 						div => (div.style.backgroundColor = 'hsla(50, 80%, 60%, 0.2)')
 					);
 				}
+
 				if (healthInRed) {
 					this.uiChildren.forEach(
 						div => (div.style.backgroundColor = 'hsla(0, 75%, 60%, 0.4)')

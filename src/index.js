@@ -271,7 +271,6 @@ window.onload = () => {
 
 		// Collect Data
 		statistics.addGame(game);
-		// if (statistics.games.length <= 1) statistics.addGame(game);
 		console.log(statistics);
 
 		// Render Results
@@ -327,9 +326,7 @@ window.onload = () => {
 
 		console.log('Rendering statistics...');
 		const sortedGames = statistics.games.sort(
-			({ timestamp: timeA }, { timestamp: timeB }) => {
-				return timeB - timeA;
-			}
+			({ timestamp: timeA }, { timestamp: timeB }) => timeB - timeA
 		);
 
 		// Result View Sub Title
@@ -343,7 +340,7 @@ window.onload = () => {
 			// Time Format
 			const formattedDate = new Intl.DateTimeFormat('en-GB', {
 				weekday: 'short', // "Di"
-				day: '2-digit', // "12", "8"
+				day: '2-digit', // "12", "08"
 				month: 'short', // "Okt"
 				year: '2-digit', // "24"
 				hour: '2-digit', // "12"
@@ -365,6 +362,7 @@ window.onload = () => {
 					<td>${gameData.health}%</td>
 				</tr>	
 			`;
+
 			return allRows + currentRow;
 		}, '');
 
