@@ -10,7 +10,7 @@ import { getBasePath } from './helper/utils.js';
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
 // TESTING time limit & start level
-const TIME_TO_SURVIVE = 12; // 2 minutes
+const TIME_TO_SURVIVE = Infinity; // 2 minutes
 const START_LEVEL = 1;
 
 class Game {
@@ -780,7 +780,7 @@ function setBackgroundPosition({
 	const xValue =
 		parseFloat(xPosition) + spaceshipVelocity.x * decelerationFactor;
 	const yValue =
-		parseFloat(yPosition) + spaceshipVelocity.y * decelerationFactor;
+		parseFloat(yPosition) + spaceshipVelocity.y * decelerationFactor * 3;
 
 	backgroundElement.style.backgroundPosition = `${
 		hasLinearGradient ? '50% 50%, ' : ''
