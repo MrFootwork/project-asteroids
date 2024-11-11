@@ -20,14 +20,14 @@
 	--positive-green: #c1cbb1;
 	--negative-red: #f38989;
 	--background-glas-primary: hsla(210, 55%, 65%, 0.1);
-	--background-glass-secondary: hsla(180, 50%, 10%, 0.2);
-	--background-glass-tertiary: hsla(30, 50%, 7%, 0.4);
+	--background-glas-secondary: hsla(180, 50%, 10%, 0.2);
+	--background-glas-colorless: hsla(0, 0%, 0%, 0.4);
 	--card-box-shadow: -3px 3px 3px -2px hsl(0, 0%, 0%, 0.6),
 		2px -2px 2px -2px rgba(255, 255, 255, 0.3);
 
 	/* Fonts */
-	--font-anurati: 'anurati', 'sans-serif';
-	--font-astro: 'astro', 'sans-serif';
+	--font-futuristic: 'anurati', 'sans-serif';
+	--font-futuristic-readable: 'astro', 'sans-serif';
 }
 
 body {
@@ -38,21 +38,21 @@ body {
 }
 
 h1 {
-	font-family: var(--font-anurati);
+	font-family: var(--font-futuristic);
 	font-size: 5rem;
 	user-select: none;
 	text-shadow: -3px 3px 11px black;
 }
 
 h2 {
-	font-family: var(--font-anurati);
+	font-family: var(--font-futuristic);
 	font-size: 4rem;
 	user-select: none;
 	text-shadow: -3px 3px 11px black;
 }
 
 button {
-	font-family: var(--font-astro);
+	font-family: var(--font-futuristic-readable);
 }
 
 /*****************************
@@ -240,35 +240,47 @@ button {
 					padding-bottom: 1rem;
 				}
 
+				--width-for-numbers: 5rem;
+				--cells-padding-x: 1rem;
+				--cell-background: var(--background-glas-colorless);
+				--cell-background-darker: hsl(
+					from var(--cell-background) h s l / calc(alpha + 0.15)
+				);
+
 				/* All Cells */
 				& tr > th,
 				& tr > td {
 					text-align: center;
 					border-radius: 4px;
 
-					box-shadow: -3px 3px 3px -2px hsl(0, 0%, 0%, 0.6),
-						2px -2px 2px -2px rgba(255, 255, 255, 0.3);
-					background-color: var(--background-glass-tertiary);
+					box-shadow: var(--card-box-shadow);
+					background-color: var(--cell-background);
 				}
-
-				--cells-with-numbers: 5rem;
-				--cells-padding-x: 1rem;
 
 				/* Header Cells */
 				& thead {
+					/* Entire Head Row */
 					& tr > th,
 					& tr > td {
 						padding: 0.5rem;
 						font-weight: bold;
+						background-color: var(--cell-background-darker);
 					}
+
 					/* Cells with Numbers */
 					& tr > td:nth-last-child(-n + 5) {
-						max-width: var(--cells-with-numbers);
+						max-width: var(--width-for-numbers);
 					}
 				}
 
 				/* Body Cells */
 				& tbody {
+					/* First Column */
+					& tr > th {
+						background-color: var(--cell-background-darker);
+					}
+
+					/* Entire Row */
 					& tr > th,
 					& tr > td {
 						padding: 0.2rem var(--cells-padding-x);
@@ -276,7 +288,7 @@ button {
 
 					/* Cells with Numbers */
 					& tr > td:nth-last-child(-n + 5) {
-						max-width: var(--cells-with-numbers);
+						max-width: var(--width-for-numbers);
 					}
 				}
 			}
@@ -341,7 +353,7 @@ button {
 
 	& #modalMessage {
 		margin-bottom: 2rem;
-		background-color: var(--background-glass-secondary);
+		background-color: var(--background-glas-secondary);
 		border-radius: 6px;
 		text-align: center;
 		padding: 2rem;
@@ -463,6 +475,22 @@ button {
 	aspect-ratio: 1;
 }
 
+.health-bar-container {
+	position: absolute;
+	width: 70px;
+	height: 10px;
+	border-radius: 3px;
+	outline: 1px solid white;
+	background-color: var(--background-glas-colorless);
+
+	& .health-bar {
+		height: 90%;
+		width: 75%;
+		border-radius: 2px;
+		background-color: green;
+	}
+}
+
 /* ＥＦＦＥＣＴＳ */
 /* prettier-ignore */
 @keyframes shake {
@@ -478,10 +506,10 @@ button {
 }
 
 .shake {
-	animation: shake 0.5s linear;
-	/* 0.5s duration and ease timing */
-	animation-iteration-count: 3;
-	/* Can be adjusted for more shakes */
+	animation: 0.4s ease-out 3 shake;
+	/* animation-duration: 0.4s; */
+	/* animation-timing-function: ease-out; */
+	/* animation-iteration-count: 3; */
 }
 
 /* ＢＡＣＫＧＲＯＵＮＤ */

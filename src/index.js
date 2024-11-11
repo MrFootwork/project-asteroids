@@ -11,6 +11,9 @@ window.onload = () => {
 	 *  States
 	 ***********************************/
 	var state = {
+		intro: {
+			isPlaying: false,
+		},
 		musicOn: true,
 		sfxOn: true,
 		musicLow: false,
@@ -67,9 +70,9 @@ window.onload = () => {
 
 	// Result View
 	const resultScreen = document.querySelector('#resultScreen');
+	const subtitleH3 = document.querySelector('#resultSubTitle');
 	const toHomeButton = document.querySelector('#toHomeButton');
 	const restartButton = document.querySelector('#restartButton');
-	const subtitleH3 = document.querySelector('#resultSubTitle');
 
 	// SFX
 	const buttonHoverSoundPlayer = document.querySelector(
@@ -123,7 +126,7 @@ window.onload = () => {
 	});
 
 	// Intro
-	introScreen.addEventListener('click', playIntroVideo);
+	introScreen.addEventListener('click', onClickOnIntro);
 	introScreen.addEventListener('keyup', skipIntro);
 
 	// add in game event listeners
@@ -188,7 +191,15 @@ window.onload = () => {
 		changeViewToHome();
 	});
 
-	function playIntroVideo() {
+	function onClickOnIntro() {
+		if (state.intro.isPlaying) {
+			videoPlayer.pause();
+			musicPlayer.pause();
+			changeViewToHome();
+			// FIXME clear all timeouts
+		}
+
+		// Play Music
 		musicPlayer.volume = 0.6;
 		musicPlayer.play().catch(error => console.error('Playback error:', error));
 
@@ -208,17 +219,22 @@ window.onload = () => {
 			console.log('next Video');
 			videoPlayer.src = `${getBasePath()}assets/videos/asteroid-approaching-earth.mp4`;
 		}, 8_820);
+
+		state.intro.isPlaying = true;
 	}
 
 	function skipIntro(e) {
-		if (e.code === 'Space') {
+		if (e.code === 'Space' || e.code === 'Escape' || e.code === 'Enter') {
 			changeViewToHome();
 		}
 	}
 
-	// Home View
+	// Home View => Game View
 	/** Switching to Game View. Does everything to start a game */
 	function changeViewToGame() {
+		// Remove Shake
+		gameScreen.classList.remove('shake');
+
 		// Spin up a game
 		startGame();
 
@@ -242,25 +258,26 @@ window.onload = () => {
 		resultScreen.style.display = 'none';
 	}
 
-	// Game View
+	// Game View => Result View
 	/** Switching to Result View. */
 	function changeViewToResult() {
 		// Set Background
+		resultScreen.style.backgroundImage = game.player.hasWon
+			? "url('assets/images/result-victory.jpg')"
+			: "url('assets/images/result-defeat.jpg')";
 
 		// Stop game loop, if not already paused
 		if (!game.isPaused) game.togglePause();
 
 		// Collect Data
-		if (statistics.games.length <= 1) statistics.loadGame(game);
-		console.log({ statistics });
+		if (statistics.games.length <= 1) statistics.addGame(game);
+		console.log(statistics);
 
 		// Render Results
 		renderStatistics();
 
-		// TESTING music on result view
 		// Play some Music
-		// const nextSong = game.player.hasWon
-		const nextSong = false
+		const nextSong = game.player.hasWon
 			? 'assets/sounds/achievement.mp3'
 			: 'assets/sounds/defeat-background.mp3';
 
@@ -276,10 +293,10 @@ window.onload = () => {
 		gameScreen.style.display = 'none';
 		resultScreen.style.display = 'flex';
 
-		console.log({ game });
+		console.log(game);
 	}
 
-	// Result View
+	// Result View => Home View
 	/** Switching to Home View. */
 	function changeViewToHome() {
 		// Change music
@@ -312,13 +329,12 @@ window.onload = () => {
 		);
 
 		// Result View Sub Title
-		const subtitleHTML = sortedGames.at(-1).won ? 'You won!' : 'You lost';
-		subtitleH3.textContent = subtitleHTML;
+		subtitleH3.textContent = sortedGames[0].won ? 'You won!' : 'You lost!';
 
 		// Iterate through statistics and build table rows
-		const tableRows = sortedGames.reduce((allRows, curr) => {
+		const tableRows = sortedGames.reduce((allRows, gameData) => {
 			// Level Completion
-			const formattedCompletion = curr.won ? '✅' : '❌';
+			const formattedCompletion = gameData.won ? '✅' : '❌';
 
 			// Time Format
 			const formattedDate = new Intl.DateTimeFormat('en-GB', {
@@ -328,21 +344,21 @@ window.onload = () => {
 				year: '2-digit', // "24"
 				hour: '2-digit', // "12"
 				minute: '2-digit', // "35"
-			}).format(curr.timestamp);
+			}).format(gameData.timestamp);
 
 			// Accuracy
-			const formattedAccuracy = `${Math.round(curr.accuracy * 100)}%`;
+			const formattedAccuracy = `${Math.round(gameData.accuracy * 100)}%`;
 
 			const currentRow = /*html*/ `
 				<tr>
-					<th scope="row">${curr.level}</th>
+					<th scope="row">${gameData.level}</th>
 					<td>${formattedCompletion}</td>
 					<td>${formattedDate}</td>
-					<td>${curr.kills}</td>
-					<td>${curr.missedTargets}</td>
-					<td>${curr.shots}</td>
+					<td>${gameData.kills}</td>
+					<td>${gameData.escapedTargets}</td>
+					<td>${gameData.shots}</td>
 					<td>${formattedAccuracy}</td>
-					<td>${curr.health}</td>
+					<td>${gameData.health}</td>
 				</tr>	
 			`;
 			return allRows + currentRow;

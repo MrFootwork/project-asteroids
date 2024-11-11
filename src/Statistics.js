@@ -13,9 +13,10 @@ class Statistics {
 			won: game.player.hasWon,
 			level: game.currentLevelID,
 			kills: game.player.score,
-			missedTargets: game.player.missedTargets,
+			escapedTargets: game.player.escapedTargets,
+			shotsHit: game.player.shotsHit,
 			shots: game.player.shots,
-			accuracy: game.player.score / game.player.shots,
+			accuracy: game.player.shotsHit / game.player.shots,
 			health: Math.max(game.player.lives, 0),
 		};
 
@@ -30,7 +31,7 @@ class Statistics {
 	/***********************************
 	 *  Setters
 	 ***********************************/
-	loadGame(game) {
+	addGame(game) {
 		this.currentRawGame = game;
 		this.#extractDataFrom(game);
 	}

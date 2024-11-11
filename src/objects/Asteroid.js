@@ -1,8 +1,11 @@
+import Bar from './Bar.js';
+
 class Asteroid {
 	constructor({ position, velocity, width, element, gameScreen }) {
 		// External State
 		this.gameScreen = gameScreen;
 		this.element = element;
+		this.image = element.querySelector('img');
 		this.position = position;
 		this.velocity = velocity;
 		this.width = width;
@@ -14,9 +17,14 @@ class Asteroid {
 		this.orientation = 0;
 		this.isOutside = false;
 		this.hasCollided = false;
-		this.isShot = false;
 		this.hasEnteredScreen = false;
 		this.hasBeenRenderedOnce = false;
+		// Health
+		this.health = Math.round(width);
+		this.healthBar = new Bar({
+			totalValue: this.health,
+			parentObject: this,
+		});
 	}
 
 	update() {
@@ -42,10 +50,12 @@ class Asteroid {
 		this.element.style.left = `${this.position.x}px`;
 		this.element.style.top = `${this.position.y}px`;
 
-		this.element.style.transform = `rotate(${this.orientation}rad)`;
+		this.image.style.transform = `rotate(${this.orientation}rad)`;
 
+		// First Render Setup
 		if (!this.hasBeenRenderedOnce) {
 			this.element.style.width = `${this.width}px`;
+			this.image.style.width = `${this.width}px`;
 			this.hasBeenRenderedOnce = true;
 		}
 	}
