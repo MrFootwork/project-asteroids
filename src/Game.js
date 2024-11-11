@@ -10,7 +10,7 @@ import { getBasePath } from './helper/utils.js';
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
 // TESTING time limit & start level
-const TIME_TO_SURVIVE = 40; // 2 minutes
+const TIME_TO_SURVIVE = 12; // 2 minutes
 const START_LEVEL = 1;
 
 class Game {
@@ -57,7 +57,8 @@ class Game {
 			score: 0,
 			hasWon: false,
 			shots: 0,
-			missedTargets: 0,
+			shotsHit: 0,
+			escapedTargets: 0,
 		};
 		this.frameAtObstacleHit = null;
 		this.HIT_OBSTACLE_DURATION = 40;
@@ -151,7 +152,8 @@ class Game {
 		this.player.lives = 3;
 		this.player.score = 0;
 		this.player.shots = 0;
-		this.player.missedTargets = 0;
+		this.player.shotsHit = 0;
+		this.player.escapedTargets = 0;
 		this.player.hasWon = false;
 
 		// Spaceship
@@ -259,21 +261,31 @@ class Game {
 					this.#rockBreakSoundPlayer.currentTime = 0;
 					if (this.state.sfxOn) this.#rockBreakSoundPlayer.play();
 
-					// handle score
-					this.player.score++;
-					this.#updateScore();
+					// handle health
+					asteroid.health -= projectile.damage;
+					asteroid.healthBar.update(asteroid.health);
+					asteroid.healthBar.render();
 
 					// handle projectile
 					projectile.hasHitTarget = true;
 
 					// handle asteroid
-					asteroid.isShot = true;
-					asteroid.element.remove();
-					this.asteroids.splice(j, 1);
+					if (asteroid.health <= 0) {
+						// handle score
+						this.player.score++;
+						this.#updateScore();
+
+						// Remove
+						asteroid.element.remove();
+						this.asteroids.splice(j, 1);
+					}
 
 					break asteroidLoop;
 				}
 			}
+
+			// Handle Statistics
+			if (projectile.hasHitTarget) this.player.shotsHit++;
 
 			// Remove projectile
 			if (projectile.isOutside || projectile.hasHitTarget) {
@@ -321,13 +333,13 @@ class Game {
 			const leavesAfterEntry = asteroid.hasEnteredScreen && asteroid.isOutside;
 
 			// Collect Data
-			if (leavesAfterEntry) this.player.missedTargets++;
+			if (leavesAfterEntry) this.player.escapedTargets++;
 
 			// Remove Asteroid from game and DOM
 			if (
 				leavesAfterEntry ||
 				asteroid.hasCollided ||
-				asteroid.isShot ||
+				asteroid.health <= 0 ||
 				asteroidHitsPlayer
 			) {
 				asteroid.element.remove();
@@ -550,7 +562,6 @@ class Game {
 		};
 
 		// build asteroid in DOM
-		// FIXME asteroid needs static non rotatic parent for health bar!
 		const asteroidElement = document.createElement('div');
 		asteroidElement.className = 'asteroid';
 

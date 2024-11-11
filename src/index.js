@@ -332,9 +332,9 @@ window.onload = () => {
 		subtitleH3.textContent = sortedGames[0].won ? 'You won!' : 'You lost!';
 
 		// Iterate through statistics and build table rows
-		const tableRows = sortedGames.reduce((allRows, curr) => {
+		const tableRows = sortedGames.reduce((allRows, gameData) => {
 			// Level Completion
-			const formattedCompletion = curr.won ? '✅' : '❌';
+			const formattedCompletion = gameData.won ? '✅' : '❌';
 
 			// Time Format
 			const formattedDate = new Intl.DateTimeFormat('en-GB', {
@@ -344,21 +344,21 @@ window.onload = () => {
 				year: '2-digit', // "24"
 				hour: '2-digit', // "12"
 				minute: '2-digit', // "35"
-			}).format(curr.timestamp);
+			}).format(gameData.timestamp);
 
 			// Accuracy
-			const formattedAccuracy = `${Math.round(curr.accuracy * 100)}%`;
+			const formattedAccuracy = `${Math.round(gameData.accuracy * 100)}%`;
 
 			const currentRow = /*html*/ `
 				<tr>
-					<th scope="row">${curr.level}</th>
+					<th scope="row">${gameData.level}</th>
 					<td>${formattedCompletion}</td>
 					<td>${formattedDate}</td>
-					<td>${curr.kills}</td>
-					<td>${curr.missedTargets}</td>
-					<td>${curr.shots}</td>
+					<td>${gameData.kills}</td>
+					<td>${gameData.escapedTargets}</td>
+					<td>${gameData.shots}</td>
 					<td>${formattedAccuracy}</td>
-					<td>${curr.health}</td>
+					<td>${gameData.health}</td>
 				</tr>	
 			`;
 			return allRows + currentRow;

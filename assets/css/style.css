@@ -477,16 +477,16 @@ button {
 
 .health-bar-container {
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 50px;
+	width: 70px;
 	height: 10px;
-	border-radius: 50%;
-	outline: 1px solid red;
+	border-radius: 3px;
+	outline: 1px solid white;
+	background-color: var(--background-glas-colorless);
 
 	& .health-bar {
 		height: 90%;
 		width: 75%;
+		border-radius: 2px;
 		background-color: green;
 	}
 }
