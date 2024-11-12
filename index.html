@@ -4,8 +4,8 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Asteroids Game</title>
-		<script type="module" crossorigin src="/project-asteroids/assets/index-8k_4iS21.js"></script>
-		<link rel="stylesheet" crossorigin href="/project-asteroids/assets/index-DvVLpOFZ.css">
+		<script type="module" crossorigin src="/project-asteroids/assets/index-BFd7tsRO.js"></script>
+		<link rel="stylesheet" crossorigin href="/project-asteroids/assets/index-CQB73oRU.css">
 	</head>
 
 	<body>
@@ -60,12 +60,23 @@
 				<button id="gameOverButton">Game Over</button>
 				<button id="pauseButton">Pause / Play</button>
 			</div>
-			<div>
-				<p>Time to survive: <span id="timeDisplay">2:00</span></p>
-			</div>
-			<div>
-				<p>☄ Score <span id="scoreDisplay">0</span></p>
-				<p>❤ Lives <span id="livesDisplay">3</span></p>
+
+			<div id="gameUI">
+				<div id="essential">
+					<p>☄ Kills <span id="scoreDisplay">0</span></p>
+					<p>❤ Health <span id="livesDisplay">100</span></p>
+				</div>
+
+				<div id="time">
+					<p>Time to survive:</p>
+					<p><span id="timeDisplay">2:00</span></p>
+				</div>
+
+				<div id="ship">
+					<p>Shields <span>100</span></p>
+					<p>Thrust Engines <span>100</span></p>
+					<p>Weapons <span>100</span></p>
+				</div>
 			</div>
 
 			<div id="backgroundImageSolid"></div>
