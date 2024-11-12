@@ -560,7 +560,7 @@ button {
 	background-image: url('../images/game-background-2.png');
 	background-size: auto 160%;
 	background-position: center;
-	background-repeat: repeat;
+	background-repeat: repeat-y;
 	filter: blur(0px) brightness(170%) contrast(120%) saturate(80%);
 
 	position: absolute;

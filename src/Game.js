@@ -229,7 +229,7 @@ class Game {
 		setBackgroundPosition({
 			spaceshipVelocity: this.spaceship.velocity,
 			backgroundElement: backgroundImageTransparent,
-			decelerationFactor: 0.02,
+			decelerationFactor: {x: 0.02, y: 0.08},
 		});
 	}
 
@@ -782,7 +782,7 @@ function isColliding(circle1, circle2) {
  * @param {{
  * 	spaceshipVelocity: {x: number, y: number};
  * 	backgroundElement: Element;
- * 	decelerationFactor: number;
+ * 	decelerationFactor: {x: number, y: number} | number;
  * }} param0
  *
  * @param {*} param0.spaceshipPosition
@@ -794,6 +794,10 @@ function setBackgroundPosition({
 	backgroundElement,
 	decelerationFactor,
 }) {
+	if (typeof decelerationFactor === 'number') {
+		decelerationFactor = {x: decelerationFactor, y: decelerationFactor}
+	}
+
 	const computedStyle = window.getComputedStyle(backgroundElement);
 
 	const hasLinearGradient = computedStyle.backgroundPosition.includes(', ');
@@ -806,9 +810,9 @@ function setBackgroundPosition({
 		: computedStyle.backgroundPosition.split(' ');
 
 	const xValue =
-		parseFloat(xPosition) + spaceshipVelocity.x * decelerationFactor;
+		parseFloat(xPosition) + spaceshipVelocity.x * decelerationFactor.x;
 	const yValue =
-		parseFloat(yPosition) + spaceshipVelocity.y * decelerationFactor * 3;
+		parseFloat(yPosition) + spaceshipVelocity.y * decelerationFactor.y;
 
 	backgroundElement.style.backgroundPosition = `${
 		hasLinearGradient ? '50% 50%, ' : ''
