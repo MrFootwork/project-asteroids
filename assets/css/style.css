@@ -403,10 +403,10 @@ button {
 		}
 
 		& > *.win,
-		& > *.loose,
+		& > *.lose,
 		& > *.pause {
 			font-weight: bold;
-			font-family: 'astro';
+			font-family: var(--font-futuristic-readable);
 			font-size: 3rem;
 			padding-bottom: 2rem;
 		}
@@ -419,7 +419,7 @@ button {
 			color: var(--positive-green);
 		}
 
-		& > *.loose {
+		& > *.lose {
 			color: var(--negative-red);
 		}
 	}

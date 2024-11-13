@@ -207,7 +207,7 @@ class Game {
 					this.gameScreen.parentElement.style.backgroundColor = 'black';
 					this.gameScreen.classList.add('shake');
 
-					this.showModal(dialogMessages.loose);
+					this.showModal(dialogMessages.lose);
 				} else {
 					// Handle Victory
 					this.showModal(dialogMessages.win);
@@ -234,7 +234,7 @@ class Game {
 	}
 
 	#gameLoop() {
-		this.#playerWinsOrLooses();
+		this.#playerWinsOrLoses();
 
 		if (this.spaceship.hasHitTheEdge || this.frameAtObstacleHit) {
 			this.#animateDeflection();
@@ -481,7 +481,7 @@ class Game {
 	/*******************************
 	 *	Private Methods
 	 *******************************/
-	#playerWinsOrLooses() {
+	#playerWinsOrLoses() {
 		const timeIsUp = this.remainingTime <= 0;
 		const playerIsDead = this.player.health <= 0;
 
@@ -714,9 +714,9 @@ class Game {
 	 *
 	 * @param {{ message: any; preset: any; }} param0
 	 * @param {*} param0.message any string, also HTML strings
-	 * @param {*} param0.preset 'win' or 'loose' (deafult)
+	 * @param {*} param0.preset 'win' or 'lose' (deafult)
 	 */
-	showModal({ message, preset = 'loose' }) {
+	showModal({ message, preset = 'lose' }) {
 		const modal = this.state.modal.element;
 		const messageElement = modal.querySelector('p#modalMessage');
 		const goodButton = modal.querySelector('#positive');
@@ -732,10 +732,10 @@ class Game {
 			badButton.innerHTML = 'Leave Game';
 		}
 
-		// Apply Modal Preset for LOOSE
-		if (preset === 'loose') {
+		// Apply Modal Preset for LOSE
+		if (preset === 'lose') {
 			cleanupClasslists();
-			messageElement.classList.add('loose');
+			messageElement.classList.add('lose');
 			goodButton.innerHTML = 'Try Again';
 			badButton.innerHTML = 'Leave Game';
 		}

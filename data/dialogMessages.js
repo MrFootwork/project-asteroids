@@ -8,13 +8,13 @@ export default {
     `,
 		preset: 'pause',
 	},
-	loose: {
+	lose: {
 		message: /*html*/ `
-      <p class="loose">DEFEAT 💀</p>
+      <p class="lose">DEFEAT 💀</p>
       <p>Don't give up! You can do it.</p>
       <p>Wanna try this level again? 💪🏻</p>
     `,
-		preset: 'loose',
+		preset: 'lose',
 	},
 	win: {
 		message: /*html*/ `
