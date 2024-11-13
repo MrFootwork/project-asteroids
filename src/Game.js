@@ -128,6 +128,11 @@ class Game {
 		this.currentFrame = 0;
 		this.remainingTime = TIME_TO_SURVIVE;
 
+		// Reset Power Distribution
+		this.spaceship.power.shield = 40;
+		this.spaceship.power.thruster = 30;
+		this.spaceship.power.weapon = 30;
+
 		// Reset UI Color
 		this.uiChildren.forEach(
 			div => (div.style.backgroundColor = 'hsla(200, 75%, 50%, 0.2)')
@@ -229,7 +234,7 @@ class Game {
 		setBackgroundPosition({
 			spaceshipVelocity: this.spaceship.velocity,
 			backgroundElement: backgroundImageTransparent,
-			decelerationFactor: {x: 0.02, y: 0.08},
+			decelerationFactor: { x: 0.02, y: 0.08 },
 		});
 	}
 
@@ -441,6 +446,15 @@ class Game {
 				break;
 			case 'Space':
 				this.keys.space.pressed = false;
+				break;
+			case 'KeyJ':
+				this.spaceship.addPowerToShield();
+				break;
+			case 'KeyK':
+				this.spaceship.addPowerToThruster();
+				break;
+			case 'KeyL':
+				this.spaceship.addPowerToSWeapon();
 				break;
 			case 'KeyP':
 			case 'Pause':
@@ -795,7 +809,7 @@ function setBackgroundPosition({
 	decelerationFactor,
 }) {
 	if (typeof decelerationFactor === 'number') {
-		decelerationFactor = {x: decelerationFactor, y: decelerationFactor}
+		decelerationFactor = { x: decelerationFactor, y: decelerationFactor };
 	}
 
 	const computedStyle = window.getComputedStyle(backgroundElement);

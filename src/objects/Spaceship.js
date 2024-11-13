@@ -8,10 +8,19 @@ class Spaceship {
 		this.isDecelerating = false;
 		this.state = state;
 
+		// Power Distribution
+		this.power = {
+			shield: 40,
+			thruster: 30,
+			weapon: 30,
+		};
+
+		console.log(this.power);
+
 		// Spaceship Characteristics
 		this.ANGLE_OFFSET = Math.PI / 2;
-		this.SPEED = 8;
-		this.ROTATIONAL_SPEED = 0.2;
+		this.BASE_SPEED = 8;
+		this.ROTATIONAL_BASE_SPEED = 0.2;
 
 		// Internal State
 		this.health = 100;
@@ -111,6 +120,92 @@ class Spaceship {
 		this.velocity.y = velocity.y;
 	}
 
+	// Power Distribution
+	// FIXME extract logic as seperate function and reuse
+	addPowerToShield() {
+		if (this.power.shield === 100) return;
+
+		if (this.power.shield > 90) {
+			this.power.shield = 100;
+			this.power.thruster = 0;
+			this.power.weapon = 0;
+			return;
+		}
+
+		if (this.power.thruster === 0) {
+			this.power.shield += 10;
+			this.power.weapon -= 10;
+			return;
+		}
+
+		if (this.power.weapon === 0) {
+			this.power.shield += 10;
+			this.power.thruster -= 10;
+			return;
+		}
+
+		this.power.shield += 10;
+		this.power.thruster -= 5;
+		this.power.weapon -= 5;
+		console.log(this.power);
+	}
+
+	addPowerToThruster() {
+		if (this.power.thruster === 100) return;
+
+		if (this.power.thruster > 90) {
+			this.power.thruster = 100;
+			this.power.shield = 0;
+			this.power.weapon = 0;
+			return;
+		}
+
+		if (this.power.shield === 0) {
+			this.power.thruster += 10;
+			this.power.weapon -= 10;
+			return;
+		}
+
+		if (this.power.weapon === 0) {
+			this.power.thruster += 10;
+			this.power.shield -= 10;
+			return;
+		}
+
+		this.power.shield -= 5;
+		this.power.thruster += 10;
+		this.power.weapon -= 5;
+		console.log(this.power);
+	}
+
+	addPowerToSWeapon() {
+		if (this.power.weapon === 100) return;
+
+		if (this.power.weapon > 90) {
+			this.power.thruster = 0;
+			this.power.shield = 0;
+			this.power.weapon = 100;
+			return;
+		}
+
+		if (this.power.shield === 0) {
+			this.power.weapon += 10;
+			this.power.thruster -= 10;
+			return;
+		}
+
+		if (this.power.thruster === 0) {
+			this.power.weapon += 10;
+			this.power.shield -= 10;
+			return;
+		}
+
+		this.power.shield -= 5;
+		this.power.thruster -= 5;
+		this.power.weapon += 10;
+		console.log(this.power);
+	}
+
 	#render() {
 		this.element.style.left = `${this.position.x}px`;
 		this.element.style.top = `${this.position.y}px`;
@@ -158,7 +253,7 @@ class Spaceship {
 		this.rotaionalVelocity *= drag;
 
 		// Cap the rotational speed
-		const maxSpeed = this.ROTATIONAL_SPEED;
+		const maxSpeed = this.ROTATIONAL_BASE_SPEED;
 		if (this.rotaionalVelocity > maxSpeed) this.rotaionalVelocity = maxSpeed;
 		if (this.rotaionalVelocity < -maxSpeed) this.rotaionalVelocity = -maxSpeed;
 
@@ -193,7 +288,7 @@ class Spaceship {
 
 		// Limit speed to max speed
 		const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
-		const maxSpeed = this.SPEED;
+		const maxSpeed = this.BASE_SPEED;
 
 		if (speed > maxSpeed) {
 			// Scale velocity down to max speed
