@@ -448,13 +448,13 @@ class Game {
 				this.keys.space.pressed = false;
 				break;
 			case 'KeyJ':
-				this.spaceship.addPowerToShield();
+				this.spaceship.addPowerTo('shield');
 				break;
 			case 'KeyK':
-				this.spaceship.addPowerToThruster();
+				this.spaceship.addPowerTo('thruster');
 				break;
 			case 'KeyL':
-				this.spaceship.addPowerToSWeapon();
+				this.spaceship.addPowerTo('weapon');
 				break;
 			case 'KeyP':
 			case 'Pause':

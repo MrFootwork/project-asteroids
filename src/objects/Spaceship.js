@@ -121,89 +121,41 @@ class Spaceship {
 	}
 
 	// Power Distribution
-	// FIXME extract logic as seperate function and reuse
-	addPowerToShield() {
-		if (this.power.shield === 100) return;
+	// FIXME use this.power to pass as argument
+	addPowerTo(powerTarget) {
+		const POWER_ADDITION = 10;
 
-		if (this.power.shield > 90) {
-			this.power.shield = 100;
-			this.power.thruster = 0;
-			this.power.weapon = 0;
+		if (this.power[powerTarget] === 100) return;
+
+		const powerConsumers = Object.keys(this.power);
+
+		if (this.power[powerTarget] > 100 - POWER_ADDITION) {
+			this.power[powerTarget] = 100;
+			for (const consumer of powerConsumers) {
+				if (consumer !== powerTarget) this.power[consumer] = 0;
+			}
 			return;
 		}
 
-		if (this.power.thruster === 0) {
-			this.power.shield += 10;
-			this.power.weapon -= 10;
-			return;
+		// If one consumer has reached 0, split the reallocation among the remaining ones
+		for (const consumer of powerConsumers) {
+			if (this.power[consumer] <= 0 && consumer !== powerTarget) {
+				this.power[powerTarget] += POWER_ADDITION;
+				for (const otherConsumer of powerConsumers) {
+					if (otherConsumer !== consumer && otherConsumer !== powerTarget)
+						// TODO Make it work for more than 3 power consumers
+						this.power[otherConsumer] -= POWER_ADDITION;
+				}
+				return;
+			}
 		}
 
-		if (this.power.weapon === 0) {
-			this.power.shield += 10;
-			this.power.thruster -= 10;
-			return;
+		// Default case
+		this.power[powerTarget] += 10;
+		for (const consumer of powerConsumers) {
+			if (consumer !== powerTarget)
+				this.power[consumer] -= POWER_ADDITION / (powerConsumers.length - 1);
 		}
-
-		this.power.shield += 10;
-		this.power.thruster -= 5;
-		this.power.weapon -= 5;
-		console.log(this.power);
-	}
-
-	addPowerToThruster() {
-		if (this.power.thruster === 100) return;
-
-		if (this.power.thruster > 90) {
-			this.power.thruster = 100;
-			this.power.shield = 0;
-			this.power.weapon = 0;
-			return;
-		}
-
-		if (this.power.shield === 0) {
-			this.power.thruster += 10;
-			this.power.weapon -= 10;
-			return;
-		}
-
-		if (this.power.weapon === 0) {
-			this.power.thruster += 10;
-			this.power.shield -= 10;
-			return;
-		}
-
-		this.power.shield -= 5;
-		this.power.thruster += 10;
-		this.power.weapon -= 5;
-		console.log(this.power);
-	}
-
-	addPowerToSWeapon() {
-		if (this.power.weapon === 100) return;
-
-		if (this.power.weapon > 90) {
-			this.power.thruster = 0;
-			this.power.shield = 0;
-			this.power.weapon = 100;
-			return;
-		}
-
-		if (this.power.shield === 0) {
-			this.power.weapon += 10;
-			this.power.thruster -= 10;
-			return;
-		}
-
-		if (this.power.thruster === 0) {
-			this.power.weapon += 10;
-			this.power.shield -= 10;
-			return;
-		}
-
-		this.power.shield -= 5;
-		this.power.thruster -= 5;
-		this.power.weapon += 10;
-		console.log(this.power);
 	}
 
 	#render() {
