@@ -15,7 +15,20 @@ class Spaceship {
 			weapon: 30,
 		};
 
-		console.log(this.power);
+		this.powerDisplayShield = this.gameScreen.querySelector(
+			'#ship p:first-child span'
+		);
+		this.powerDisplayThruster = this.gameScreen.querySelector(
+			'#ship p:nth-child(2) span'
+		);
+		this.powerDisplayWeapon = this.gameScreen.querySelector(
+			'#ship p:last-child span'
+		);
+
+		// Initial Render
+		this.powerDisplayShield.textContent = this.power.shield;
+		this.powerDisplayThruster.textContent = this.power.thruster;
+		this.powerDisplayWeapon.textContent = this.power.weapon;
 
 		// Spaceship Characteristics
 		this.ANGLE_OFFSET = Math.PI / 2;
@@ -121,19 +134,24 @@ class Spaceship {
 	}
 
 	// Power Distribution
-	// FIXME use this.power to pass as argument
 	addPowerTo(powerTarget) {
 		const POWER_ADDITION = 10;
-
-		if (this.power[powerTarget] === 100) return;
-
 		const powerConsumers = Object.keys(this.power);
 
+		// Do nothing, if powerTarget is already fully allocated
+		if (this.power[powerTarget] === 100) {
+			this.#renderPowerDisplay();
+			return;
+		}
+
+		// If next addition fills target up completely,
+		// set target to 100 and set remaining devices to 0
 		if (this.power[powerTarget] > 100 - POWER_ADDITION) {
 			this.power[powerTarget] = 100;
 			for (const consumer of powerConsumers) {
 				if (consumer !== powerTarget) this.power[consumer] = 0;
 			}
+			this.#renderPowerDisplay();
 			return;
 		}
 
@@ -146,6 +164,7 @@ class Spaceship {
 						// TODO Make it work for more than 3 power consumers
 						this.power[otherConsumer] -= POWER_ADDITION;
 				}
+				this.#renderPowerDisplay();
 				return;
 			}
 		}
@@ -156,6 +175,13 @@ class Spaceship {
 			if (consumer !== powerTarget)
 				this.power[consumer] -= POWER_ADDITION / (powerConsumers.length - 1);
 		}
+		this.#renderPowerDisplay();
+	}
+
+	#renderPowerDisplay() {
+		this.powerDisplayShield.textContent = this.power.shield;
+		this.powerDisplayThruster.textContent = this.power.thruster;
+		this.powerDisplayWeapon.textContent = this.power.weapon;
 	}
 
 	#render() {
