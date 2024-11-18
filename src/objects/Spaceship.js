@@ -241,7 +241,9 @@ class Spaceship {
 	#updateVelocity() {
 		// Calculate thrust vector based on current orientation
 		let thrustMagnitude = 0;
-		if (this.isAccelerating) thrustMagnitude = 0.2;
+
+		if (this.isAccelerating)
+			thrustMagnitude = 0.05 + (0.15 * this.power.thruster) / 100;
 
 		const thrustX =
 			thrustMagnitude * Math.cos(this.orientation - this.ANGLE_OFFSET);

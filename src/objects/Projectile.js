@@ -15,7 +15,7 @@ class Projectile {
 		this.element = projectileElement;
 
 		// Projectile Characteristics
-		this.width = 20;
+		this.width = damage / 2;
 		this.damage = damage;
 
 		// Internal State

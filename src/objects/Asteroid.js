@@ -14,7 +14,7 @@ class Asteroid {
 		this.ROTATIONAL_SPEED = -0.04 + Math.random() * 0.08;
 
 		// Internal State
-		this.damage = Math.round(width / 6);
+		this.damage = Math.round(width / 3);
 		this.orientation = 0;
 		this.isOutside = false;
 		this.hasCollided = false;

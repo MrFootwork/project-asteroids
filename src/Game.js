@@ -274,6 +274,7 @@ class Game {
 					if (this.state.sfxOn) this.#rockBreakSoundPlayer.play();
 
 					// handle health
+					// FIXME reduce damage by power.weapon
 					asteroid.health -= projectile.damage;
 					asteroid.healthBar.update(asteroid.health);
 					asteroid.healthBar.render();
@@ -334,7 +335,11 @@ class Game {
 
 				// Handle collision
 				asteroid.hasCollided = true;
-				this.player.health -= asteroid.damage;
+
+				this.player.health -= Math.round(
+					asteroid.damage * (1.05 - this.spaceship.power.shield / 100)
+				);
+
 				this.#updatePlayerHealth();
 
 				// Update UI
@@ -669,6 +674,7 @@ class Game {
 				projectileElement,
 				orientation: this.spaceship.orientation,
 				spaceshipElement: this.spaceship.element,
+				damage: 5 + Math.round((35 * this.spaceship.power.weapon) / 100),
 			});
 
 			this.player.shots++;
