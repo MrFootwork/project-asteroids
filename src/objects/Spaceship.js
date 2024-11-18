@@ -8,7 +8,7 @@ class Spaceship {
 		this.isDecelerating = false;
 		this.state = state;
 
-		// Power Distribution
+		// Power Distribution (sum = 100)
 		this.power = {
 			shield: 40,
 			thruster: 30,
@@ -16,19 +16,19 @@ class Spaceship {
 		};
 
 		this.powerDisplayShield = this.gameScreen.querySelector(
-			'#ship p:first-child span'
+			'#ship .power-bars .power.shield'
 		);
 		this.powerDisplayThruster = this.gameScreen.querySelector(
-			'#ship p:nth-child(2) span'
+			'#ship .power-bars .power.thruster'
 		);
 		this.powerDisplayWeapon = this.gameScreen.querySelector(
-			'#ship p:last-child span'
+			'#ship .power-bars .power.weapon'
 		);
 
 		// Initial Render
-		this.powerDisplayShield.textContent = this.power.shield;
-		this.powerDisplayThruster.textContent = this.power.thruster;
-		this.powerDisplayWeapon.textContent = this.power.weapon;
+		this.powerDisplayShield.style.width = `${this.power.shield}%`;
+		this.powerDisplayThruster.style.width = `${this.power.thruster}%`;
+		this.powerDisplayWeapon.style.width = `${this.power.weapon}%`;
 
 		// Spaceship Characteristics
 		this.ANGLE_OFFSET = Math.PI / 2;
@@ -179,9 +179,9 @@ class Spaceship {
 	}
 
 	#renderPowerDisplay() {
-		this.powerDisplayShield.textContent = this.power.shield;
-		this.powerDisplayThruster.textContent = this.power.thruster;
-		this.powerDisplayWeapon.textContent = this.power.weapon;
+		this.powerDisplayShield.style.width = `${this.power.shield}%`;
+		this.powerDisplayThruster.style.width = `${this.power.thruster}%`;
+		this.powerDisplayWeapon.style.width = `${this.power.weapon}%`;
 	}
 
 	#render() {
