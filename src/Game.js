@@ -9,10 +9,16 @@ import { getBasePath } from './helper/utils.js';
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_DURATION = Math.round(1000 / FRAMES_PER_SECOND);
+const FIRE_RATE = 200; // Milliseconds between two shots
 // TESTING time limit & start level
-const TIME_TO_SURVIVE = 1000; // 2 minutes
+const TIME_TO_SURVIVE = 70; // Time to survive in seconds
 const START_LEVEL = 1;
 const START_HEALTH = 100;
+const DEFAULT_POWER_DISTRIBUTION = {
+	shield: 35,
+	thruster: 35,
+	weapon: 30,
+};
 
 class Game {
 	constructor({ gameScreen, state, statistics }) {
@@ -66,13 +72,12 @@ class Game {
 
 		// Projectiles
 		this.projectiles = [];
-		// BUG doesn't affect the actual fire rate
-		this.fireRate = FRAMES_PER_SECOND / 2; // Time in frames between shots
+		this.fireRate = FIRE_RATE;
 		this.lastFired = null; // Timestamp of the last shot
 
 		// Asteroids
 		this.asteroids = [];
-		this.baseAsteroidSpeed = 1.5;
+		this.baseAsteroidSpeed = this.currentLevel.asteroidSpeed;
 
 		this.#rocketThrustSoundPlayer.volume = 0.2;
 		this.#rocketThrustSoundPlayer.loop = true;
@@ -128,6 +133,14 @@ class Game {
 		this.currentFrame = 0;
 		this.remainingTime = TIME_TO_SURVIVE;
 
+		// Reset Power Distribution
+		this.spaceship.power.shield = DEFAULT_POWER_DISTRIBUTION.shield;
+		this.spaceship.power.thruster = DEFAULT_POWER_DISTRIBUTION.thruster;
+		this.spaceship.power.weapon = DEFAULT_POWER_DISTRIBUTION.weapon;
+
+		// Re-Render Power Display
+		this.spaceship.renderPowerDisplay();
+
 		// Reset UI Color
 		this.uiChildren.forEach(
 			div => (div.style.backgroundColor = 'hsla(200, 75%, 50%, 0.2)')
@@ -176,7 +189,7 @@ class Game {
 		this.spaceship.update();
 
 		// Projectiles
-		this.fireRate = Math.round(1000 / 12); // Time in milliseconds between shots
+		this.fireRate = FIRE_RATE;
 		this.lastFired = null;
 
 		// Asteroids
@@ -207,7 +220,7 @@ class Game {
 					this.gameScreen.parentElement.style.backgroundColor = 'black';
 					this.gameScreen.classList.add('shake');
 
-					this.showModal(dialogMessages.loose);
+					this.showModal(dialogMessages.lose);
 				} else {
 					// Handle Victory
 					this.showModal(dialogMessages.win);
@@ -229,12 +242,12 @@ class Game {
 		setBackgroundPosition({
 			spaceshipVelocity: this.spaceship.velocity,
 			backgroundElement: backgroundImageTransparent,
-			decelerationFactor: 0.02,
+			decelerationFactor: { x: 0.02, y: 0.08 },
 		});
 	}
 
 	#gameLoop() {
-		this.#playerWinsOrLooses();
+		this.#playerWinsOrLoses();
 
 		if (this.spaceship.hasHitTheEdge || this.frameAtObstacleHit) {
 			this.#animateDeflection();
@@ -269,6 +282,7 @@ class Game {
 					if (this.state.sfxOn) this.#rockBreakSoundPlayer.play();
 
 					// handle health
+					// FIXME reduce damage by power.weapon
 					asteroid.health -= projectile.damage;
 					asteroid.healthBar.update(asteroid.health);
 					asteroid.healthBar.render();
@@ -329,7 +343,11 @@ class Game {
 
 				// Handle collision
 				asteroid.hasCollided = true;
-				this.player.health -= asteroid.damage;
+
+				this.player.health -= Math.round(
+					asteroid.damage * (1.05 - this.spaceship.power.shield / 100)
+				);
+
 				this.#updatePlayerHealth();
 
 				// Update UI
@@ -442,6 +460,15 @@ class Game {
 			case 'Space':
 				this.keys.space.pressed = false;
 				break;
+			case 'KeyJ':
+				this.spaceship.addPowerTo('shield');
+				break;
+			case 'KeyK':
+				this.spaceship.addPowerTo('thruster');
+				break;
+			case 'KeyL':
+				this.spaceship.addPowerTo('weapon');
+				break;
 			case 'KeyP':
 			case 'Pause':
 				this.toggleMusicVolume(musicPlayer);
@@ -481,7 +508,7 @@ class Game {
 	/*******************************
 	 *	Private Methods
 	 *******************************/
-	#playerWinsOrLooses() {
+	#playerWinsOrLoses() {
 		const timeIsUp = this.remainingTime <= 0;
 		const playerIsDead = this.player.health <= 0;
 
@@ -655,6 +682,7 @@ class Game {
 				projectileElement,
 				orientation: this.spaceship.orientation,
 				spaceshipElement: this.spaceship.element,
+				damage: 5 + Math.round((35 * this.spaceship.power.weapon) / 100),
 			});
 
 			this.player.shots++;
@@ -714,9 +742,9 @@ class Game {
 	 *
 	 * @param {{ message: any; preset: any; }} param0
 	 * @param {*} param0.message any string, also HTML strings
-	 * @param {*} param0.preset 'win' or 'loose' (deafult)
+	 * @param {*} param0.preset 'win' or 'lose' (deafult)
 	 */
-	showModal({ message, preset = 'loose' }) {
+	showModal({ message, preset = 'lose' }) {
 		const modal = this.state.modal.element;
 		const messageElement = modal.querySelector('p#modalMessage');
 		const goodButton = modal.querySelector('#positive');
@@ -732,10 +760,10 @@ class Game {
 			badButton.innerHTML = 'Leave Game';
 		}
 
-		// Apply Modal Preset for LOOSE
-		if (preset === 'loose') {
+		// Apply Modal Preset for LOSE
+		if (preset === 'lose') {
 			cleanupClasslists();
-			messageElement.classList.add('loose');
+			messageElement.classList.add('lose');
 			goodButton.innerHTML = 'Try Again';
 			badButton.innerHTML = 'Leave Game';
 		}
@@ -782,7 +810,7 @@ function isColliding(circle1, circle2) {
  * @param {{
  * 	spaceshipVelocity: {x: number, y: number};
  * 	backgroundElement: Element;
- * 	decelerationFactor: number;
+ * 	decelerationFactor: {x: number, y: number} | number;
  * }} param0
  *
  * @param {*} param0.spaceshipPosition
@@ -794,6 +822,10 @@ function setBackgroundPosition({
 	backgroundElement,
 	decelerationFactor,
 }) {
+	if (typeof decelerationFactor === 'number') {
+		decelerationFactor = { x: decelerationFactor, y: decelerationFactor };
+	}
+
 	const computedStyle = window.getComputedStyle(backgroundElement);
 
 	const hasLinearGradient = computedStyle.backgroundPosition.includes(', ');
@@ -806,9 +838,9 @@ function setBackgroundPosition({
 		: computedStyle.backgroundPosition.split(' ');
 
 	const xValue =
-		parseFloat(xPosition) + spaceshipVelocity.x * decelerationFactor;
+		parseFloat(xPosition) + spaceshipVelocity.x * decelerationFactor.x;
 	const yValue =
-		parseFloat(yPosition) + spaceshipVelocity.y * decelerationFactor * 3;
+		parseFloat(yPosition) + spaceshipVelocity.y * decelerationFactor.y;
 
 	backgroundElement.style.backgroundPosition = `${
 		hasLinearGradient ? '50% 50%, ' : ''

@@ -120,6 +120,12 @@ window.onload = () => {
 			return;
 		}
 
+		if (messageElement.classList.contains('win')) {
+			// Collect Data after Win
+			statistics.addGame(game);
+			console.log(statistics);
+		}
+
 		game.reset();
 		modal.close();
 		game.start();

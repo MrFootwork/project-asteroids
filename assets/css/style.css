@@ -347,7 +347,7 @@ button {
 	display: flex;
 	justify-content: center;
 
-	& div {
+	& > div {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -368,6 +368,46 @@ button {
 
 	& #time #timeDisplay {
 		font-size: 2rem;
+	}
+
+	& div#ship {
+		display: flex;
+		flex-direction: row;
+		gap: 0.5rem;
+
+		& .labels {
+			& .label {
+				display: flex;
+				gap: 0.5rem;
+
+				& img {
+					width: 1.5rem;
+					object-fit: cover;
+				}
+			}
+		}
+
+		& .power-bars {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-around;
+
+			& .container {
+				width: 8rem;
+				height: 1.125rem;
+				border: 2px solid grey;
+				border-radius: 5px;
+				background-color: var(--background-glas-colorless);
+
+				& .power {
+					width: 100%;
+					height: 100%;
+					border-radius: 2px;
+					background-color: darkcyan;
+				}
+			}
+		}
 	}
 }
 
@@ -403,10 +443,10 @@ button {
 		}
 
 		& > *.win,
-		& > *.loose,
+		& > *.lose,
 		& > *.pause {
 			font-weight: bold;
-			font-family: 'astro';
+			font-family: var(--font-futuristic-readable);
 			font-size: 3rem;
 			padding-bottom: 2rem;
 		}
@@ -419,7 +459,7 @@ button {
 			color: var(--positive-green);
 		}
 
-		& > *.loose {
+		& > *.lose {
 			color: var(--negative-red);
 		}
 	}
@@ -560,7 +600,7 @@ button {
 	background-image: url('../images/game-background-2.png');
 	background-size: auto 160%;
 	background-position: center;
-	background-repeat: repeat;
+	background-repeat: repeat-y;
 	filter: blur(0px) brightness(170%) contrast(120%) saturate(80%);
 
 	position: absolute;

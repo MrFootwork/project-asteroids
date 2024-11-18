@@ -8,10 +8,27 @@ class Spaceship {
 		this.isDecelerating = false;
 		this.state = state;
 
+		// Power Distribution (sum = 100)
+		this.power = {
+			shield: 35,
+			thruster: 35,
+			weapon: 30,
+		};
+
+		this.powerDisplayShield = this.gameScreen.querySelector(
+			'#ship .power-bars .power.shield'
+		);
+		this.powerDisplayThruster = this.gameScreen.querySelector(
+			'#ship .power-bars .power.thruster'
+		);
+		this.powerDisplayWeapon = this.gameScreen.querySelector(
+			'#ship .power-bars .power.weapon'
+		);
+
 		// Spaceship Characteristics
 		this.ANGLE_OFFSET = Math.PI / 2;
-		this.SPEED = 8;
-		this.ROTATIONAL_SPEED = 0.2;
+		this.BASE_SPEED = 8;
+		this.ROTATIONAL_BASE_SPEED = 0.2;
 
 		// Internal State
 		this.health = 100;
@@ -111,6 +128,57 @@ class Spaceship {
 		this.velocity.y = velocity.y;
 	}
 
+	// Power Distribution
+	addPowerTo(powerTarget) {
+		const POWER_ADDITION = 10;
+		const powerConsumers = Object.keys(this.power);
+
+		// Do nothing, if powerTarget is already fully allocated
+		if (this.power[powerTarget] === 100) {
+			this.renderPowerDisplay();
+			return;
+		}
+
+		// If next addition fills target up completely,
+		// set target to 100 and set remaining devices to 0
+		if (this.power[powerTarget] > 100 - POWER_ADDITION) {
+			this.power[powerTarget] = 100;
+			for (const consumer of powerConsumers) {
+				if (consumer !== powerTarget) this.power[consumer] = 0;
+			}
+			this.renderPowerDisplay();
+			return;
+		}
+
+		// If one consumer has reached 0, split the reallocation among the remaining ones
+		for (const consumer of powerConsumers) {
+			if (this.power[consumer] <= 0 && consumer !== powerTarget) {
+				this.power[powerTarget] += POWER_ADDITION;
+				for (const otherConsumer of powerConsumers) {
+					if (otherConsumer !== consumer && otherConsumer !== powerTarget)
+						// TODO Make it work for more than 3 power consumers
+						this.power[otherConsumer] -= POWER_ADDITION;
+				}
+				this.renderPowerDisplay();
+				return;
+			}
+		}
+
+		// Default case
+		this.power[powerTarget] += 10;
+		for (const consumer of powerConsumers) {
+			if (consumer !== powerTarget)
+				this.power[consumer] -= POWER_ADDITION / (powerConsumers.length - 1);
+		}
+		this.renderPowerDisplay();
+	}
+
+	renderPowerDisplay() {
+		this.powerDisplayShield.style.width = `${this.power.shield}%`;
+		this.powerDisplayThruster.style.width = `${this.power.thruster}%`;
+		this.powerDisplayWeapon.style.width = `${this.power.weapon}%`;
+	}
+
 	#render() {
 		this.element.style.left = `${this.position.x}px`;
 		this.element.style.top = `${this.position.y}px`;
@@ -158,7 +226,7 @@ class Spaceship {
 		this.rotaionalVelocity *= drag;
 
 		// Cap the rotational speed
-		const maxSpeed = this.ROTATIONAL_SPEED;
+		const maxSpeed = this.ROTATIONAL_BASE_SPEED;
 		if (this.rotaionalVelocity > maxSpeed) this.rotaionalVelocity = maxSpeed;
 		if (this.rotaionalVelocity < -maxSpeed) this.rotaionalVelocity = -maxSpeed;
 
@@ -168,7 +236,9 @@ class Spaceship {
 	#updateVelocity() {
 		// Calculate thrust vector based on current orientation
 		let thrustMagnitude = 0;
-		if (this.isAccelerating) thrustMagnitude = 0.2;
+
+		if (this.isAccelerating)
+			thrustMagnitude = 0.05 + (0.15 * this.power.thruster) / 100;
 
 		const thrustX =
 			thrustMagnitude * Math.cos(this.orientation - this.ANGLE_OFFSET);
@@ -193,7 +263,7 @@ class Spaceship {
 
 		// Limit speed to max speed
 		const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
-		const maxSpeed = this.SPEED;
+		const maxSpeed = this.BASE_SPEED;
 
 		if (speed > maxSpeed) {
 			// Scale velocity down to max speed
