@@ -87,7 +87,6 @@ class Game {
 		 *******************************/
 		this.gameUI = this.gameScreen.querySelector('#gameUI');
 		this.uiChildren = this.gameScreen.querySelectorAll('#gameUI>div');
-		console.log(`🚀 ~ Game ~ constructor ~ this.uiChildren:`, this.uiChildren);
 	}
 
 	/*******************************
@@ -123,8 +122,6 @@ class Game {
 
 		// Finally start the loops
 		requestAnimationFrame(() => this.#startLoopInterval());
-
-		console.warn('game at start: ', this);
 	}
 
 	reset() {
@@ -342,6 +339,7 @@ class Game {
 				}
 
 				// Handle collision
+				// TESTING Invincible
 				asteroid.hasCollided = true;
 
 				this.player.health -= Math.round(
@@ -431,6 +429,15 @@ class Game {
 			case 'Space':
 				this.keys.space.pressed = true;
 				break;
+			case 'KeyJ':
+				this.spaceship.addPowerTo('shield');
+				break;
+			case 'KeyK':
+				this.spaceship.addPowerTo('thruster');
+				break;
+			case 'KeyL':
+				this.spaceship.addPowerTo('weapon');
+				break;
 
 			default:
 				break;
@@ -459,15 +466,6 @@ class Game {
 				break;
 			case 'Space':
 				this.keys.space.pressed = false;
-				break;
-			case 'KeyJ':
-				this.spaceship.addPowerTo('shield');
-				break;
-			case 'KeyK':
-				this.spaceship.addPowerTo('thruster');
-				break;
-			case 'KeyL':
-				this.spaceship.addPowerTo('weapon');
 				break;
 			case 'KeyP':
 			case 'Pause':
@@ -566,14 +564,14 @@ class Game {
 		const baseSpread = 0.3;
 		const angledSpread = baseSpread * Math.random() - baseSpread / 2;
 		let correction = null;
-		const correctionFraction = 1 / 1.1;
+		const screenSizeRatio = this.screenSize.width / this.screenSize.height;
 
 		switch (randomSide) {
 			case 'top':
 				position.x = Math.floor(Math.random() * this.screenSize.width);
 				position.y = 0 - width;
 				correction =
-					(position.x / this.screenSize.width - 0.5) * correctionFraction;
+					(position.x / this.screenSize.width - 0.5) / screenSizeRatio;
 				orientation = (0.5 + angledSpread + correction) * Math.PI;
 				break;
 
@@ -581,15 +579,16 @@ class Game {
 				position.x = this.screenSize.width + 100;
 				position.y = Math.floor(Math.random() * this.screenSize.height);
 				correction =
-					(position.y / this.screenSize.height - 0.5) * correctionFraction;
-				orientation = (1 + angledSpread + correction) * Math.PI;
+					(position.y / this.screenSize.height - 0.5) / screenSizeRatio;
+				orientation =
+					(1 + angledSpread / screenSizeRatio + correction) * Math.PI;
 				break;
 
 			case 'bottom':
 				position.x = Math.floor(Math.random() * this.screenSize.width);
 				position.y = this.screenSize.height;
 				correction =
-					(position.x / this.screenSize.width - 0.5) * correctionFraction;
+					(position.x / this.screenSize.width - 0.5) / screenSizeRatio;
 				orientation = (1.5 + angledSpread - correction) * Math.PI;
 				break;
 
@@ -597,8 +596,9 @@ class Game {
 				position.x = 0 - width;
 				position.y = Math.floor(Math.random() * this.screenSize.height);
 				correction =
-					(position.y / this.screenSize.height - 0.5) * correctionFraction;
-				orientation = (2 + angledSpread - correction) * Math.PI;
+					(position.y / this.screenSize.height - 0.5) / screenSizeRatio;
+				orientation =
+					(2 + angledSpread / screenSizeRatio - correction) * Math.PI;
 				break;
 
 			default:
